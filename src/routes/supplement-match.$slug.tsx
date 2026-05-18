@@ -8,6 +8,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { z } from "zod";
 import { decodeAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
+import type { Recommendation } from "@/types/supplements";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
