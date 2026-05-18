@@ -52,8 +52,9 @@ export const Route = createFileRoute("/supplement-match/$slug")({
 });
 
 function ResultPage() {
-  const { result } = Route.useLoaderData();
-  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes } = result;
+  const data = Route.useLoaderData() as ReturnType<typeof Route.useLoaderData> & { result: ReturnType<typeof runEngine> };
+  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes } = data.result;
+
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
