@@ -149,6 +149,19 @@ function ResultPage() {
               <Stat label="Safety review" value={safetyGate.triggered ? "Clinician input" : "Standard"} />
             </div>
           </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              size="lg"
+              onClick={() => downloadSupplementReport(data.result)}
+              className="bg-gradient-primary font-semibold uppercase tracking-wider shadow-lg hover:-translate-y-0.5 transition-transform"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF report
+            </Button>
+            <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+              Branded · Print-ready · Shareable
+            </span>
+          </div>
         </motion.header>
 
         {/* Safety gate */}
