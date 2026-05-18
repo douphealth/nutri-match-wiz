@@ -229,6 +229,9 @@ function ResultPage() {
           </section>
         )}
 
+        {/* Credibility: sources, testimonials, reading, tools, kit, FAQ */}
+        <CredibilitySections />
+
         {/* Disclosure */}
         <div className="mt-12 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
           Educational only. Not medical advice. Product links are Amazon affiliate links
