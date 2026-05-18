@@ -301,43 +301,57 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
 
           {/* Amazon product card */}
           {product && (
-            <div className="rounded-xl border border-border/70 bg-card-elevated/40 p-4">
-              <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary">
-                <Star className="h-3 w-3 fill-current" /> Recommended pick on Amazon
+            <div className="group/prod relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card-elevated/80 via-card-elevated/40 to-card-elevated/20 p-5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] transition-all hover:border-primary/40 hover:shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.35)]">
+              <div aria-hidden className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-40 blur-3xl ${TONE_STYLES[product.tone].bg}`} />
+              <div className="relative mb-3 flex items-center justify-between">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+                  <Star className="h-3 w-3 fill-current" /> Editor's Pick on Amazon
+                </div>
+                <div className="hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline-flex">
+                  Affiliate · papalex-20
+                </div>
               </div>
-              <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="relative flex flex-col gap-5 sm:flex-row">
                 <a
                   href={amazonLink(product.asin)}
                   target="_blank"
                   rel="nofollow sponsored noopener"
-                  className={`group relative flex h-40 w-full shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg p-4 ring-1 sm:h-40 sm:w-40 ${TONE_STYLES[product.tone].bg} ${TONE_STYLES[product.tone].ring}`}
+                  className={`group relative flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-3 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:h-44 sm:w-44`}
                   aria-label={`${product.brand} ${product.title} — view on Amazon`}
                 >
-                  <div className={`absolute inset-x-0 top-2 text-center text-[9px] font-bold uppercase tracking-[0.18em] ${TONE_STYLES[product.tone].text}`}>
-                    {product.brand}
-                  </div>
-                  <div className="flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-[1.04]">
-                    <div className="text-base font-extrabold leading-tight text-foreground">
-                      {product.pill}
-                    </div>
-                    <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      ASIN {product.asin}
-                    </div>
-                  </div>
-                  <div className="absolute inset-x-0 bottom-2 text-center text-[9px] font-semibold uppercase tracking-wider text-foreground/70">
-                    on Amazon →
+                  <div className={`absolute inset-0 opacity-60 ${TONE_STYLES[product.tone].bg}`} aria-hidden />
+                  <img
+                    src={product.image}
+                    alt={`${product.brand} ${product.title}`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.06]"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      img.style.display = "none";
+                      const parent = img.parentElement;
+                      if (parent && !parent.querySelector(".img-fallback")) {
+                        const fb = document.createElement("div");
+                        fb.className = "img-fallback relative z-10 flex flex-col items-center justify-center text-center px-3";
+                        fb.innerHTML = `<div class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">${product.brand}</div><div class="mt-1 text-base font-extrabold text-slate-900 leading-tight">${product.pill}</div>`;
+                        parent.appendChild(fb);
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-x-0 bottom-1.5 z-10 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700/80">
+                    View on Amazon →
                   </div>
                 </a>
-                <div className="flex flex-1 flex-col gap-2">
+                <div className="flex flex-1 flex-col gap-2.5">
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-primary">
                       {product.brand}
                     </div>
                     <a
                       href={amazonLink(product.asin)}
                       target="_blank"
                       rel="nofollow sponsored noopener"
-                      className="text-sm font-semibold leading-snug text-foreground hover:text-primary"
+                      className="text-base font-semibold leading-snug text-foreground hover:text-primary"
                     >
                       {product.title}
                     </a>
@@ -358,7 +372,7 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
                   <Button
                     asChild
                     size="sm"
-                    className="mt-1 w-full bg-gradient-primary font-semibold uppercase tracking-wider hover:translate-y-[-1px] sm:w-fit"
+                    className="mt-1 w-full bg-gradient-primary font-semibold uppercase tracking-wider shadow-md transition-transform hover:-translate-y-0.5 sm:w-fit"
                   >
                     <a
                       href={amazonLink(product.asin)}
@@ -374,6 +388,7 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
               </div>
             </div>
           )}
+
 
           {/* Why we recommended */}
           {rec.reasons.length > 0 && (
