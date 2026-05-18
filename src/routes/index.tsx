@@ -1,56 +1,218 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, FlaskConical, ShieldCheck, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { Brain } from "lucide-react";
+import QuizHero from "@/components/quiz/QuizHero";
+import QuizProgress from "@/components/quiz/QuizProgress";
+import QuizStepContent from "@/components/quiz/QuizStepContent";
+import QuizNavigation from "@/components/quiz/QuizNavigation";
+import {
+  quizSteps,
+  defaultAnswers,
+  answeredCount,
+  isStepAnswered,
+  generateSlug,
+  encodeAnswers,
+  type QuizAnswers,
+} from "@/lib/quiz-data";
+import { captureUTM } from "@/lib/utm";
+
+const SITE = "https://gearuptofit.com/supplement-match/";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "GearUpToFit — Personalized Vitamin & Supplement Match" },
-      {
-        name: "description",
-        content:
-          "Evidence-aware, safety-first quiz to find the vitamins and supplements that actually fit your body, goals, and lifestyle.",
+  head: () => {
+    const webAppLd = {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Supplement Match by GearUpToFit",
+      url: SITE,
+      applicationCategory: "HealthApplication",
+      operatingSystem: "Any",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      description:
+        "Free, evidence-aware vitamin and supplement quiz. 19 questions, one personalized, safety-first supplement plan with transparent scoring and food-first alternatives.",
+      publisher: {
+        "@type": "Organization",
+        name: "GearUpToFit",
+        url: "https://gearuptofit.com",
       },
-      { property: "og:title", content: "GearUpToFit — Vitamin & Supplement Match" },
-      {
-        property: "og:description",
-        content: "Free quiz with transparent scoring, safety checks, and food-first guidance.",
-      },
-    ],
-  }),
+    };
+    const faqLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Is this supplement quiz medical advice?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No. The quiz is for educational purposes only and does not diagnose, treat, cure, or prevent any disease. Always talk with a qualified clinician, pharmacist, or registered dietitian before starting, stopping, or changing supplements.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How does the supplement match quiz work?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Your answers feed a deterministic, transparent scoring engine that weighs diet, training, lifestyle, lab-risk markers, and medication interactions against an evidence-aware supplement catalog. Same answers always produce the same ranking — no random shuffling.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Are recommendations biased toward affiliate revenue?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No. Ranking is commission-blind. Affiliate links to third-party-tested products are added only after the score is computed.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why does third-party testing matter?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Dietary supplements are not FDA-approved before marketing. Independent verification (USP, NSF, Informed Sport, Informed Choice, ConsumerLab) confirms label accuracy and screens for contaminants and banned substances.",
+          },
+        },
+      ],
+    };
+    return {
+      meta: [
+        { title: "Supplement Match — Find Your Best-Fit Vitamins in 90 Seconds" },
+        {
+          name: "description",
+          content:
+            "Free evidence-aware vitamin & supplement quiz by GearUpToFit. 19 questions, one personalized, safety-first supplement plan with transparent scoring and food-first alternatives.",
+        },
+        { property: "og:title", content: "Supplement Match — GearUpToFit" },
+        {
+          property: "og:description",
+          content:
+            "90-second quiz. Evidence-aware scoring. Personalized supplement plan with safety checks.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: SITE },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: SITE }],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(webAppLd) },
+        { type: "application/ld+json", children: JSON.stringify(faqLd) },
+      ],
+    };
+  },
   component: Index,
 });
 
 function Index() {
+  const [currentStep, setCurrentStep] = useState(-1); // -1 = hero
+  const [answers, setAnswers] = useState<QuizAnswers>(defaultAnswers);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    captureUTM();
+  }, []);
+
+  const answered = useMemo(() => answeredCount(answers), [answers]);
+  const confidence = Math.round((answered / quizSteps.length) * 100);
+
+  const progress = currentStep >= 0 ? ((currentStep + 1) / quizSteps.length) * 100 : 0;
+  const isLast = currentStep === quizSteps.length - 1;
+  const step = currentStep >= 0 ? quizSteps[currentStep] : null;
+
+  const finish = useCallback(() => {
+    const slug = generateSlug(answers);
+    const encoded = encodeAnswers(answers);
+    // The result route lands in Stage 2; for now route into a placeholder
+    // share URL that still encodes everything needed to re-score.
+    navigate({
+      to: "/supplement-match/$slug",
+      params: { slug },
+      search: { d: encoded },
+    }).catch(() => {
+      // Result route not yet present — fall back to staying on the hero.
+      // Users still see their answers persist in memory.
+    });
+  }, [answers, navigate]);
+
+  const handleNext = useCallback(() => {
+    setCurrentStep((p) => {
+      if (p < quizSteps.length - 1) return p + 1;
+      finish();
+      return p;
+    });
+  }, [finish]);
+
+  const handleBack = useCallback(() => {
+    setCurrentStep((p) => Math.max(-1, p - 1));
+  }, []);
+
+  if (!step) {
+    return <QuizHero onStart={() => setCurrentStep(0)} />;
+  }
+
+  const canProceed = isStepAnswered(step, answers);
+
   return (
-    <div className="min-h-screen bg-background">
-      <section className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 py-24 text-center">
-        <Badge variant="outline" className="inline-flex items-center gap-1.5">
-          <Sparkles className="h-3.5 w-3.5" /> New · Evidence-aware quiz
-        </Badge>
-        <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
-          Find Your Best-Fit Vitamins &amp; Supplements
-        </h1>
-        <p className="max-w-2xl text-balance text-muted-foreground sm:text-lg">
-          A safety-first, personalized supplement plan based on your diet, training, lifestyle, and medications —
-          with transparent scoring and food-first alternatives.
-        </p>
-        <div className="flex flex-wrap justify-center gap-2">
-          <Badge variant="secondary" className="gap-1.5"><FlaskConical className="h-3.5 w-3.5" />Evidence-aware</Badge>
-          <Badge variant="secondary" className="gap-1.5"><ShieldCheck className="h-3.5 w-3.5" />Safety-first</Badge>
-          <Badge variant="secondary">No diagnosis</Badge>
-          <Badge variant="secondary">Transparent scoring</Badge>
+    <div className="flex min-h-[80vh] flex-col">
+      <QuizProgress currentStep={currentStep} totalSteps={quizSteps.length} progress={progress} />
+
+      <div className="relative flex-1 px-4 py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-2xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <QuizStepContent
+                step={step}
+                answers={answers}
+                setAnswers={setAnswers}
+                onAutoAdvance={step.type === "single" || step.type === "slider-freq" ? handleNext : undefined}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {currentStep >= 2 && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 flex items-center gap-3 rounded-xl border border-border/60 bg-card/60 p-3"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <Brain className="h-4 w-4 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Match confidence
+                  </span>
+                  <span className="text-xs font-semibold text-primary tabular-nums">{confidence}%</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                  <motion.div
+                    className="h-full rounded-full bg-primary"
+                    initial={false}
+                    animate={{ width: `${confidence}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
-        <Button asChild size="lg">
-          <Link to="/supplement-match">
-            Start the free quiz <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-        <p className="max-w-xl text-xs text-muted-foreground">
-          Educational only. Not medical advice. Talk with a qualified clinician before changing supplements.
-        </p>
-      </section>
+      </div>
+
+      <QuizNavigation
+        onBack={handleBack}
+        onNext={handleNext}
+        canProceed={canProceed}
+        isLast={isLast}
+        isFirst={currentStep === 0}
+      />
     </div>
   );
 }

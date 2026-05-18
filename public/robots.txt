@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gearuptofit.com/supplement-match/sitemap.xml
