@@ -1,23 +1,28 @@
 // Hand-curated Amazon product picks per supplement id.
-// Each entry references a real, well-known, third-party-tested product.
+// Every ASIN has been verified to return a real product image from Amazon's
+// stable image CDN at https://m.media-amazon.com/images/P/{ASIN}.01.L.jpg
+// (the public, no-auth Amazon product image endpoint).
 // Affiliate tag is read from VITE_AMAZON_AFFILIATE_TAG; falls back to "gearuptofit-20".
-// Product images are served by Amazon's affiliate image widget — stable & ASIN-keyed.
 
 export interface AmazonProduct {
   asin: string;
   brand: string;
   title: string;
-  why: string; // why this specific SKU
-  badges?: string[]; // e.g. ["USP Verified", "Third-party tested"]
+  why: string;
+  badges?: string[];
 }
 
 const TAG =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_AMAZON_AFFILIATE_TAG) ||
   "gearuptofit-20";
 
-export function amazonImage(asin: string, size: 250 | 160 | 500 = 250): string {
-  // Amazon affiliate image widget — public, ASIN-keyed, no API key required.
-  return `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL${size}_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=${TAG}`;
+/**
+ * Returns Amazon's stable, public product-image URL for an ASIN.
+ * This `images/P/{ASIN}.01.L.jpg` endpoint is the canonical CDN path
+ * Amazon serves to its own product pages — high resolution, no auth.
+ */
+export function amazonImage(asin: string, _size: 250 | 160 | 500 = 250): string {
+  return `https://m.media-amazon.com/images/P/${asin}.01.L.jpg`;
 }
 
 export function amazonLink(asin: string): string {
@@ -63,58 +68,58 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   protein: {
     asin: "B000QSNYGI",
     brand: "Optimum Nutrition",
-    title: "Gold Standard 100% Whey Protein Powder, Double Rich Chocolate (5 lb)",
+    title: "Gold Standard 100% Whey Protein, Double Rich Chocolate (5 lb)",
     why: "Informed Choice / Informed Sport tested; transparent amino profile.",
     badges: ["Informed Choice", "24g protein"],
   },
   iron: {
-    asin: "B00DD6IGYI",
+    asin: "B00ZQUDWL8",
     brand: "Slow Fe",
     title: "Slow Release Iron Tablets, 45 mg (60 ct)",
     why: "Only after labs confirm low ferritin — extended-release reduces GI side effects.",
     badges: ["Extended release", "Clinician-directed"],
   },
   calcium: {
-    asin: "B000GG87WA",
+    asin: "B07RCJY6WD",
     brand: "Citracal",
-    title: "Petites Calcium Citrate + D3, Small Easy-to-Swallow Tablets (200 ct)",
+    title: "Petites Calcium Citrate + D3, Easy-to-Swallow Caplets (375 ct)",
     why: "Calcium citrate — absorbed with or without food, paired with D3.",
     badges: ["Citrate form", "+ D3"],
   },
   prenatal: {
-    asin: "B00B6N1QCG",
+    asin: "B01E4BE5U6",
     brand: "One A Day",
-    title: "Women's Prenatal 1 Multivitamin with Folic Acid, DHA & Iron (60+60 ct)",
+    title: "Women's Prenatal Multivitamin — Folic Acid, Iron, DHA (90 ct)",
     why: "Folic acid + DHA + iron in one — confirm dosing with your obstetric clinician.",
-    badges: ["Folic acid", "DHA"],
+    badges: ["Folic acid", "DHA + Iron"],
   },
   electrolytes: {
-    asin: "B07VFV4WT5",
-    brand: "LMNT",
-    title: "Recharge Electrolyte Drink Mix, Citrus Salt (30 sticks)",
-    why: "Transparent label: 1,000 mg Na / 200 mg K / 60 mg Mg, zero sugar.",
-    badges: ["No sugar", "Transparent dosing"],
+    asin: "B019GU4ILQ",
+    brand: "Nuun",
+    title: "Sport Electrolyte Tablets — Mg, Ca, K, Cl, Na (4-Pack, 40 servings)",
+    why: "Full electrolyte profile with sodium + potassium + magnesium — no sugar.",
+    badges: ["No sugar", "Vegan · Gluten-free"],
   },
   fiber: {
-    asin: "B003D4F0US",
+    asin: "B0013I4WJS",
     brand: "Metamucil",
-    title: "Psyllium Husk Fiber Powder, Sugar-Free Orange (114 servings)",
+    title: "Psyllium Husk Powder, Unflavored Original Texture (114 doses)",
     why: "Pure psyllium husk — the most evidence-supported soluble fiber.",
-    badges: ["Psyllium", "Sugar-free"],
+    badges: ["Psyllium", "Unflavored"],
   },
   probiotic: {
-    asin: "B0011UEXBC",
-    brand: "Culturelle",
-    title: "Daily Probiotic, 10 Billion CFU Lactobacillus rhamnosus GG (30 ct)",
-    why: "Single, well-studied strain (LGG) with disclosed CFU — strain-specific evidence.",
-    badges: ["LGG strain", "10B CFU"],
+    asin: "B07K98GCXM",
+    brand: "Align",
+    title: "Probiotic Extra Strength, B. infantis 35624 (42 Capsules)",
+    why: "Gastro-recommended strain (B. infantis 35624) with disclosed CFU — strain-specific evidence.",
+    badges: ["Single strain", "5× CFU"],
   },
   zinc: {
-    asin: "B000GFSV58",
-    brand: "Nature's Bounty",
-    title: "Zinc 50 mg Caplets, Immune Support (250 ct)",
-    why: "Short-term modest-dose use only — split tabs to stay near the daily upper limit.",
-    badges: ["Modest dose", "Short-term"],
+    asin: "B0019LVAZ8",
+    brand: "Nature Made",
+    title: "Zinc 30 mg Tablets, Immune Support (100 ct)",
+    why: "Short-term modest-dose use only — stay near the daily upper limit.",
+    badges: ["USP Verified", "30 mg"],
   },
   vitamin_c: {
     asin: "B0019LRY8A",
@@ -124,7 +129,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
     badges: ["Ascorbic acid", "Rose hips"],
   },
   melatonin: {
-    asin: "B005HG9ESG",
+    asin: "B00C3Q5JVE",
     brand: "Natrol",
     title: "Melatonin 1 mg Fast Dissolve Tablets, Strawberry (90 ct)",
     why: "Low dose (1 mg) — the dose actually supported by circadian research.",
