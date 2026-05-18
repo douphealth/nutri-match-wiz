@@ -54,8 +54,9 @@ export const Route = createFileRoute("/supplement-match/$slug")({
 });
 
 function ResultPage() {
-  const data = Route.useLoaderData() as ReturnType<typeof Route.useLoaderData> & { result: ReturnType<typeof runEngine> };
+  const data = Route.useLoaderData() as { slug: string; result: ReturnType<typeof runEngine> };
   const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes } = data.result;
+
 
 
   return (
@@ -84,7 +85,7 @@ function ResultPage() {
           </CardHeader>
           <CardContent>
             <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-              {safetyGate.reasons.map((r) => (
+              {safetyGate.reasons.map((r: string) => (
                 <li key={r}>{r}</li>
               ))}
             </ul>
@@ -100,7 +101,7 @@ function ResultPage() {
             </CardContent>
           </Card>
         ) : (
-          recommendations.map((rec, i) => (
+          recommendations.map((rec: Recommendation, i: number) => (
             <Card key={rec.supplement.id}>
               <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
                 <div>
@@ -125,7 +126,7 @@ function ResultPage() {
                       Why we recommended this ({rec.reasons.length})
                     </summary>
                     <ul className="mt-2 ml-5 list-disc space-y-1 text-muted-foreground">
-                      {rec.reasons.map((r) => (
+                      {rec.reasons.map((r: string) => (
                         <li key={r}>{r}</li>
                       ))}
                     </ul>
@@ -137,7 +138,7 @@ function ResultPage() {
                       <AlertTriangle className="h-3.5 w-3.5" /> Safety notes
                     </div>
                     <ul className="ml-4 list-disc space-y-0.5 text-muted-foreground">
-                      {rec.safetyFlags.map((f) => (
+                      {rec.safetyFlags.map((f: string) => (
                         <li key={f}>{f}</li>
                       ))}
                     </ul>
@@ -161,7 +162,7 @@ function ResultPage() {
               </CardHeader>
               <CardContent>
                 <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                  {foodFirstNotes.map((n) => (
+                  {foodFirstNotes.map((n: string) => (
                     <li key={n}>{n}</li>
                   ))}
                 </ul>
@@ -175,7 +176,7 @@ function ResultPage() {
               </CardHeader>
               <CardContent>
                 <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                  {generalNotes.map((n) => (
+                  {generalNotes.map((n: string) => (
                     <li key={n}>{n}</li>
                   ))}
                 </ul>
