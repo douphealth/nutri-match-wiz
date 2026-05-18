@@ -320,28 +320,23 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
                   href={amazonLink(product.asin)}
                   target="_blank"
                   rel="nofollow sponsored noopener"
-                  className="group relative flex h-40 w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-3 ring-1 ring-border/40 sm:h-40 sm:w-40"
+                  className={`group relative flex h-40 w-full shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg p-4 ring-1 sm:h-40 sm:w-40 ${TONE_STYLES[product.tone].bg} ${TONE_STYLES[product.tone].ring}`}
                   aria-label={`${product.brand} ${product.title} — view on Amazon`}
                 >
-                  <img
-                    src={amazonImage(product.asin, 500)}
-                    alt={`${product.brand} ${product.title}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
-                    onError={(e) => {
-                      const img = e.currentTarget as HTMLImageElement;
-                      img.style.display = "none";
-                      const parent = img.parentElement;
-                      if (parent && !parent.querySelector(".img-fallback")) {
-                        const fb = document.createElement("div");
-                        fb.className =
-                          "img-fallback flex h-full w-full items-center justify-center rounded-md bg-gradient-to-br from-primary/15 to-primary/5 text-center text-xs font-bold uppercase tracking-wider text-primary";
-                        fb.textContent = product.brand;
-                        parent.appendChild(fb);
-                      }
-                    }}
-                  />
+                  <div className={`absolute inset-x-0 top-2 text-center text-[9px] font-bold uppercase tracking-[0.18em] ${TONE_STYLES[product.tone].text}`}>
+                    {product.brand}
+                  </div>
+                  <div className="flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-[1.04]">
+                    <div className="text-base font-extrabold leading-tight text-foreground">
+                      {product.pill}
+                    </div>
+                    <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      ASIN {product.asin}
+                    </div>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-2 text-center text-[9px] font-semibold uppercase tracking-wider text-foreground/70">
+                    on Amazon →
+                  </div>
                 </a>
                 <div className="flex flex-1 flex-col gap-2">
                   <div>
