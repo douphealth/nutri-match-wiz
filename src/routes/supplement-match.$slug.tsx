@@ -5,6 +5,7 @@ import { decodeAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
 import type { Recommendation } from "@/types/supplements";
 import { productFor, amazonImage, amazonLink } from "@/lib/supplement-products";
+import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,10 @@ export const Route = createFileRoute("/supplement-match/$slug")({
         { name: "robots", content: "noindex, follow" },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(faqJsonLd()) },
+        { type: "application/ld+json", children: JSON.stringify(reviewJsonLd()) },
+      ],
     };
   },
   component: ResultPage,
@@ -223,6 +228,9 @@ function ResultPage() {
             )}
           </section>
         )}
+
+        {/* Credibility: sources, testimonials, reading, tools, kit, FAQ */}
+        <CredibilitySections />
 
         {/* Disclosure */}
         <div className="mt-12 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
