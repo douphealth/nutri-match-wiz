@@ -24,6 +24,35 @@ import {
   Star,
 } from "lucide-react";
 import { downloadSupplementReport } from "@/lib/pdf-report";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import type { EngineResult } from "@/types/supplements";
+
+function PdfDownloadButton({ result }: { result: EngineResult }) {
+  const [loading, setLoading] = useState(false);
+  return (
+    <Button
+      size="lg"
+      disabled={loading}
+      onClick={async () => {
+        setLoading(true);
+        try {
+          await downloadSupplementReport(result);
+        } finally {
+          setLoading(false);
+        }
+      }}
+      className="bg-gradient-primary font-semibold uppercase tracking-wider shadow-lg hover:-translate-y-0.5 transition-transform"
+    >
+      {loading ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <Download className="mr-2 h-4 w-4" />
+      )}
+      {loading ? "Building your livebook…" : "Download PDF livebook"}
+    </Button>
+  );
+}
 
 const searchSchema = z.object({ d: z.string().min(1) });
 
