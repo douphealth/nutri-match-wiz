@@ -1,23 +1,29 @@
-// Stage 1 placeholder for the personalized result page.
-// Stage 2 will replace this with the full report (per-supplement breakdown,
-// food-first plan, PDF download, share, compare links). For now, it decodes
-// the URL payload, re-runs the deterministic engine, and renders the ranked
-// list so the quiz-to-result flow works end-to-end.
-
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { z } from "zod";
 import { decodeAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
 import type { Recommendation } from "@/types/supplements";
+import { productFor, amazonImage, amazonLink } from "@/lib/supplement-products";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ArrowLeft, ShieldAlert } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  ExternalLink,
+  Leaf,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  Star,
+} from "lucide-react";
 
-const searchSchema = z.object({
-  d: z.string().min(1),
-});
+const searchSchema = z.object({ d: z.string().min(1) });
 
 export const Route = createFileRoute("/supplement-match/$slug")({
   validateSearch: searchSchema,
@@ -30,7 +36,10 @@ export const Route = createFileRoute("/supplement-match/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Your Supplement Match" }] };
-    const top = loaderData.result.recommendations.slice(0, 3).map((r) => r.supplement.name).join(", ");
+    const top = loaderData.result.recommendations
+      .slice(0, 3)
+      .map((r) => r.supplement.name.replace(/\s*\([^)]*\)/g, ""))
+      .join(", ");
     const title = `Your Supplement Match — ${top || "Personalized Plan"}`;
     const description = top
       ? `Your evidence-aware top picks: ${top}. Safety-first, food-first, transparently scored.`
@@ -45,7 +54,7 @@ export const Route = createFileRoute("/supplement-match/$slug")({
         { property: "og:url", content: url },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "robots", content: "noindex, follow" }, // personalized — don't index
+        { name: "robots", content: "noindex, follow" },
       ],
       links: [{ rel: "canonical", href: url }],
     };
@@ -53,143 +62,375 @@ export const Route = createFileRoute("/supplement-match/$slug")({
   component: ResultPage,
 });
 
+function confidenceTone(c: Recommendation["confidence"]) {
+  if (c === "High") return { label: "HIGH MATCH", color: "text-primary", ring: "ring-primary/40", bg: "bg-primary/10" };
+  if (c === "Moderate") return { label: "GOOD MATCH", color: "text-amber-400", ring: "ring-amber-500/30", bg: "bg-amber-500/10" };
+  return { label: "WORTH CONSIDERING", color: "text-muted-foreground", ring: "ring-border", bg: "bg-muted/40" };
+}
+
 function ResultPage() {
-  const data = Route.useLoaderData() as { slug: string; result: ReturnType<typeof runEngine> };
+  const data = Route.useLoaderData() as {
+    slug: string;
+    result: ReturnType<typeof runEngine>;
+  };
   const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes } = data.result;
-
-
+  const top = recommendations[0];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <div className="mb-6">
-        <Button asChild variant="ghost" size="sm" className="gap-1.5">
-          <Link to="/">
-            <ArrowLeft className="h-4 w-4" /> Retake the quiz
-          </Link>
-        </Button>
+    <div className="relative isolate">
+      {/* Background glows */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[600px]">
+        <div className="absolute -top-40 left-1/2 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
       </div>
 
-      <header className="mb-8 text-center">
-        <Badge variant="outline" className="mb-3">Personalized · Evidence-aware</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Your Supplement Match</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Match score <span className="font-semibold text-foreground">{matchScore}/100</span> · {recommendations.length} matches
-        </p>
-      </header>
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:py-16">
+        <div className="mb-6 flex items-center justify-between">
+          <Button asChild variant="ghost" size="sm" className="gap-1.5">
+            <Link to="/">
+              <ArrowLeft className="h-4 w-4" /> Retake quiz
+            </Link>
+          </Button>
+          <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
+            <Sparkles className="h-3 w-3" /> Personalized
+          </Badge>
+        </div>
 
-      {safetyGate.triggered && (
-        <Card className="mb-6 border-destructive/40 bg-destructive/5">
-          <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
-            <ShieldAlert className="h-5 w-5 text-destructive" />
-            <CardTitle className="text-base">Talk with a clinician before acting</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-              {safetyGate.reasons.map((r: string) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+        {/* Hero score */}
+        <motion.header
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="glass-strong relative mb-10 overflow-hidden rounded-3xl px-6 py-10 text-center sm:px-12 sm:py-14"
+        >
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+            Your Supplement Match
+          </div>
+          <h1
+            className="mt-3 font-bold uppercase leading-[0.95] tracking-tight"
+            style={{ fontSize: "clamp(2.25rem, 6vw, 4.5rem)" }}
+          >
+            <span className="block text-foreground">Your personalized</span>
+            <span className="block text-gradient">stack is ready</span>
+          </h1>
 
-      <section className="space-y-4">
-        {recommendations.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              Based on your answers, no specific supplements rose above the baseline. Food-first wins.
+          <div className="mt-8 flex flex-col items-center justify-center gap-6 sm:flex-row sm:gap-10">
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <svg className="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" stroke="currentColor" strokeWidth="8" fill="none" className="text-border" />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    stroke="url(#scoreGradient)"
+                    strokeWidth="8"
+                    fill="none"
+                    strokeDasharray={`${(matchScore / 100) * 326.7} 326.7`}
+                    strokeLinecap="round"
+                  />
+                  <defs>
+                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="var(--primary)" />
+                      <stop offset="100%" stopColor="var(--primary-glow)" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-4xl font-bold text-foreground tabular-nums">{matchScore}</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Match score
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 sm:items-start sm:text-left">
+              <Stat label="Top picks" value={String(recommendations.length)} />
+              <Stat
+                label="Top recommendation"
+                value={top ? top.supplement.name.replace(/\s*\([^)]*\)/g, "") : "Food-first only"}
+              />
+              <Stat label="Safety review" value={safetyGate.triggered ? "Clinician input" : "Standard"} />
+            </div>
+          </div>
+        </motion.header>
+
+        {/* Safety gate */}
+        {safetyGate.triggered && (
+          <Card className="mb-8 border-destructive/40 bg-destructive/5">
+            <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
+              <ShieldAlert className="h-5 w-5 text-destructive" />
+              <CardTitle className="text-base">Talk with a clinician before starting anything new</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
+                {safetyGate.reasons.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
-        ) : (
-          recommendations.map((rec: Recommendation, i: number) => (
-            <Card key={rec.supplement.id}>
-              <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-                <div>
-                  <CardTitle className="text-lg">
-                    {i + 1}. {rec.supplement.name}
-                  </CardTitle>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {rec.supplement.category} · Evidence: {rec.supplement.evidenceLevel} · Safety: {rec.supplement.safetyLevel}
-                  </p>
-                </div>
-                <Badge
-                  variant={rec.confidence === "High" ? "default" : rec.confidence === "Moderate" ? "secondary" : "outline"}
-                >
-                  {rec.confidence}
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm">{rec.supplement.resultCopy}</p>
-                {rec.reasons.length > 0 && (
-                  <details className="text-sm">
-                    <summary className="cursor-pointer font-medium text-muted-foreground">
-                      Why we recommended this ({rec.reasons.length})
-                    </summary>
-                    <ul className="mt-2 ml-5 list-disc space-y-1 text-muted-foreground">
-                      {rec.reasons.map((r: string) => (
-                        <li key={r}>{r}</li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-                {rec.safetyFlags.length > 0 && (
-                  <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-xs">
-                    <div className="mb-1 flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-400">
-                      <AlertTriangle className="h-3.5 w-3.5" /> Safety notes
-                    </div>
-                    <ul className="ml-4 list-disc space-y-0.5 text-muted-foreground">
-                      {rec.safetyFlags.map((f: string) => (
-                        <li key={f}>{f}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  <strong>Food-first:</strong> {rec.supplement.foodFirstAdvice}
-                </p>
-              </CardContent>
-            </Card>
-          ))
         )}
-      </section>
 
-      {(foodFirstNotes.length > 0 || generalNotes.length > 0) && (
-        <section className="mt-8 grid gap-4 sm:grid-cols-2">
-          {foodFirstNotes.length > 0 && (
+        {/* Recommendations */}
+        <section className="space-y-5">
+          {recommendations.length === 0 ? (
             <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Food-first plan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                  {foodFirstNotes.map((n: string) => (
-                    <li key={n}>{n}</li>
-                  ))}
-                </ul>
+              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                Based on your answers, no specific supplements rose above the baseline.
+                Food-first wins. See your food-first plan below.
               </CardContent>
             </Card>
-          )}
-          {generalNotes.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Lifestyle notes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                  {generalNotes.map((n: string) => (
-                    <li key={n}>{n}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+          ) : (
+            recommendations.map((rec, i) => (
+              <SupplementCard key={rec.supplement.id} rec={rec} rank={i + 1} />
+            ))
           )}
         </section>
-      )}
 
-      <p className="mt-10 text-center text-xs text-muted-foreground">
-        Educational only. Not medical advice. <Link to="/methodology" className="underline">How this is scored</Link>{" "}
-        · <Link to="/affiliate-disclosure" className="underline">Affiliate disclosure</Link>
-      </p>
+        {/* Food-first + lifestyle */}
+        {(foodFirstNotes.length > 0 || generalNotes.length > 0) && (
+          <section className="mt-10 grid gap-4 sm:grid-cols-2">
+            {foodFirstNotes.length > 0 && (
+              <Card className="glass border-primary/20">
+                <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
+                  <Leaf className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base">Food-first plan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="ml-5 list-disc space-y-1.5 text-sm text-muted-foreground">
+                    {foodFirstNotes.map((n) => (
+                      <li key={n}>{n}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+            {generalNotes.length > 0 && (
+              <Card className="glass">
+                <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base">Lifestyle notes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="ml-5 list-disc space-y-1.5 text-sm text-muted-foreground">
+                    {generalNotes.map((n) => (
+                      <li key={n}>{n}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+          </section>
+        )}
+
+        {/* Disclosure */}
+        <div className="mt-12 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
+          Educational only. Not medical advice. Product links are Amazon affiliate links
+          — ranking is commission-blind and computed before any product is attached.{" "}
+          <Link to="/methodology" className="underline hover:text-primary">How this is scored</Link>{" "}
+          ·{" "}
+          <Link to="/affiliate-disclosure" className="underline hover:text-primary">Affiliate disclosure</Link>
+        </div>
+      </div>
     </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-sm font-semibold text-foreground">{value}</span>
+    </div>
+  );
+}
+
+function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
+  const product = productFor(rec.supplement.id);
+  const tone = confidenceTone(rec.confidence);
+  const cleanName = rec.supplement.name.replace(/\s*\([^)]*\)/g, "");
+  const isTop = rank === 1;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: Math.min(rank * 0.04, 0.3) }}
+    >
+      <Card
+        className={`glass overflow-hidden border-border/60 ${
+          isTop ? "ring-1 ring-primary/40 glow-primary-sm" : ""
+        }`}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
+                  isTop ? "bg-gradient-primary text-primary-foreground glow-primary-sm" : "bg-secondary text-foreground"
+                }`}
+              >
+                {rank}
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <CardTitle className="text-lg leading-tight">{cleanName}</CardTitle>
+                  {isTop && (
+                    <Badge className="gap-1 bg-gradient-primary text-primary-foreground">
+                      <Award className="h-3 w-3" /> Top pick
+                    </Badge>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {rec.supplement.category} · Evidence{" "}
+                  <span className="font-semibold text-foreground">{rec.supplement.evidenceLevel}</span>{" "}
+                  · Safety{" "}
+                  <span className="font-semibold text-foreground">{rec.supplement.safetyLevel}</span>
+                </p>
+              </div>
+            </div>
+            <div className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ring-1 ${tone.color} ${tone.ring} ${tone.bg}`}>
+              {tone.label}
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <p className="text-sm leading-relaxed text-foreground/90">{rec.supplement.resultCopy}</p>
+
+          {/* Amazon product card */}
+          {product && (
+            <div className="rounded-xl border border-border/70 bg-card-elevated/40 p-4">
+              <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary">
+                <Star className="h-3 w-3 fill-current" /> Recommended pick on Amazon
+              </div>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <a
+                  href={amazonLink(product.asin)}
+                  target="_blank"
+                  rel="nofollow sponsored noopener"
+                  className="group relative flex h-32 w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-2 sm:w-32"
+                >
+                  <img
+                    src={amazonImage(product.asin, 250)}
+                    alt={`${product.brand} ${product.title}`}
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain transition-transform group-hover:scale-105"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </a>
+                <div className="flex flex-1 flex-col gap-2">
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {product.brand}
+                    </div>
+                    <a
+                      href={amazonLink(product.asin)}
+                      target="_blank"
+                      rel="nofollow sponsored noopener"
+                      className="text-sm font-semibold leading-snug text-foreground hover:text-primary"
+                    >
+                      {product.title}
+                    </a>
+                  </div>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{product.why}</p>
+                  {product.badges && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {product.badges.map((b) => (
+                        <span
+                          key={b}
+                          className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary"
+                        >
+                          <CheckCircle2 className="h-3 w-3" /> {b}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <Button
+                    asChild
+                    size="sm"
+                    className="mt-1 w-full bg-gradient-primary font-semibold uppercase tracking-wider hover:translate-y-[-1px] sm:w-fit"
+                  >
+                    <a
+                      href={amazonLink(product.asin)}
+                      target="_blank"
+                      rel="nofollow sponsored noopener"
+                    >
+                      View on Amazon
+                      <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                      <ArrowRight className="ml-0.5 h-3.5 w-3.5" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Why we recommended */}
+          {rec.reasons.length > 0 && (
+            <details className="group rounded-lg border border-border/60 bg-card/40 p-3 text-sm">
+              <summary className="flex cursor-pointer items-center justify-between font-medium text-foreground">
+                <span className="inline-flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Why we recommended this ({rec.reasons.length})
+                </span>
+                <span className="text-xs text-muted-foreground group-open:hidden">Show</span>
+                <span className="hidden text-xs text-muted-foreground group-open:inline">Hide</span>
+              </summary>
+              <ul className="mt-3 ml-5 list-disc space-y-1 text-muted-foreground">
+                {rec.reasons.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+
+          {/* What to look for */}
+          {rec.supplement.whatToLookFor.length > 0 && (
+            <div className="rounded-lg border border-border/60 bg-card/30 p-3">
+              <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                What to look for on the label
+              </div>
+              <ul className="grid gap-1 text-xs text-foreground/90 sm:grid-cols-2">
+                {rec.supplement.whatToLookFor.map((x) => (
+                  <li key={x} className="flex items-start gap-1.5">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span>{x}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Safety flags */}
+          {rec.safetyFlags.length > 0 && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-xs">
+              <div className="mb-1.5 flex items-center gap-1.5 font-semibold text-amber-400">
+                <AlertTriangle className="h-3.5 w-3.5" /> Safety notes
+              </div>
+              <ul className="ml-4 list-disc space-y-0.5 text-muted-foreground">
+                {rec.safetyFlags.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Food-first */}
+          <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs">
+            <Leaf className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <p className="text-muted-foreground">
+              <span className="font-semibold text-foreground">Food-first: </span>
+              {rec.supplement.foodFirstAdvice}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
