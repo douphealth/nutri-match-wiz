@@ -58,6 +58,10 @@ export const Route = createFileRoute("/supplement-match/$slug")({
         { name: "robots", content: "noindex, follow" },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(faqJsonLd()) },
+        { type: "application/ld+json", children: JSON.stringify(reviewJsonLd()) },
+      ],
     };
   },
   component: ResultPage,
