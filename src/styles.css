@@ -141,4 +141,12 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+
+  /* Embed mode: when the app is iframed into gearuptofit.com with ?embed=1,
+     drop the page chrome so the host page provides the background. */
+  html[data-embed="true"],
+  html[data-embed="true"] body {
+    background-color: transparent !important;
+  }
 }
+
