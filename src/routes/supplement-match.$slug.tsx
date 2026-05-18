@@ -12,10 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
-  
   ArrowRight,
   Award,
   CheckCircle2,
+  Download,
   ExternalLink,
   Leaf,
   ShieldAlert,
@@ -23,6 +23,7 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
+import { downloadSupplementReport } from "@/lib/pdf-report";
 
 const searchSchema = z.object({ d: z.string().min(1) });
 
