@@ -134,6 +134,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <TopBar />
       <div id="main">
         <Outlet />
       </div>
