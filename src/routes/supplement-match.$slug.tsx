@@ -12,10 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
-  
   ArrowRight,
   Award,
   CheckCircle2,
+  Download,
   ExternalLink,
   Leaf,
   ShieldAlert,
@@ -23,6 +23,7 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
+import { downloadSupplementReport } from "@/lib/pdf-report";
 
 const searchSchema = z.object({ d: z.string().min(1) });
 
@@ -147,6 +148,19 @@ function ResultPage() {
               />
               <Stat label="Safety review" value={safetyGate.triggered ? "Clinician input" : "Standard"} />
             </div>
+          </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              size="lg"
+              onClick={() => downloadSupplementReport(data.result)}
+              className="bg-gradient-primary font-semibold uppercase tracking-wider shadow-lg hover:-translate-y-0.5 transition-transform"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF report
+            </Button>
+            <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+              Branded · Print-ready · Shareable
+            </span>
           </div>
         </motion.header>
 
