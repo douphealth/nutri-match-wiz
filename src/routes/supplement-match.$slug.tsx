@@ -320,15 +320,26 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
                   href={amazonLink(product.asin)}
                   target="_blank"
                   rel="nofollow sponsored noopener"
-                  className="group relative flex h-32 w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-2 sm:w-32"
+                  className="group relative flex h-40 w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-3 ring-1 ring-border/40 sm:h-40 sm:w-40"
+                  aria-label={`${product.brand} ${product.title} — view on Amazon`}
                 >
                   <img
-                    src={amazonImage(product.asin, 250)}
+                    src={amazonImage(product.asin, 500)}
                     alt={`${product.brand} ${product.title}`}
                     loading="lazy"
-                    className="max-h-full max-w-full object-contain transition-transform group-hover:scale-105"
+                    referrerPolicy="no-referrer"
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                      const img = e.currentTarget as HTMLImageElement;
+                      img.style.display = "none";
+                      const parent = img.parentElement;
+                      if (parent && !parent.querySelector(".img-fallback")) {
+                        const fb = document.createElement("div");
+                        fb.className =
+                          "img-fallback flex h-full w-full items-center justify-center rounded-md bg-gradient-to-br from-primary/15 to-primary/5 text-center text-xs font-bold uppercase tracking-wider text-primary";
+                        fb.textContent = product.brand;
+                        parent.appendChild(fb);
+                      }
                     }}
                   />
                 </a>
