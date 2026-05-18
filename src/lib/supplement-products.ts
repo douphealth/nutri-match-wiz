@@ -16,6 +16,7 @@ export interface AmazonProduct {
   brand: string;
   title: string;
   why: string;
+  image: string; // real Amazon CDN product image URL
   pill: string; // short label rendered prominently on the tile
   tone: "amber" | "violet" | "teal" | "emerald" | "rose" | "sky" | "lime" | "orange";
   badges?: string[];
