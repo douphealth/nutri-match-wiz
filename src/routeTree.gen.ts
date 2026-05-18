@@ -14,6 +14,7 @@ import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as AffiliateDisclosureRouteImport } from './routes/affiliate-disclosure'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SupplementMatchSlugRouteImport } from './routes/supplement-match.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -40,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupplementMatchSlugRoute = SupplementMatchSlugRouteImport.update({
+  id: '/supplement-match/$slug',
+  path: '/supplement-match/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/affiliate-disclosure': typeof AffiliateDisclosureRoute
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/supplement-match/$slug': typeof SupplementMatchSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/affiliate-disclosure': typeof AffiliateDisclosureRoute
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/supplement-match/$slug': typeof SupplementMatchSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/affiliate-disclosure': typeof AffiliateDisclosureRoute
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/supplement-match/$slug': typeof SupplementMatchSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,8 +80,15 @@ export interface FileRouteTypes {
     | '/affiliate-disclosure'
     | '/methodology'
     | '/sitemap.xml'
+    | '/supplement-match/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/affiliate-disclosure' | '/methodology' | '/sitemap.xml'
+  to:
+    | '/'
+    | '/about'
+    | '/affiliate-disclosure'
+    | '/methodology'
+    | '/sitemap.xml'
+    | '/supplement-match/$slug'
   id:
     | '__root__'
     | '/'
@@ -80,6 +96,7 @@ export interface FileRouteTypes {
     | '/affiliate-disclosure'
     | '/methodology'
     | '/sitemap.xml'
+    | '/supplement-match/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +105,7 @@ export interface RootRouteChildren {
   AffiliateDisclosureRoute: typeof AffiliateDisclosureRoute
   MethodologyRoute: typeof MethodologyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SupplementMatchSlugRoute: typeof SupplementMatchSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/supplement-match/$slug': {
+      id: '/supplement-match/$slug'
+      path: '/supplement-match/$slug'
+      fullPath: '/supplement-match/$slug'
+      preLoaderRoute: typeof SupplementMatchSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -136,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   AffiliateDisclosureRoute: AffiliateDisclosureRoute,
   MethodologyRoute: MethodologyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SupplementMatchSlugRoute: SupplementMatchSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
