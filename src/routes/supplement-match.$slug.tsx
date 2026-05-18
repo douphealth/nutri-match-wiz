@@ -4,7 +4,7 @@ import { z } from "zod";
 import { decodeAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
 import type { Recommendation } from "@/types/supplements";
-import { productFor, amazonImage, amazonLink } from "@/lib/supplement-products";
+import { productFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
 
 import { Badge } from "@/components/ui/badge";
