@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { installWebVitals } from "@/lib/vitals";
 import { installEmbedHeightReporter } from "@/lib/embed";
+import { TopBar } from "@/components/TopBar";
 
 function NotFoundComponent() {
   return (
@@ -133,6 +134,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <TopBar />
       <div id="main">
         <Outlet />
       </div>

@@ -224,9 +224,32 @@ export function runEngine(a: QuizAnswers): EngineResult {
     .filter((x): x is Recommendation => x !== null)
     .sort((a, b) => b.score - a.score);
 
-  // Match score (transparent, capped 0–100)
-  const rawTotal = recommendations.reduce((sum, r) => sum + r.score, 0);
-  const matchScore = Math.min(100, Math.round((rawTotal / Math.max(1, recommendations.length + 4)) * 18));
+  // Match score: confidence in this personalized plan (0–100).
+  // Combines (a) how many signals fired vs. answered, (b) average evidence
+  // strength of the recommendations, and (c) whether a safety review was
+  // needed. A user who answered the full quiz and matched several
+  // evidence-backed picks lands in the 85–98 range.
+  const evidenceWeight = (lvl: Supplement["evidenceLevel"]) =>
+    lvl === "Strong" ? 1 : lvl === "Moderate" ? 0.8 : 0.6;
+  const topN = recommendations.slice(0, 5);
+  const evidenceAvg =
+    topN.length > 0
+      ? topN.reduce((s, r) => s + evidenceWeight(r.supplement.evidenceLevel), 0) / topN.length
+      : 0.7;
+  const signalDensity = Math.min(1, recommendations.length / 4); // 4+ recs => full credit
+  const signalStrength = Math.min(
+    1,
+    recommendations.reduce((s, r) => s + Math.min(r.score, 5), 0) / 18,
+  );
+  const safetyPenalty = safetyGate.triggered ? 0.06 : 0;
+  // Base 70 so a real personalized plan never reads as "weak match".
+  const raw =
+    70 +
+    signalDensity * 10 +
+    signalStrength * 12 +
+    evidenceAvg * 8 -
+    safetyPenalty * 100;
+  const matchScore = Math.max(60, Math.min(98, Math.round(raw)));
 
   return {
     matchScore,
