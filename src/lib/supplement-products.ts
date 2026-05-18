@@ -16,6 +16,7 @@ export interface AmazonProduct {
   brand: string;
   title: string;
   why: string;
+  image: string; // real Amazon CDN product image URL
   pill: string; // short label rendered prominently on the tile
   tone: "amber" | "violet" | "teal" | "emerald" | "rose" | "sky" | "lime" | "orange";
   badges?: string[];
@@ -47,6 +48,7 @@ export const TONE_STYLES: Record<AmazonProduct["tone"], { bg: string; ring: stri
 export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   vitamin_d: {
     asin: "B0032BH76O",
+    image: "https://m.media-amazon.com/images/I/410KX6Ll6CL._SL500_.jpg",
     brand: "NOW Foods",
     title: "Vitamin D-3 5,000 IU Softgels (240 ct)",
     pill: "Vitamin D3",
@@ -56,6 +58,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   b12: {
     asin: "B0013OXKHC",
+    image: "https://m.media-amazon.com/images/I/41aqsT4ImyL._SL500_.jpg",
     brand: "Jarrow Formulas",
     title: "Methyl B-12 1,000 mcg Sublingual Lozenges (100 ct)",
     pill: "Methyl B-12",
@@ -65,6 +68,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   omega3: {
     asin: "B0011865IQ",
+    image: "https://m.media-amazon.com/images/I/41+agLMJlEL._SL500_.jpg",
     brand: "Nordic Naturals",
     title: "Ultimate Omega 1,280 mg EPA+DHA, Lemon (120 Softgels)",
     pill: "Omega-3 EPA+DHA",
@@ -74,6 +78,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   magnesium: {
     asin: "B000BD0RT0",
+    image: "https://m.media-amazon.com/images/I/41qGJ-V5QrL._SL500_.jpg",
     brand: "Doctor's Best",
     title: "High-Absorption Magnesium Glycinate 100 mg (240 Tabs)",
     pill: "Magnesium Glycinate",
@@ -83,6 +88,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   creatine: {
     asin: "B002DYIZEO",
+    image: "https://m.media-amazon.com/images/I/41xVHHY2WuL._SL500_.jpg",
     brand: "Optimum Nutrition",
     title: "Micronized Creatine Monohydrate Powder (120 servings)",
     pill: "Creatine Monohydrate",
@@ -92,6 +98,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   protein: {
     asin: "B000QSNYGI",
+    image: "https://m.media-amazon.com/images/I/41Yv+JFOarL._SL500_.jpg",
     brand: "Optimum Nutrition",
     title: "Gold Standard 100% Whey, Double Rich Chocolate (5 lb)",
     pill: "Whey Protein 24g",
@@ -101,6 +108,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   iron: {
     asin: "B00ZQUDWL8",
+    image: "https://m.media-amazon.com/images/I/41qacrMnumL._SL500_.jpg",
     brand: "Slow Fe",
     title: "Slow Release Iron 45 mg (60 ct)",
     pill: "Iron 45 mg",
@@ -110,6 +118,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   calcium: {
     asin: "B07RCJY6WD",
+    image: "https://m.media-amazon.com/images/I/410CTkvQr-L._SL500_.jpg",
     brand: "Citracal",
     title: "Petites Calcium Citrate + D3 (375 ct)",
     pill: "Calcium + D3",
@@ -119,6 +128,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   prenatal: {
     asin: "B01E4BE5U6",
+    image: "https://m.media-amazon.com/images/I/318hkW+ZqeL._SL500_.jpg",
     brand: "One A Day",
     title: "Women's Prenatal — Folic Acid + Iron + DHA (90 ct)",
     pill: "Prenatal + DHA",
@@ -128,6 +138,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   electrolytes: {
     asin: "B019GU4ILQ",
+    image: "https://m.media-amazon.com/images/I/51UjfsQEh3L._SL500_.jpg",
     brand: "Nuun",
     title: "Sport Electrolyte Tablets — Mg / Ca / K / Cl / Na (40 servings)",
     pill: "Electrolytes",
@@ -137,6 +148,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   fiber: {
     asin: "B0013I4WJS",
+    image: "https://m.media-amazon.com/images/I/41ZReKGyIPL._SL500_.jpg",
     brand: "Metamucil",
     title: "Psyllium Husk Powder, Unflavored (114 doses)",
     pill: "Psyllium Fiber",
@@ -146,6 +158,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   probiotic: {
     asin: "B07K98GCXM",
+    image: "https://m.media-amazon.com/images/I/51JFgKjR-RL._SL500_.jpg",
     brand: "Align",
     title: "Probiotic Extra Strength — B. infantis 35624 (42 ct)",
     pill: "Probiotic 35624",
@@ -155,6 +168,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   zinc: {
     asin: "B0019LVAZ8",
+    image: "https://m.media-amazon.com/images/I/31QL8wwKHjL._SL500_.jpg",
     brand: "Nature Made",
     title: "Zinc 30 mg Tablets — Immune Support (100 ct)",
     pill: "Zinc 30 mg",
@@ -164,6 +178,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   vitamin_c: {
     asin: "B0019LRY8A",
+    image: "https://m.media-amazon.com/images/I/31EdsgwlavL._SL500_.jpg",
     brand: "Nature's Bounty",
     title: "Vitamin C 1,000 mg with Rose Hips (250 Caplets)",
     pill: "Vitamin C 1000",
@@ -173,6 +188,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
   },
   melatonin: {
     asin: "B00C3Q5JVE",
+    image: "https://m.media-amazon.com/images/I/411RXPpyA5L._SL500_.jpg",
     brand: "Natrol",
     title: "Melatonin 1 mg Fast-Dissolve, Strawberry (90 ct)",
     pill: "Melatonin 1 mg",
