@@ -89,16 +89,6 @@ function ResultPage() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:py-16">
-        <div className="mb-6 flex items-center justify-between">
-          <Button asChild variant="ghost" size="sm" className="gap-1.5">
-            <Link to="/">
-              <ArrowLeft className="h-4 w-4" /> Retake quiz
-            </Link>
-          </Button>
-          <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
-            <Sparkles className="h-3 w-3" /> Personalized
-          </Badge>
-        </div>
 
         {/* Hero score */}
         <motion.header
