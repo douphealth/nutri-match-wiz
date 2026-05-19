@@ -228,8 +228,11 @@ function ResultPage() {
           </Card>
         )}
 
+        {/* Daily schedule */}
+        <DailyScheduleSection recs={recommendations} answers={data.answers} />
+
         {/* Recommendations */}
-        <section className="space-y-5">
+        <section className="mt-10 space-y-5">
           {recommendations.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
