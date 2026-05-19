@@ -20,6 +20,7 @@ export interface AmazonProduct {
   pill: string; // short label rendered prominently on the tile
   tone: "amber" | "violet" | "teal" | "emerald" | "rose" | "sky" | "lime" | "orange";
   badges?: string[];
+  fit?: "default" | "vegan" | "premium" | "budget" | "lactose_free";
 }
 
 const TAG = "papalex-20";
@@ -45,7 +46,7 @@ export const TONE_STYLES: Record<AmazonProduct["tone"], { bg: string; ring: stri
   orange:  { bg: "bg-gradient-to-br from-orange-400/25 via-red-500/15 to-rose-600/10",     ring: "ring-orange-400/40", text: "text-orange-200" },
 };
 
-export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct> = {
+export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   vitamin_d: {
     asin: "B0032BH76O",
     image: "https://m.media-amazon.com/images/I/410KX6Ll6CL._SL500_.jpg",
