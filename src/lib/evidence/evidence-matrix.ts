@@ -87,12 +87,14 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   endoD: {
     label: "Endocrine Society — Vitamin D Clinical Practice Guideline (2024)",
     org: "Endocrine Society" as const,
     url: "https://www.endocrine.org/clinical-practice-guidelines/vitamin-d-for-the-prevention-of-disease",
     lastChecked: LAST_CHECKED,
+  supports: "dose",
   },
   // B12
   odsB12: {
@@ -100,6 +102,7 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/VitaminB12-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "deficiency",
   },
   // Omega-3
   odsOmega: {
@@ -107,12 +110,14 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   nccihOmega: {
     label: "NIH NCCIH — Omega-3 Supplements",
     org: "NIH NCCIH" as const,
     url: "https://www.nccih.nih.gov/health/omega3-supplements-in-depth",
     lastChecked: LAST_CHECKED,
+  supports: "safety",
   },
   // Magnesium
   odsMg: {
@@ -120,6 +125,7 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Creatine
   issnCr: {
@@ -127,12 +133,14 @@ const C = {
     org: "ISSN" as const,
     url: "https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0173-z",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   nccihCr: {
     label: "NIH NCCIH — Creatine",
     org: "NIH NCCIH" as const,
     url: "https://www.nccih.nih.gov/health/creatine",
     lastChecked: LAST_CHECKED,
+  supports: "safety",
   },
   // Protein
   issnProtein: {
@@ -140,6 +148,7 @@ const C = {
     org: "ISSN" as const,
     url: "https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0177-8",
     lastChecked: LAST_CHECKED,
+  supports: "dose",
   },
   // Iron
   odsIron: {
@@ -147,12 +156,14 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "deficiency",
   },
   fdaIron: {
     label: "FDA — Iron-Containing Supplements: Required Warning",
     org: "FDA" as const,
     url: "https://www.fda.gov/drugs/special-features/iron-containing-products-warning-accidental-overdose",
     lastChecked: LAST_CHECKED,
+  supports: "safety",
   },
   // Calcium
   odsCa: {
@@ -160,6 +171,7 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Prenatal / folate
   cdcFolate: {
@@ -167,12 +179,14 @@ const C = {
     org: "CDC" as const,
     url: "https://www.cdc.gov/ncbddd/folicacid/recommendations.html",
     lastChecked: LAST_CHECKED,
+  supports: "population-fit",
   },
   acogPrenatal: {
     label: "ACOG — Nutrition During Pregnancy FAQ",
     org: "ACOG" as const,
     url: "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy",
     lastChecked: LAST_CHECKED,
+  supports: "population-fit",
   },
   // Electrolytes / hydration
   acsmHydration: {
@@ -180,6 +194,7 @@ const C = {
     org: "ACSM" as const,
     url: "https://journals.lww.com/acsm-msse/Fulltext/2007/02000/Exercise_and_Fluid_Replacement.22.aspx",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Fiber
   usdaFiber: {
@@ -187,6 +202,7 @@ const C = {
     org: "USDA" as const,
     url: "https://www.dietaryguidelines.gov/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Probiotic
   agaProb: {
@@ -194,6 +210,7 @@ const C = {
     org: "AGA" as const,
     url: "https://gastro.org/clinical-guidance/probiotics-in-the-management-of-gastrointestinal-disorders/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Zinc
   odsZinc: {
@@ -201,6 +218,7 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/Zinc-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Vitamin C
   odsC: {
@@ -208,6 +226,7 @@ const C = {
     org: "NIH ODS" as const,
     url: "https://ods.od.nih.gov/factsheets/VitaminC-HealthProfessional/",
     lastChecked: LAST_CHECKED,
+  supports: "efficacy",
   },
   // Melatonin
   aasmMel: {
@@ -215,12 +234,14 @@ const C = {
     org: "AASM" as const,
     url: "https://aasm.org/clinical-resources/practice-standards/practice-guidelines/",
     lastChecked: LAST_CHECKED,
+  supports: "safety",
   },
   nccihMel: {
     label: "NIH NCCIH — Melatonin: What You Need To Know",
     org: "NIH NCCIH" as const,
     url: "https://www.nccih.nih.gov/health/melatonin-what-you-need-to-know",
     lastChecked: LAST_CHECKED,
+  supports: "safety",
   },
   // Quality / testing
   uspVerified: {
@@ -228,12 +249,14 @@ const C = {
     org: "USP" as const,
     url: "https://www.quality-supplements.org/",
     lastChecked: LAST_CHECKED,
+  supports: "product-quality",
   },
   nsfSport: {
     label: "NSF Certified for Sport — Banned-substance Tested",
     org: "NSF" as const,
     url: "https://www.nsfsport.com/",
     lastChecked: LAST_CHECKED,
+  supports: "product-quality",
   },
 };
 
