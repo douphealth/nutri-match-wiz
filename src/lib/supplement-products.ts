@@ -278,8 +278,8 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   ],
   zinc: [
     {
-      asin: "B0019LVAZ8",
-      image: "",
+      asin: "B002FH90Q6",
+      image: "https://m.media-amazon.com/images/I/61Sb6IUjemL._AC_SL1500_.jpg",
       brand: "Nature Made",
       title: "Zinc 30 mg Tablets — Immune Support (100 ct)",
       pill: "Zinc 30 mg",
@@ -291,10 +291,10 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   ],
   vitamin_c: [
     {
-      asin: "B0019LRY8A",
-      image: "",
+      asin: "B0G7JF2861",
+      image: "https://m.media-amazon.com/images/I/81H9hNEZ2LL._AC_SL1500_.jpg",
       brand: "Nature's Bounty",
-      title: "Vitamin C 1,000 mg with Rose Hips (250 Caplets)",
+      title: "Vitamin C 1,000 mg with Rose Hips (100 Caplets, 2 Pack)",
       pill: "Vitamin C 1000",
       tone: "orange",
       fit: "default",
@@ -305,7 +305,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   melatonin: [
     {
       asin: "B00C3Q5JVE",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71Pb9WSVkfL._AC_SL1500_.jpg",
       brand: "Natrol",
       title: "Melatonin 1 mg Fast-Dissolve, Strawberry (90 ct)",
       pill: "Melatonin 1 mg",
