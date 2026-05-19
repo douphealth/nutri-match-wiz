@@ -79,7 +79,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   vitamin_d: [
     {
       asin: "B0032BH76O",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71Xsi+LdYzL._AC_SL1500_.jpg",
       brand: "NOW Foods",
       title: "Vitamin D-3 5,000 IU Softgels (240 ct)",
       pill: "Vitamin D3",
@@ -90,7 +90,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
     },
     {
       asin: "B07255MPRN",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/61uhxiVJqCL._AC_SL1500_.jpg",
       brand: "Sports Research",
       title: "Vegan Vitamin D3 + K2, 5,000 IU D3 + MK-7 K2 (60 ct)",
       pill: "Vegan D3 + K2",
@@ -102,8 +102,8 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   ],
   b12: [
     {
-      asin: "B0013OXKHC",
-      image: "",
+      asin: "B002FJW3ZY",
+      image: "https://m.media-amazon.com/images/I/71gGk529NUL._AC_SL1500_.jpg",
       brand: "Jarrow Formulas",
       title: "Methyl B-12 1,000 mcg Sublingual Lozenges (100 ct)",
       pill: "Methyl B-12",
