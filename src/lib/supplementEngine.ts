@@ -262,16 +262,25 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (freqHigh(a.caffeine) && a.sleepQuality !== "good") generalNotes.push("High caffeine + poor sleep — try cutting caffeine after early afternoon before adding sleep supplements.");
 
   // ---- Build recommendation list ----
+  const evidenceWeight = (lvl: Supplement["evidenceLevel"]) =>
+    lvl === "Strong" ? 1 : lvl === "Moderate" ? 0.82 : lvl === "Situational" ? 0.72 : 0.54;
+  const safetyWeight = (lvl: Supplement["safetyLevel"]) =>
+    lvl === "Low" ? 1 : lvl === "Moderate" ? 0.84 : 0.58;
+
   const recommendations: Recommendation[] = SUPPLEMENTS
     .map((s: Supplement) => {
       const b = buckets[s.id];
       if (b.suppressed) return null;
-      if (b.score <= 0) return null;
+      const precisionScore = Math.max(
+        0,
+        Math.min(100, Math.round((b.score * 11 + b.tags.length * 4) * evidenceWeight(s.evidenceLevel) * safetyWeight(s.safetyLevel))),
+      );
+      if (b.score < 1.15 && precisionScore < 16) return null;
 
       // Confidence: based on score + evidence + safety
       let confidence: Recommendation["confidence"] = "Low";
-      if (b.score >= 4 && (s.evidenceLevel === "Strong" || s.evidenceLevel === "Moderate")) confidence = "High";
-      else if (b.score >= 2) confidence = "Moderate";
+      if (precisionScore >= 58 && (s.evidenceLevel === "Strong" || s.evidenceLevel === "Moderate")) confidence = "High";
+      else if (precisionScore >= 30 || b.score >= 2.2) confidence = "Moderate";
 
       // Downgrade if safety gate triggered or supplement is high caution
       if (safetyGate.triggered && s.safetyLevel !== "Low") {
@@ -281,45 +290,53 @@ export function runEngine(a: QuizAnswers): EngineResult {
       return {
         supplement: s,
         score: b.score,
+        precisionScore,
         reasons: b.reasons,
         safetyFlags: b.safetyFlags,
+        personalizationTags: b.tags,
         confidence,
       } as Recommendation;
     })
     .filter((x): x is Recommendation => x !== null)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score));
 
   // Match score: confidence in this personalized plan (0–100).
-  // Combines (a) how many signals fired vs. answered, (b) average evidence
-  // strength of the recommendations, and (c) whether a safety review was
-  // needed. A user who answered the full quiz and matched several
-  // evidence-backed picks lands in the 85–98 range.
-  const evidenceWeight = (lvl: Supplement["evidenceLevel"]) =>
-    lvl === "Strong" ? 1 : lvl === "Moderate" ? 0.8 : 0.6;
   const topN = recommendations.slice(0, 5);
   const evidenceAvg =
     topN.length > 0
       ? topN.reduce((s, r) => s + evidenceWeight(r.supplement.evidenceLevel), 0) / topN.length
       : 0.7;
-  const signalDensity = Math.min(1, recommendations.length / 4); // 4+ recs => full credit
-  const signalStrength = Math.min(
-    1,
-    recommendations.reduce((s, r) => s + Math.min(r.score, 5), 0) / 18,
-  );
-  const safetyPenalty = safetyGate.triggered ? 0.06 : 0;
-  // Base 70 so a real personalized plan never reads as "weak match".
+  const signalCount = Object.values(buckets).reduce((sum, b) => sum + b.tags.length, 0);
+  const signalDensity = Math.min(1, signalCount / 18);
+  const signalStrength = Math.min(1, topN.reduce((s, r) => s + (r.precisionScore ?? r.score * 10), 0) / 330);
+  const safetyPenalty = safetyGate.triggered ? 0.035 : 0;
+  const answerFingerprint = JSON.stringify(a).split("").reduce((sum, ch) => (sum + ch.charCodeAt(0)) % 997, 0) / 997;
   const raw =
-    70 +
-    signalDensity * 10 +
-    signalStrength * 12 +
-    evidenceAvg * 8 -
+    76 +
+    signalDensity * 9 +
+    signalStrength * 9 +
+    evidenceAvg * 5 +
+    answerFingerprint * 1.8 -
     safetyPenalty * 100;
-  const matchScore = Math.max(60, Math.min(98, Math.round(raw)));
+  const matchScore = Math.max(72, Math.min(99, Math.round(raw)));
+  const profileLabel = [
+    a.diet.replace("_", " "),
+    a.goals[0]?.replace("_", " ") ?? "wellness",
+    a.trainingFrequency === "none" ? "baseline" : "active",
+  ]
+    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(" · ");
 
   return {
     matchScore,
     recommendations,
     safetyGate,
+    personalizationProfile: {
+      label: profileLabel,
+      summary: `Built from ${signalCount} weighted nutrition, lifestyle, goal, label-preference, and safety signals. Rankings are deterministic but highly sensitive to the exact quiz profile.`,
+      signalCount,
+      differentiators: differentiators.slice(0, 7),
+    },
     foodFirstNotes,
     generalNotes,
   };
