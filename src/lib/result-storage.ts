@@ -70,8 +70,7 @@ export function sanitizeForShare(answers: QuizAnswers): QuizAnswers {
 export function buildShareUrl(slug: string, answers: QuizAnswers): string {
   const safe = sanitizeForShare(answers);
   const d = encodeAnswers(safe);
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : "https://gearuptofit.com";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://gearuptofit.com";
   return `${origin}/supplement-match/${slug}?d=${d}`;
 }
 

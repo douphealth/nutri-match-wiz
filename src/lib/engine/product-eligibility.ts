@@ -4,11 +4,7 @@
 // a product card.
 
 import type { QuizAnswers } from "@/types/supplements";
-import {
-  productFor,
-  productsFor,
-  type AmazonProduct,
-} from "@/lib/supplement-products";
+import { productFor, productsFor, type AmazonProduct } from "@/lib/supplement-products";
 import { evidenceFor } from "@/lib/evidence/evidence-matrix";
 
 export interface ProductEligibilityResult {
@@ -22,15 +18,11 @@ const ATHLETE_PROFILE = (a: QuizAnswers) =>
   (a.trainingFrequency === "3_4" && a.allergies.thirdPartyTestedOnly);
 
 function hasAthleteSeal(p: AmazonProduct): boolean {
-  return (p.badges ?? []).some((b) =>
-    /nsf|informed (choice|sport)|banned[- ]substance/i.test(b),
-  );
+  return (p.badges ?? []).some((b) => /nsf|informed (choice|sport)|banned[- ]substance/i.test(b));
 }
 
 function hasThirdPartySeal(p: AmazonProduct): boolean {
-  return (p.badges ?? []).some((b) =>
-    /usp|nsf|informed|gmp|cgmp|third[- ]party/i.test(b),
-  );
+  return (p.badges ?? []).some((b) => /usp|nsf|informed|gmp|cgmp|third[- ]party/i.test(b));
 }
 
 function isAllergenCompatible(p: AmazonProduct, a: QuizAnswers): boolean {
@@ -63,8 +55,7 @@ export function selectEligibleProduct(
   }
   if (ev?.labRequirement === "clinician_directed") {
     return {
-      reason:
-        "Your clinician should choose the specific product/dose — we don't pre-pick one.",
+      reason: "Your clinician should choose the specific product/dose — we don't pre-pick one.",
     };
   }
 

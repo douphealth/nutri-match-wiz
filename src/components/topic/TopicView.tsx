@@ -138,7 +138,9 @@ export function TopicView({ topic: t }: { topic: TopicCopy }) {
               className="group rounded-lg border border-border bg-card p-4 open:shadow-sm"
             >
               <summary className="cursor-pointer list-none text-base font-semibold text-foreground marker:hidden">
-                <span className="mr-2 inline-block transition-transform group-open:rotate-90">›</span>
+                <span className="mr-2 inline-block transition-transform group-open:rotate-90">
+                  ›
+                </span>
                 {f.q}
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.a}</p>

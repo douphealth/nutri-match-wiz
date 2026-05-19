@@ -1,10 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { runEngine, DEFAULT_ANSWERS } from "@/lib/engine";
 import { selectEligibleProduct } from "@/lib/engine/product-eligibility";
-import {
-  sanitizeForShare,
-  decodeShareParam,
-} from "@/lib/result-storage";
+import { sanitizeForShare, decodeShareParam } from "@/lib/result-storage";
 import { encodeAnswers } from "@/lib/quiz-data";
 import type { QuizAnswers } from "@/types/supplements";
 
@@ -19,7 +16,12 @@ const fixtures: Record<string, QuizAnswers> = {
     ageRange: "30_44",
     goals: ["muscle_recovery", "energy"],
     trainingFrequency: "5_plus",
-    foodIntake: { ...DEFAULT_ANSWERS.foodIntake, oilyFish: "never", dairy: "never", redMeat: "never" },
+    foodIntake: {
+      ...DEFAULT_ANSWERS.foodIntake,
+      oilyFish: "never",
+      dairy: "never",
+      redMeat: "never",
+    },
   }),
   pregnant: a({
     sex: "female",
@@ -51,7 +53,12 @@ const fixtures: Record<string, QuizAnswers> = {
   olderLowProtein: a({
     ageRange: "60_plus",
     goals: ["general_wellness", "muscle_recovery"],
-    foodIntake: { ...DEFAULT_ANSWERS.foodIntake, redMeat: "never", legumes: "rarely", dairy: "rarely" },
+    foodIntake: {
+      ...DEFAULT_ANSWERS.foodIntake,
+      redMeat: "never",
+      legumes: "rarely",
+      dairy: "rarely",
+    },
   }),
 };
 
@@ -100,9 +107,7 @@ describe("product eligibility filtering", () => {
       const result = selectEligibleProduct(rec.supplement.id, fixtures.veganAthlete);
       // Must always return a structured result — never throw, never undefined.
       expect(result).toBeDefined();
-      expect(
-        typeof result.product !== "undefined" || typeof result.reason === "string",
-      ).toBe(true);
+      expect(typeof result.product !== "undefined" || typeof result.reason === "string").toBe(true);
     }
   });
 });
