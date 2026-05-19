@@ -1237,12 +1237,13 @@ function drawWellnessProfile(doc: jsPDF, answers: QuizAnswers, result: EngineRes
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(46);
-  const bigW = doc.getTextWidth(`${overall}`);
   doc.text(`${overall}`, rx, y + 80);
+  const bigW = doc.getTextWidth(`${overall}`);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text("/ 100", rx + bigW + 8, y + 80);
+  // place "/ 100" baseline-aligned a touch above center of the big number
+  doc.text("/ 100", rx + bigW + 8, y + 70);
 
   // Divider line
   setStroke(doc, COL.borderSoft);
