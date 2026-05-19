@@ -359,6 +359,25 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
+const STATUS_META: Record<RecommendationStatus, { label: string; cls: string }> = {
+  recommended: { label: "Recommended", cls: "bg-primary/15 text-primary ring-primary/30" },
+  consider: { label: "Consider", cls: "bg-sky-500/15 text-sky-300 ring-sky-500/30" },
+  food_first: { label: "Food-first", cls: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30" },
+  test_first: { label: "Test first", cls: "bg-amber-500/15 text-amber-300 ring-amber-500/30" },
+  clinician_only: { label: "Clinician only", cls: "bg-orange-500/15 text-orange-300 ring-orange-500/30" },
+  not_recommended: { label: "Not recommended", cls: "bg-muted text-muted-foreground ring-border" },
+  avoid: { label: "Avoid", cls: "bg-destructive/15 text-destructive ring-destructive/30" },
+};
+
+function StatusBadge({ status }: { status: RecommendationStatus }) {
+  const m = STATUS_META[status];
+  return (
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ${m.cls}`}>
+      {m.label}
+    </span>
+  );
+}
+
 function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: number; answers: QuizAnswers }) {
   const product = productFor(rec.supplement.id, answers);
   const candidateCount = productsFor(rec.supplement.id).length;
