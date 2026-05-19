@@ -1,13 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-} from "recharts";
-import {
   Apple,
   Dumbbell,
   Sun,
