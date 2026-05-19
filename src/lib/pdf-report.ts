@@ -1025,17 +1025,36 @@ function drawDailyProtocol(doc: jsPDF, schedule: DailySchedule) {
   let y = 196 + intro.length * 14 + 10;
   const pw = PAGE_W - M * 2;
 
+  // Per-dose layout constants — used by BOTH the sizer and the renderer so the
+  // measured height always matches what we actually draw (prevents the
+  // text-overflows-card bug seen in earlier versions).
+  const PAD_TOP = 16;
+  const PAD_BOTTOM = 14;
+  const SEP_GAP = 10; // visual gap added before each non-first dose (+ separator line)
+  const ROW_TITLE_H = 14;
+  const ROW_DOSE_H = 13;
+  const ROW_META_H = 13;
+  const NOTE_LINE_H = 12;
+  const NOTE_TAIL = 6;
+  const SLOT_HEAD_H = 24;
+  const HEAD_GAP = 6;
+
+  const doseHeight = (d: { notes: string }) => {
+    const noteLines = wrap(doc, d.notes, pw - 32).length || 1;
+    return ROW_TITLE_H + ROW_DOSE_H + ROW_META_H + noteLines * NOTE_LINE_H + NOTE_TAIL;
+  };
+
   schedule.bySlot.forEach((slot) => {
-    const blockLines = slot.doses.flatMap((d) => {
-      const head = `${d.supplementName} — ${d.dose}`;
-      return [head, `${d.form}  ·  ${d.withFood}  ·  ${d.cadence}`, ...wrap(doc, d.notes, pw - 60)];
+    let bodyH = PAD_TOP + PAD_BOTTOM;
+    slot.doses.forEach((d, i) => {
+      bodyH += doseHeight(d) + (i > 0 ? SEP_GAP : 0);
     });
-    const h = 36 + blockLines.length * 12 + 16;
-    y = ensure(doc, y, h, "02 · Daily protocol");
+    const totalH = SLOT_HEAD_H + HEAD_GAP + bodyH;
+    y = ensure(doc, y, totalH + 14, "02 · Daily protocol");
 
     // Slot header strip
     setFill(doc, COL.primarySoft);
-    doc.roundedRect(M, y, pw, 24, 8, 8, "F");
+    doc.roundedRect(M, y, pw, SLOT_HEAD_H, 8, 8, "F");
     setText(doc, COL.primary);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
@@ -1049,40 +1068,46 @@ function drawDailyProtocol(doc: jsPDF, schedule: DailySchedule) {
     );
 
     // Card body
-    const bodyY = y + 28;
-    const bodyH = h - 30;
+    const bodyY = y + SLOT_HEAD_H + HEAD_GAP;
     roundedCard(doc, M, bodyY, pw, bodyH, COL.card);
-    let cy = bodyY + 16;
+    let cy = bodyY + PAD_TOP;
     slot.doses.forEach((d, i) => {
       if (i > 0) {
+        cy += SEP_GAP - 4;
         setStroke(doc, COL.borderSoft);
         doc.setLineWidth(0.4);
-        doc.line(M + 14, cy - 4, PAGE_W - M - 14, cy - 4);
+        doc.line(M + 14, cy - 6, PAGE_W - M - 14, cy - 6);
       }
-      setText(doc, COL.text);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.text(d.supplementName, M + 14, cy);
+      // Title line — reserve right-side space for cadence chip so they never overlap
       setText(doc, COL.primary);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
+      const cadW = doc.getTextWidth(d.cadence.toUpperCase());
       doc.text(d.cadence.toUpperCase(), PAGE_W - M - 14, cy, { align: "right" });
-      cy += 14;
+      setText(doc, COL.text);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      const titleMax = pw - 32 - cadW - 12;
+      const titleSize = fitFont(doc, d.supplementName, titleMax, 10.5, 8.5);
+      doc.setFontSize(titleSize);
+      doc.text(d.supplementName, M + 14, cy);
+      cy += ROW_TITLE_H;
       setText(doc, COL.textDim);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9.5);
-      doc.text(d.dose, M + 14, cy);
-      cy += 12;
+      const doseLines = wrap(doc, d.dose, pw - 32);
+      doc.text(doseLines[0] ?? d.dose, M + 14, cy);
+      cy += ROW_DOSE_H;
       setText(doc, COL.muted);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.text(`${d.form}  ·  ${d.withFood}`, M + 14, cy);
-      cy += 12;
+      cy += ROW_META_H;
       const noteLines = wrap(doc, d.notes, pw - 32);
       setText(doc, COL.textDim);
       doc.setFontSize(9);
       doc.text(noteLines, M + 14, cy);
-      cy += noteLines.length * 11 + 8;
+      cy += noteLines.length * NOTE_LINE_H + NOTE_TAIL;
     });
     y = bodyY + bodyH + 14;
   });
