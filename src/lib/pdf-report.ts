@@ -581,32 +581,26 @@ function drawSupplementPage(
 
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(30);
+  const titleMaxW = PAGE_W - M * 2;
+  const titleSize = fitFont(doc, cleanName, titleMaxW, 30, 18);
+  doc.setFontSize(titleSize);
   doc.text(cleanName, M, 144);
 
-  // Confidence + meta chips
-  let cx = M;
-  const cy = 158;
-  cx = chip(doc, conf.label, cx, cy, conf.fg, conf.bg);
-  cx = chip(
+  // Confidence + meta chips (wrapping row)
+  const chipsY = chipRow(
     doc,
-    `EVIDENCE · ${rec.supplement.evidenceLevel.toUpperCase()}`,
-    cx,
-    cy,
-    COL.text,
-    COL.surface,
+    [
+      { text: conf.label, fg: conf.fg, bg: conf.bg },
+      { text: `EVIDENCE · ${rec.supplement.evidenceLevel.toUpperCase()}`, fg: COL.text, bg: COL.surface },
+      { text: `SAFETY · ${rec.supplement.safetyLevel.toUpperCase()}`, fg: COL.text, bg: COL.surface },
+      { text: `SIGNAL SCORE · ${Math.round(rec.score)}`, fg: COL.text, bg: COL.surface },
+    ],
+    M,
+    158,
+    PAGE_W - M,
   );
-  cx = chip(
-    doc,
-    `SAFETY · ${rec.supplement.safetyLevel.toUpperCase()}`,
-    cx,
-    cy,
-    COL.text,
-    COL.surface,
-  );
-  cx = chip(doc, `SIGNAL SCORE · ${Math.round(rec.score)}`, cx, cy, COL.text, COL.surface);
 
-  let y = 195;
+  let y = Math.max(195, chipsY + 20);
   const pw = PAGE_W - M * 2;
 
   // Why summary
