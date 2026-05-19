@@ -43,14 +43,8 @@ export interface DoseStep {
 
 export interface ProtocolBlueprint {
   steps: DoseStep[];
-  weeklyNotes: string[];
-  separationWarnings: string[];
-  startProtocol: string;
-}
-
-interface Blueprint {
-  steps: Omit<DoseStep, "notes"> & { notes?: string }[] extends never ? never : DoseStep[];
   weeklyNotes?: string[];
+  separationWarnings?: string[];
   startProtocol?: string;
 }
 
