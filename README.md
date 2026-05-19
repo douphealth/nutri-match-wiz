@@ -80,11 +80,24 @@ src/
 
 ## Testing
 
-Vitest enforces:
-- Engine determinism and safety gates (under-18, pregnancy, blood thinners, antidepressants, kidney/liver, iron test-first).
-- Privacy: default flow does not emit `?d=`, `sessionStorage` round-trip works, `buildShareUrl` strips every sensitive field.
-- SEO: sitemap lists only clean canonical URLs and never personalized results or legacy `/topic/<slug>` URLs.
-- Wrapper compatibility: deprecated engine entry points re-export the canonical engine.
+Vitest test suites (`src/lib/__tests__/`):
+
+- `safety-engine.test.ts` — under-18, pregnancy, blood thinner, antidepressant, kidney/liver, iron test-first gates.
+- `golden-fixtures.test.ts` — 8 deterministic profile fixtures (vegan athlete, pregnant, under-18, blood thinner, antidepressant, kidney disease, runner heavy sweater, older low-protein).
+- `engine-extras.test.ts` — secondary scoring paths and edge cases.
+- `evidence-traceability.test.ts` — every supplement has citations with `lastChecked` + `supports` metadata.
+- `result-flow.test.ts` — sessionStorage round-trip, legacy `?d=` decode fallback, canonical topic slugs.
+- `privacy.test.ts` — default navigation emits no `?d=`, sessionStorage round-trip, `buildShareUrl` strips every sensitive field individually.
+- `sitemap.test.ts` — clean topic URLs included, legacy `/topic/<slug>` excluded, no personalized result pages.
+- `engine-wrappers.test.ts` — `supplementEngine.ts` and `recommendation-engine.ts` are pure re-export shims of `@/lib/engine`.
+
+## Dependency audit
+
+```bash
+bun run deps:audit   # knip
+```
+
+Configured in `knip.json`. Shadcn UI files are ignored (their Radix deps are real, knip can't infer dynamic re-exports).
 
 ## License
 
