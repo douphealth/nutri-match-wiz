@@ -81,6 +81,9 @@ export const quizSteps: QuizStep[] = [
     title: "Your age range",
     subtitle: "Helps us screen for life-stage-specific risks.",
     type: "single",
+    tier: "essential",
+    safety: true,
+    why: "Under-18 and 60+ flows trigger different safety gates and dosing notes (e.g. creatine, melatonin, vitamin D).",
     image: U("1521146764736-56c929d59c83"),
     imageAlt: "People of different ages running together at sunset",
     options: [
