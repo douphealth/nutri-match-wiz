@@ -17,6 +17,7 @@ import {
 } from "@/components/result/CredibilitySections";
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";
+import { WellnessProfilePanel } from "@/components/result/WellnessProfilePanel";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
