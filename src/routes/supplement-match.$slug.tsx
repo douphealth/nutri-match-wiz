@@ -17,6 +17,7 @@ import {
 } from "@/components/result/CredibilitySections";
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";
+import { WellnessProfilePanel } from "@/components/result/WellnessProfilePanel";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -444,6 +445,9 @@ function ResultPage({
             </div>
           </section>
         )}
+
+        {/* Wellness profile (radar + stat cards) */}
+        <WellnessProfilePanel answers={data.answers} result={data.result} />
 
         {/* Safety gate + clinician callouts */}
         {clinicianGuidance.length > 0 && (
