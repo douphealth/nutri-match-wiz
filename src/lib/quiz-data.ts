@@ -506,8 +506,8 @@ export const quizSteps: QuizStep[] = [
     type: "boolean-multi",
     tier: "advanced",
     why: "Persistent fatigue is most often vitamin D, B12, iron/ferritin, or thyroid — testing beats supplementing blind.",
-    image: U("1559757175-5700dde675bc"),
-    imageAlt: "Tired person at a kitchen table",
+    image: U("1576091160550-2173dba999ef"),
+    imageAlt: "Stethoscope and laptop — reviewing past lab results",
     booleans: [
       { path: "fatigueLabs.vitDTestedLow", label: "Low vitamin D in a past test" },
       { path: "fatigueLabs.b12TestedLow", label: "Low B12 in a past test" },
