@@ -73,6 +73,16 @@ export function TopBar() {
               <Share2 className="h-4 w-4" />
             </button>
           )}
+          <a
+            href="https://gearuptofit.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Go to GearUpToFit home"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/40 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-secondary hover:text-primary"
+          >
+            <Home className="h-3.5 w-3.5 text-primary" />
+            Home
+          </a>
         </div>
       </div>
     </header>
