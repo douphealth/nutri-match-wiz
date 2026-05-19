@@ -615,20 +615,48 @@ function drawSupplementPage(
   doc.text(body, M, y);
   y += body.length * 14 + 14;
 
-  // Amazon product hero card (image + details)
+  // Amazon product hero card (image + details) — height computed from content
   if (product) {
-    const ph = 168;
+    const imgBoxS = 140;
+    const tx = M + 14 + imgBoxS + 18;
+    const tw = pw - 14 - imgBoxS - 18 - 14; // card right padding 14
+    // Pre-wrap title and why so we know the card height
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    const ttlAll = wrap(doc, product.title, tw);
+    const ttl = ttlAll.slice(0, 3);
+    const titleBlockH = ttl.length * 14;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    const whyAll = wrap(doc, product.why, tw);
+    const why = whyAll.slice(0, 2);
+    const whyBlockH = why.length * 12;
+
+    // Vertical layout inside the card (from top of card):
+    //   28pt → AMAZON eyebrow
+    //   46pt → title baseline starts
+    //   title block
+    //   +14pt gap → why text
+    //   why block
+    //   +18pt gap → badges row (height 15)
+    //   +18pt gap → CTA row (height 22)
+    //   +18pt bottom padding
+    const contentH = 46 + titleBlockH + 14 + whyBlockH + 18 + 15 + 18 + 22 + 18;
+    const imageMinH = 14 + imgBoxS + 14; // top pad + image box + bottom pad
+    const ph = Math.max(168, contentH, imageMinH);
+
+    // Make sure the whole card fits on the current page
+    y = ensure(doc, y, ph + 16, eyebrow);
+
     roundedCard(doc, M, y, pw, ph, COL.card, COL.borderSoft, 14);
 
     // Left image area
     const imgBoxX = M + 14;
     const imgBoxY = y + 14;
-    const imgBoxS = 140;
     setFill(doc, [248, 250, 252]);
     doc.roundedRect(imgBoxX, imgBoxY, imgBoxS, imgBoxS, 10, 10, "F");
 
     if (productImg) {
-      // Fit image into box preserving aspect ratio
       const pad = 10;
       const max = imgBoxS - pad * 2;
       const ratio = productImg.w / productImg.h;
@@ -644,7 +672,6 @@ function drawSupplementPage(
         /* fall back to placeholder below */
       }
     } else {
-      // Branded fallback tile
       setFill(doc, COL.primarySoft);
       doc.roundedRect(imgBoxX + 14, imgBoxY + 14, imgBoxS - 28, imgBoxS - 28, 8, 8, "F");
       setText(doc, COL.text);
@@ -656,38 +683,35 @@ function drawSupplementPage(
       });
     }
 
-    // Right text area
-    const tx = imgBoxX + imgBoxS + 18;
-    const tw = pw - imgBoxS - 50;
+    // Right text column
     setText(doc, COL.primary);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
     doc.text(`AMAZON PICK  ·  ${product.brand.toUpperCase()}`, tx, y + 28);
+
     setText(doc, COL.text);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
-    const ttl = wrap(doc, product.title, tw);
-    doc.text(ttl.slice(0, 3), tx, y + 46);
-    const titleBlockH = Math.min(ttl.length, 3) * 14;
+    doc.text(ttl, tx, y + 46);
 
+    const whyY = y + 46 + titleBlockH + 14;
     setText(doc, COL.textDim);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
-    const why = wrap(doc, product.why, tw);
-    doc.text(why.slice(0, 2), tx, y + 50 + titleBlockH + 10);
+    doc.text(why, tx, whyY);
 
     // Badges
+    const badgesY = whyY + whyBlockH + 18;
     if (product.badges?.length) {
       let bx = tx;
-      const by = y + ph - 56;
       product.badges.slice(0, 3).forEach((b) => {
-        bx = chip(doc, b.toUpperCase(), bx, by, COL.primary, COL.surface);
+        bx = chip(doc, b.toUpperCase(), bx, badgesY, COL.primary, COL.surface);
       });
     }
 
     // CTA
     const link = amazonLink(product.asin);
-    const ctaY = y + ph - 28;
+    const ctaY = badgesY + 18;
     setFill(doc, COL.primary);
     const ctaW = 160;
     doc.roundedRect(tx, ctaY, ctaW, 22, 6, 6, "F");
