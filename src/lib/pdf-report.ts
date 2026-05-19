@@ -753,13 +753,13 @@ function drawSupplementPage(
   doc.setFontSize(9.5);
   let ly = y + 40;
   labelWrapped.forEach((lines) => {
-    // primary check bullet (no glyph dependency)
+    // primary check bullet drawn as two lines (no glyph dependency)
     setFill(doc, COL.primary);
     doc.roundedRect(M + 14, ly - 7, 8, 8, 2, 2, "F");
-    setText(doc, COL.bg);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.text("✓", M + 18, ly - 1.5);
+    setStroke(doc, COL.bg);
+    doc.setLineWidth(1.1);
+    doc.line(M + 16, ly - 3.2, M + 17.5, ly - 1.6);
+    doc.line(M + 17.5, ly - 1.6, M + 20.5, ly - 5);
     setText(doc, COL.text);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
