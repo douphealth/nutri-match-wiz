@@ -61,7 +61,11 @@ function PdfDownloadButton({ result, answers }: { result: EngineResult; answers:
   const topBrand = topProduct?.brand;
   const primaryGoal = Array.isArray(answers?.goals) ? answers.goals[0] : undefined;
   const archetype = (result as unknown as { wellnessArchetype?: string }).wellnessArchetype;
-  const reportURL = typeof window !== "undefined" ? window.location.href : undefined;
+  // Include sanitized answers in the URL so the recipient (often opening on a
+  // different device/browser where sessionStorage is empty) can still rebuild
+  // the result page from the `?d=` payload.
+  const reportURL =
+    typeof window !== "undefined" && answers ? buildShareUrl(slug, answers) : undefined;
 
   const runDownload = async () => {
     setLoading(true);
