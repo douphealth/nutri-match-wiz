@@ -18,6 +18,7 @@ import {
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";
 import { WellnessProfilePanel } from "@/components/result/WellnessProfilePanel";
+import MonetizationBanner from "@/components/result/MonetizationBanner";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
