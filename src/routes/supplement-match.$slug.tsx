@@ -119,6 +119,13 @@ function confidenceTone(c: Recommendation["confidence"]) {
       ring: "ring-amber-500/30",
       bg: "bg-amber-500/10",
     };
+  if (c === "Blocked")
+    return {
+      label: "CLINICIAN GATED",
+      color: "text-destructive",
+      ring: "ring-destructive/30",
+      bg: "bg-destructive/10",
+    };
   return {
     label: "WORTH CONSIDERING",
     color: "text-muted-foreground",

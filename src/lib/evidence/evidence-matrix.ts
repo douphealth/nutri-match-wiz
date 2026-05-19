@@ -45,15 +45,29 @@ export interface EvidenceEntry {
   supportedClaims: string[];
   /** Plain-language summary of what the evidence does NOT support. */
   unsupportedClaims?: string[];
+  /** Conditions where this supplement provides no meaningful benefit. */
+  notUsefulFor?: string[];
   /** Populations where evidence is strongest. */
   populationFit: string[];
   /** Populations where evidence is weakest or where caution applies. */
   populationCaution?: string[];
+  /** Hard-block conditions — never recommend if any of these are true. */
+  avoidWhen?: string[];
+  /** Clinician must direct dosing if any of these are true. */
+  clinicianOnlyWhen?: string[];
+  /** Downgrade confidence/score if any of these are true. */
+  downgradeWhen?: string[];
+  /** Maximum safe default OTC dose (per day) for an average adult, in the supplement's native unit. */
+  maxSafeDefaultDose?: string;
   /** Authoritative citations rendered in the UI. */
   citations: Citation[];
   evidenceGrade: EvidenceGrade;
   labRequirement: LabRequirement;
+  /** ISO date (YYYY-MM-DD) the entry was last reviewed against sources. */
+  lastChecked: string;
 }
+
+const LAST_CHECKED = "2026-05-19";
 
 const C = {
   // Vitamin D
@@ -208,6 +222,15 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsD, C.endoD, C.uspVerified],
     evidenceGrade: "Strong",
     labRequirement: "encouraged",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "2000 IU/day OTC; do not exceed 4000 IU UL without labs",
+    avoidWhen: [
+      "Hypercalcemia",
+      "Active sarcoidosis",
+    ],
+    downgradeWhen: [
+      "Already supplementing without labs",
+    ],
   },
   b12: {
     supplementId: "b12",
@@ -223,6 +246,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsB12],
     evidenceGrade: "Strong",
     labRequirement: "encouraged",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "1000 mcg/day oral",
+    notUsefulFor: [
+      "Generic 'energy boost' in B12-replete adults",
+    ],
   },
   omega3: {
     supplementId: "omega3",
@@ -238,6 +266,15 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsOmega, C.nccihOmega],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "1000 mg combined EPA+DHA/day OTC",
+    clinicianOnlyWhen: [
+      "On warfarin or other anticoagulants",
+      "Surgery within 14 days",
+    ],
+    downgradeWhen: [
+      "Regular oily-fish eater (>=2x/week)",
+    ],
   },
   magnesium: {
     supplementId: "magnesium",
@@ -254,6 +291,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsMg],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "350 mg/day supplemental elemental magnesium",
+    clinicianOnlyWhen: [
+      "Chronic kidney disease",
+    ],
   },
   creatine: {
     supplementId: "creatine",
@@ -270,6 +312,14 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.issnCr, C.nccihCr, C.nsfSport],
     evidenceGrade: "Strong",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "3-5 g/day monohydrate",
+    clinicianOnlyWhen: [
+      "Significant kidney disease",
+    ],
+    avoidWhen: [
+      "Under 18 without pediatric sports-medicine guidance",
+    ],
   },
   protein: {
     supplementId: "protein",
@@ -284,6 +334,8 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.issnProtein, C.nsfSport],
     evidenceGrade: "Strong",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "1.4-2.0 g/kg/day total dietary protein",
   },
   iron: {
     supplementId: "iron",
@@ -306,6 +358,18 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsIron, C.fdaIron],
     evidenceGrade: "Situational",
     labRequirement: "required_before_use",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "18 mg/day adult, clinician-directed only",
+    avoidWhen: [
+      "Hereditary hemochromatosis",
+      "Elevated ferritin without anemia",
+    ],
+    clinicianOnlyWhen: [
+      "All adults — confirm ferritin/CBC first",
+    ],
+    notUsefulFor: [
+      "Generic 'energy' in iron-replete adults",
+    ],
   },
   calcium: {
     supplementId: "calcium",
@@ -324,6 +388,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsCa],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "500-600 mg/day supplemental",
+    downgradeWhen: [
+      "Dietary calcium already adequate",
+    ],
   },
   prenatal: {
     supplementId: "prenatal",
@@ -336,6 +405,13 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.cdcFolate, C.acogPrenatal],
     evidenceGrade: "Strong",
     labRequirement: "clinician_directed",
+    lastChecked: LAST_CHECKED,
+    clinicianOnlyWhen: [
+      "All — choose specific formula with obstetric clinician",
+    ],
+    avoidWhen: [
+      "Not pregnant/breastfeeding/trying to conceive",
+    ],
   },
   electrolytes: {
     supplementId: "electrolytes",
@@ -351,6 +427,13 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.acsmHydration],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "Match sweat losses; typical 500-1000 mg sodium/hour endurance",
+    clinicianOnlyWhen: [
+      "Salt-sensitive hypertension",
+      "Kidney disease",
+      "Potassium-sparing diuretics/ACE-i/ARB",
+    ],
   },
   fiber: {
     supplementId: "fiber",
@@ -363,6 +446,12 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.usdaFiber],
     evidenceGrade: "Strong",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "10-15 g psyllium/day with adequate water",
+    avoidWhen: [
+      "Bowel obstruction",
+      "Swallowing difficulty",
+    ],
   },
   probiotic: {
     supplementId: "probiotic",
@@ -377,6 +466,13 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.agaProb],
     evidenceGrade: "Limited",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    clinicianOnlyWhen: [
+      "Severely immunocompromised",
+    ],
+    notUsefulFor: [
+      "Routine 'gut health' in healthy adults without a specific indication",
+    ],
   },
   zinc: {
     supplementId: "zinc",
@@ -389,6 +485,14 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsZinc],
     evidenceGrade: "Limited",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "40 mg/day UL — short-term use only",
+    avoidWhen: [
+      "Intranasal zinc — anosmia risk",
+    ],
+    notUsefulFor: [
+      "Chronic daily use — risks copper deficiency",
+    ],
   },
   vitamin_c: {
     supplementId: "vitamin_c",
@@ -401,6 +505,14 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsC],
     evidenceGrade: "Limited",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "500 mg/day; UL 2000 mg",
+    downgradeWhen: [
+      "High fruit/vegetable intake",
+    ],
+    notUsefulFor: [
+      "Preventing colds in the general population",
+    ],
   },
   melatonin: {
     supplementId: "melatonin",
@@ -419,6 +531,16 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.aasmMel, C.nccihMel],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
+    maxSafeDefaultDose: "0.3-1 mg, 30-60 min before target sleep time",
+    avoidWhen: [
+      "Pregnancy",
+      "Breastfeeding",
+      "Under 18 without pediatric clinician",
+    ],
+    clinicianOnlyWhen: [
+      "On sedatives, blood thinners, or immunosuppressants",
+    ],
   },
 };
 
