@@ -462,7 +462,7 @@ export const quizSteps: QuizStep[] = [
     type: "single",
     tier: "advanced",
     why: "Current users don't need a loading phase; never-tried users get a different onboarding script.",
-    image: U("1583500178690-f7fd39f6e30b"),
+    image: U("1517248135467-4c7edcad34c4"),
     imageAlt: "Scoop of creatine monohydrate powder",
     options: [
       { value: "never", label: "Never tried" },
