@@ -172,7 +172,7 @@ function Index() {
 
   return (
     <div className="flex min-h-[80vh] flex-col">
-      <QuizProgress currentStep={currentStep} totalSteps={quizSteps.length} progress={progress} />
+      <QuizProgress currentStep={currentStep} totalSteps={totalSteps} progress={progress} />
 
       <div className="relative flex-1 px-4 py-8 sm:py-10">
         <div className="mx-auto w-full max-w-2xl">
