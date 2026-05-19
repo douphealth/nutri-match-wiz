@@ -138,9 +138,50 @@ function chip(doc: jsPDF, text: string, x: number, y: number, fg: RGB, bg: RGB):
   return x + w + 6;
 }
 
+/** Wrap-aware chip row. Wraps to a new line if a chip would exceed maxX. */
+function chipRow(
+  doc: jsPDF,
+  chips: { text: string; fg: RGB; bg: RGB }[],
+  x: number,
+  y: number,
+  maxX: number,
+): number {
+  let cx = x;
+  let cy = y;
+  const lineH = 20;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  for (const c of chips) {
+    const w = doc.getTextWidth(c.text) + 14;
+    if (cx + w > maxX && cx !== x) {
+      cx = x;
+      cy += lineH;
+    }
+    setFill(doc, c.bg);
+    doc.roundedRect(cx, cy, w, 15, 4, 4, "F");
+    setText(doc, c.fg);
+    doc.text(c.text, cx + 7, cy + 10.2);
+    cx += w + 6;
+  }
+  return cy + 15;
+}
+
 function wrap(doc: jsPDF, text: string, maxW: number): string[] {
   if (!text) return [];
   return doc.splitTextToSize(text, maxW) as string[];
+}
+
+/** Auto-shrink font size so `text` fits within maxW (one line). Returns chosen size. */
+function fitFont(doc: jsPDF, text: string, maxW: number, max: number, min: number): number {
+  let s = max;
+  doc.setFont("helvetica", "bold");
+  while (s > min) {
+    doc.setFontSize(s);
+    if (doc.getTextWidth(text) <= maxW) return s;
+    s -= 0.5;
+  }
+  doc.setFontSize(min);
+  return min;
 }
 
 function header(doc: jsPDF, eyebrow: string) {
