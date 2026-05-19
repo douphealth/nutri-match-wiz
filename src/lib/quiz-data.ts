@@ -47,6 +47,18 @@ export interface QuizStep {
    * they are always shown. Default = always show.
    */
   showWhen?: (a: QuizAnswers) => boolean;
+  /**
+   * Adaptive quiz tier:
+   *  - "essential": always shown in both Fast and Advanced modes
+   *  - "branch":    shown when `showWhen` matches (both modes)
+   *  - "advanced":  only shown in Advanced mode (still respects `showWhen`)
+   * Defaults to "essential".
+   */
+  tier?: "essential" | "branch" | "advanced";
+  /** Safety-critical question — Fast mode and Skip controls must never hide it. */
+  safety?: boolean;
+  /** Plain-language rationale rendered behind a "Why we ask this" affordance. */
+  why?: string;
 }
 
 // Curated, stable Unsplash photos. Tuned crop/quality params keep payload
