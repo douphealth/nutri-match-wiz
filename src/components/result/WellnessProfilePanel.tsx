@@ -305,8 +305,13 @@ export function WellnessProfilePanel({
       {/* Radar + per-axis breakdown */}
       <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         {/* Radar */}
-        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-background/70 via-background/30 to-primary/5 p-4 sm:p-6">
-          <div className="mb-2 flex items-center justify-between">
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-background/80 via-background/40 to-primary/10 p-4 sm:p-6">
+          {/* corner accent */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.18),transparent_55%)]"
+          />
+          <div className="relative mb-2 flex items-center justify-between">
             <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
               Six-axis radar
             </div>
@@ -315,70 +320,11 @@ export function WellnessProfilePanel({
             </span>
           </div>
 
-          <div className="h-[320px] w-full sm:h-[380px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={axes} outerRadius="76%">
-                <defs>
-                  <linearGradient id="profileFill" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
-                    <stop offset="100%" stopColor="var(--primary-glow)" stopOpacity={0.25} />
-                  </linearGradient>
-                </defs>
-                <PolarGrid
-                  stroke="hsl(var(--border) / 0.55)"
-                  strokeDasharray="2 4"
-                  gridType="polygon"
-                />
-                <PolarAngleAxis
-                  dataKey="key"
-                  tick={({ payload, x, y, textAnchor }) => {
-                    const row = axes.find((a) => a.key === payload.value)!;
-                    return (
-                      <g>
-                        <text
-                          x={x}
-                          y={y - 6}
-                          textAnchor={textAnchor}
-                          fill="hsl(var(--foreground))"
-                          fontSize={12}
-                          fontWeight={700}
-                          letterSpacing={0.4}
-                        >
-                          {payload.value}
-                        </text>
-                        <text
-                          x={x}
-                          y={y + 9}
-                          textAnchor={textAnchor}
-                          fill="hsl(var(--muted-foreground))"
-                          fontSize={10}
-                          fontWeight={600}
-                        >
-                          {row.value}
-                        </text>
-                      </g>
-                    );
-                  }}
-                />
-                <PolarRadiusAxis
-                  domain={[0, 100]}
-                  tick={false}
-                  axisLine={false}
-                  stroke="transparent"
-                />
-                <Radar
-                  dataKey="value"
-                  stroke="var(--primary)"
-                  strokeWidth={2.25}
-                  fill="url(#profileFill)"
-                  isAnimationActive
-                  animationDuration={1000}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
+          <div className="relative">
+            <SixAxisRadar axes={axes} />
           </div>
 
-          <div className="mt-1 flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground">
+          <div className="relative mt-1 flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground">
             <Info className="h-3.5 w-3.5" />
             Derived from your goals, sleep, training, diet & stress signals.
           </div>
