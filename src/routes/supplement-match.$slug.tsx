@@ -637,27 +637,27 @@ function SupplementCard({
                   href={amazonLink(product.asin)}
                   target="_blank"
                   rel="nofollow sponsored noopener"
-                  className={`group relative flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-3 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:h-44 sm:w-44`}
+                  className="group relative flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-card p-2 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:h-44 sm:w-44"
                   aria-label={`${product.brand} ${product.title} — view on Amazon`}
                 >
-                  <div
-                    className={`absolute inset-0 opacity-60 ${TONE_STYLES[product.tone].bg}`}
-                    aria-hidden
-                  />
-                  <div
-                    className="relative z-10 flex flex-col items-center justify-center text-center px-3"
-                    aria-hidden
-                  >
-                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                      {product.brand}
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={`${product.brand} ${product.title}`}
+                      className="relative z-10 h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="relative z-10 flex flex-col items-center justify-center px-3 text-center">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                        {product.brand}
+                      </div>
+                      <div className="mt-1 text-base font-extrabold leading-tight text-foreground">
+                        {product.pill}
+                      </div>
                     </div>
-                    <div className="mt-1 text-base font-extrabold leading-tight text-slate-900">
-                      {product.pill}
-                    </div>
-                  </div>
-                  <div className="absolute inset-x-0 bottom-1.5 z-10 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700/80">
-                    View on Amazon →
-                  </div>
+                  )}
                 </a>
                 <div className="flex flex-1 flex-col gap-2.5">
                   <div>
