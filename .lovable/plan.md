@@ -1,93 +1,120 @@
-# Supplement Match — Full Parity Build
+# Repo Audit & Optimization Plan
 
-Bring the Supplement Match app up to the same shape as **Watch Finder** / **Shoe Finder** on gearuptofit.com, so it can be embedded into the WordPress site as a third "finder" tool.
+Comprehensive refactor of nutri-match-wiz across efficiency, safety, SEO, privacy, and maintainability. Sequenced so existing quiz/result flow keeps working at every step.
 
-## Outcome
+## Phase 1 — Foundation (low risk, no behavior change)
 
-A standalone TanStack Start app at `/` that:
+1. **Rename package** — `package.json` name → `gearuptofit-supplement-match`. Scripts/deploy unaffected (name is metadata only; `wrangler.jsonc` uses its own name).
+2. **Remove unused deps** — audit with `depcheck`/grep; drop anything not imported. Verify build after.
+3. **Lazy-load PDF + result-only chunks** — `pdf-report.ts` (jsPDF is heavy) becomes dynamic `import()` inside the download handler. Result-page subcomponents (`CredibilitySections`, charts) → `React.lazy` where safe.
 
-- Runs as the entire site (Supplement Match IS the home page, not a sub-route), matching the Watch Finder pattern.
-- Embeds cleanly inside the WordPress page on gearuptofit.com (transparent background, no own header/footer, iframe-friendly).
-- Captures the user's email via a Brevo-powered email gate before revealing full results.
-- Generates a downloadable PDF report of their personalized supplement plan.
-- Surfaces Amazon affiliate product cards for each recommended supplement (commission-blind ranking).
-- Lets users compare two supplements side-by-side at `/compare/$slug`.
-- Has stable shareable result URLs at `/supplement-match/$slug?d=...`.
-- Has proper SEO: per-route `head()`, JSON-LD (WebApplication + FAQPage + Product/BreadcrumbList where appropriate), sitemap.xml, robots.
-- Includes supporting pages: `/about`, `/methodology`, `/affiliate-disclosure`.
+## Phase 2 — Engine refactor (preserve determinism)
 
-## Stages
+Split `src/lib/supplementEngine.ts` (933 lines) into pure modules under `src/lib/engine/`:
 
-Work proceeds in 4 stages. Each stage ends in a working, deployable state so the user can preview progress.
-
-### Stage 1 — Shell & quiz UX parity (no integrations yet)
-
-- Replace placeholder `src/routes/index.tsx` with the Supplement Match quiz as the homepage (hero + step UI matching Watch Finder's `QuizHero` / `QuizProgress` / `QuizStepContent` / `QuizNavigation` pattern, with framer-motion transitions and AI Confidence meter).
-- Port the existing 15+ supplement database, scoring engine, and safety gate from `src/lib/supplementData.ts` + `src/lib/supplementEngine.ts` into the new structure — `quiz-data.ts`, `recommendation-engine.ts`, `supplement-database.ts`.
-- Add iframe-friendly root shell: transparent background, no internal header/footer chrome, viewport-fit, postMessage height reporter for WordPress embedding.
-- Strip the standalone marketing homepage; remove the old `/supplement-match/` sub-route.
-- Add `/about`, `/methodology`, `/affiliate-disclosure` static routes with their own `head()`.
-- Add `src/routes/sitemap[.]xml.ts` and `robots.txt`.
-
-### Stage 2 — Result routes, compare, share URLs
-
-- Add `src/routes/supplement-match.$slug.tsx` — slug + base64 `d` search param encoding of answers; deterministic re-score on load; renders the full personalized report.
-- Add `src/routes/supplement.$slug.tsx` — per-supplement detail page (educational + safety info + Amazon product card).
-- Add `src/routes/compare.$slug.tsx` — two supplements side-by-side (slug = `vitamin-d-vs-magnesium`).
-- Each route gets unique `head()` derived from loader data, including JSON-LD (Product / BreadcrumbList).
-
-### Stage 3 — Brevo email gate + Amazon affiliate
-
-- Connect the Brevo standard connector (`standard_connectors--connect`) so `BREVO_API_KEY` is injected.
-- Build `EmailGate.tsx` (matches Watch Finder pattern) that blurs the full report until email submitted.
-- `src/routes/api/public/brevo-subscribe.ts` — server route, Zod-validates email + UTM, calls Brevo via gateway, tags lead with `supplement-match-lead`.
-- `src/lib/brevo-supplement-sequence.ts` — 5-email drip definitions (welcome, food-first, safety primer, top picks, deeper dive).
-- Add Amazon affiliate tag handling — `src/lib/amazon.ts` builds tagged URLs from ASINs stored in supplement DB; product cards render after the email gate; commission-blind (links added after scoring).
-- Optional Amazon PA-API server fn `amazon-product.functions.ts` for live price/title/image if `AMAZON_PAAPI_KEY` provided.
-
-### Stage 4 — PDF report + polish
-
-- `src/lib/supplement-report-pdf.ts` — generate branded PDF (pdf-lib, edge-safe) with logo, user inputs summary, ranked recommendations, food-first plan, safety warnings, disclosures.
-- `src/lib/report-expiry.functions.ts` — 30-day expiry badge.
-- Download-PDF CTA on the result page (after email gate).
-- UTM capture (`src/lib/utm.ts`), web vitals (`src/lib/vitals.ts`).
-- Final SEO pass: canonical hrefs to `https://gearuptofit.com/supplement-match/...`, OG images, structured data audit.
-
-## Technical Notes
-
-- **Stack**: TanStack Start v1 + React 19 + Vite 7 + Tailwind v4. No Supabase / Lovable Cloud needed — quiz is deterministic and stateless; the only backend touch is Brevo via the connector gateway and (optionally) Amazon PA-API. Skip enabling Cloud.
-- **Brevo**: called server-side from `src/routes/api/public/brevo-subscribe.ts` via `https://connector-gateway.lovable.dev/brevo/...` with `Authorization: Bearer ${LOVABLE_API_KEY}` + `X-Connection-Api-Key: ${BREVO_API_KEY}`. Email validated with Zod. Rate-limited in-memory per-IP.
-- **Amazon**: ASINs stored in `supplement-database.ts`. Default link builder uses `?tag=${AMAZON_AFFILIATE_TAG}` (publishable, can live in code or as a runtime secret). PA-API key only required for live product enrichment — graceful fallback to static data if absent.
-- **Embed mode**: a `?embed=1` search param on the root sets a `data-embed` attribute that switches CSS to transparent bg and emits `postMessage({ type: 'supplementMatchHeight', height })` on resize so the WordPress iframe can auto-grow.
-- **Slug + share URL**: `generateSlug(answers)` builds something like `vegan-endurance-female-30s`; the canonical answers are encoded into `?d=<base64url JSON>` so the page can re-score from URL alone.
-
-## Out of scope (this round)
-
-- User accounts / saving history (no Cloud)
-- Practitioner directory
-- Multi-language
-
-## Files (Stage 1 only — listed for transparency)
-
-```text
-src/routes/index.tsx                       (rewrite — quiz homepage)
-src/routes/__root.tsx                      (update — embed mode shell, no chrome)
-src/routes/about.tsx                       (new)
-src/routes/methodology.tsx                 (new)
-src/routes/affiliate-disclosure.tsx        (new)
-src/routes/sitemap[.]xml.ts                (new)
-src/components/quiz/QuizHero.tsx           (new)
-src/components/quiz/QuizProgress.tsx       (new)
-src/components/quiz/QuizStepContent.tsx    (new)
-src/components/quiz/QuizNavigation.tsx     (new)
-src/lib/quiz-data.ts                       (new — steps + slug + encode helpers)
-src/lib/recommendation-engine.ts           (port from supplementEngine.ts)
-src/lib/supplement-database.ts             (port from supplementData.ts, add ASINs)
-src/lib/utm.ts                             (new)
-src/lib/vitals.ts                          (new)
-src/lib/embed.ts                           (new — postMessage height reporter)
-public/robots.txt                          (new)
-# delete src/routes/supplement-match/*, src/components/supplement/*
+```
+engine/
+  safety-gates.ts        # age<18, pregnancy, meds, organ disease → block/downgrade
+  scoring.ts             # deterministic base scoring
+  status-rules.ts        # core / secondary / not-recommended assignment
+  suppressions.ts        # mutual exclusions, redundancy
+  explanations.ts        # human-readable "why" strings
+  product-attachment.ts  # runs LAST, post-ranking, with eligibility filter
+  confidence.ts          # high/medium/low/blocked
+  index.ts               # public API, re-exports, single entrypoint
 ```
 
-Stages 2–4 add per-stage file lists once Stage 1 is approved.
+Old `supplementEngine.ts` becomes a thin re-export shim so existing imports (route, tests) keep working. All existing tests must pass unchanged.
+
+**Minimum effective stack**: cap 3 core + 2 secondary; everything else under "Not recommended today" with reason.
+
+## Phase 3 — Safety & evidence
+
+- Extend `EvidenceEntry` with `lastChecked`, `avoidWhen[]`, `clinicianOnlyWhen[]`, `downgradeWhen[]`, `maxSafeDefaultDose`, `notUsefulFor[]`. Populate all 15 entries.
+- Wire `safety-gates.ts` to read these fields → no more hand-coded conditions duplicated across files.
+- Result UI: every recommendation already shows citations; add per-claim source mapping (`supports` field already exists, surface it).
+
+## Phase 4 — Privacy-first result flow
+
+**Current**: full quiz answers base64'd into `?d=…` URL → sensitive medical data leaks via referrer/logs/share.
+
+**New**:
+- Quiz completion stores answers in `sessionStorage` keyed by a random slug, navigates to `/supplement-match/<slug>` with NO `?d=` param.
+- Result page reads from sessionStorage. If absent (cold link), shows "This result has expired — retake the quiz".
+- **"Create shareable link"** button → modal with privacy warning → strips medical/medication/pregnancy fields → encodes the safe subset into `?d=…` and copies URL.
+- Backwards compat: existing `?d=…` links still decode and render (so currently-shared URLs don't 404).
+- Result pages keep `noindex, follow`.
+
+## Phase 5 — Adaptive quiz branching
+
+- Annotate `quizSteps` with `showWhen(answers)` predicate.
+- Skip irrelevant follow-ups: e.g. pregnancy questions only if `sex=female` and `ageRange` in childbearing range; training-detail questions only if `trainingFrequency > 0`; medication detail only if `medications=true`.
+- Safety-screen questions remain mandatory and early.
+- Target 8–11 steps for typical users; full 19 retained for edge cases.
+- Early **safety guidance interstitial** when under-18 / pregnant / high-risk meds / organ disease detected → can still continue, but recommendations downgrade.
+
+## Phase 6 — Product eligibility layer
+
+New `engine/product-eligibility.ts` runs before affiliate attachment:
+- Requires: explicit dose, no proprietary blend flag, dose ≤ `maxSafeDefaultDose`, third-party seal when available, allergen compatibility (vegan/gluten/lactose flags), NSF Certified for Sport when athlete profile.
+- If 0 products pass → render a **label checklist** card ("look for X mg, USP/NSF seal, no proprietary blends") instead of a product card.
+- Attachment runs strictly after ranking is frozen — already the case, but enforce via module boundary.
+
+## Phase 7 — SEO URL architecture
+
+New static topic pages under `/supplement-match/`:
+
+```
+vitamin-d, creatine, omega-3, magnesium, b12, iron, electrolytes,
+protein-powder, vegan-supplements, running-supplements, supplements-for-over-50
+```
+
+- Each is a real route file with unique `head()` meta, H1, evidence summary, citations, internal links to related topics, CTA back to quiz.
+- Existing `/supplement-match/topic/<slug>` → 301 redirect to new clean URL (server-side 308 via route handler returning Response).
+- Sitemap: include only the 11 new topic pages + `/`, `/about`, `/faq`, `/methodology`, `/affiliate-disclosure`. Exclude personalized result pages and compare pages (noindex).
+
+## Phase 8 — Tests
+
+Golden fixtures under `src/lib/__tests__/fixtures/`:
+- vegan-athlete, pregnant, under-18, blood-thinner, antidepressant, kidney-disease, runner-heavy-sweater, older-low-protein
+
+Each fixture asserts: deterministic ranking snapshot, expected safety gates fire, blocked supplements excluded, product eligibility filter results, share-link payload omits sensitive fields. Plus sitemap inclusion/exclusion test and malformed `?d=` payload rejection test.
+
+## Phase 9 — Verify
+
+- `bun run test` — all green (existing 12 + new fixtures)
+- `bun run lint` — clean
+- `bun run build` — succeeds, report bundle delta
+
+## Intentionally NOT changed
+
+- Visual design / Tailwind theme — untouched.
+- `supplementData.ts` catalog content — untouched (only evidence matrix grows).
+- Quiz copy/questions — only `showWhen` added; no rewording.
+- Cloud/Supabase — not enabled (no backend needed for these changes).
+- `routeTree.gen.ts` — regenerated by plugin, never hand-edited.
+
+## Risk checklist
+
+| Risk | Mitigation |
+|---|---|
+| Engine split changes ranking output | Keep `supplementEngine.ts` as shim; run existing tests before/after each split |
+| Privacy migration breaks shared links | Keep `?d=` decoder as fallback path |
+| Adaptive flow hides required questions | Safety questions hard-coded as always-shown |
+| SEO redirects break Google indexing | 301 (permanent) only on `/topic/<slug>` → new path; old URLs in sitemap removed |
+| Lazy-loading PDF causes UX delay | Show spinner on click; preload on hover |
+| Bundle changes break SSR | Test `bun run build` after each lazy boundary |
+
+## Rough order of file changes
+
+1. `package.json` (rename, remove deps)
+2. `src/lib/engine/*` (new), `src/lib/supplementEngine.ts` (shim)
+3. `src/lib/evidence/evidence-matrix.ts` (extend schema + populate)
+4. `src/lib/quiz-data.ts` (add `showWhen`)
+5. `src/lib/result-storage.ts` (new — session storage + safe-share encoding)
+6. `src/routes/index.tsx` (use new storage on finish)
+7. `src/routes/supplement-match.$slug.tsx` (read storage, lazy children, share modal)
+8. `src/routes/supplement-match.<topic>.tsx` × 11 (new static pages)
+9. `src/routes/supplement-match.topic.$topic.tsx` (301 redirect)
+10. `src/routes/sitemap[.]xml.ts` (curate entries)
+11. `src/lib/__tests__/fixtures/*` (new golden tests)
