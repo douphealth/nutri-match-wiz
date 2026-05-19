@@ -31,9 +31,11 @@ export const Route = createFileRoute("/supplement-match/topic/$topic")({
       ],
     };
   },
-  component: () => {
-    const { topic } = Route.useLoaderData() as { topic: ReturnType<typeof findTopic> };
-    if (!topic) return null;
-    return <TopicView topic={topic} />;
-  },
+  component: TopicRouteComponent,
 });
+
+function TopicRouteComponent() {
+  const { topic } = Route.useLoaderData() as { topic: ReturnType<typeof findTopic> };
+  if (!topic) return null;
+  return <TopicView topic={topic} />;
+}
