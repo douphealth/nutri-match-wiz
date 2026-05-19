@@ -4,11 +4,11 @@
 // The QuizAnswers shape itself lives in "@/types/supplements" and powers
 // the deterministic scoring engine in `recommendation-engine.ts`.
 
-import type { QuizAnswers, Frequency, Goal } from "@/types/supplements";
+import type { QuizAnswers, Frequency, Goal, QuizMode } from "@/types/supplements";
 import { DEFAULT_ANSWERS } from "./engine";
 
 export { DEFAULT_ANSWERS as defaultAnswers };
-export type { QuizAnswers };
+export type { QuizAnswers, QuizMode };
 
 type AnswerPath = string; // dot-path like "foodIntake.oilyFish" or "medical.bloodThinners"
 
