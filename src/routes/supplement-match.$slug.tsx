@@ -409,12 +409,16 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <CardTitle className="text-lg leading-tight">{cleanName}</CardTitle>
+                  {rec.status && <StatusBadge status={rec.status} />}
                   {isTop && (
                     <Badge className="gap-1 bg-gradient-primary text-primary-foreground">
                       <Award className="h-3 w-3" /> Top pick
                     </Badge>
                   )}
                 </div>
+                {rec.statusReason && (
+                  <p className="mt-1 text-xs italic text-amber-300/90">{rec.statusReason}</p>
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   {rec.supplement.category} · Evidence{" "}
                   <span className="font-semibold text-foreground">{rec.supplement.evidenceLevel}</span>{" "}
