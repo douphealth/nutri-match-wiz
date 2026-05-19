@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SupplementMatchSlugRouteImport } from './routes/supplement-match.$slug'
 import { Route as SupplementMatchTopicIndexRouteImport } from './routes/supplement-match.topic.index'
 import { Route as SupplementMatchTopicTopicRouteImport } from './routes/supplement-match.topic.$topic'
+import { Route as SupplementMatchCompareSlugRouteImport } from './routes/supplement-match.compare.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -66,6 +67,12 @@ const SupplementMatchTopicTopicRoute =
     path: '/supplement-match/topic/$topic',
     getParentRoute: () => rootRouteImport,
   } as any)
+const SupplementMatchCompareSlugRoute =
+  SupplementMatchCompareSlugRouteImport.update({
+    id: '/supplement-match/compare/$slug',
+    path: '/supplement-match/compare/$slug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/supplement-match/$slug': typeof SupplementMatchSlugRoute
+  '/supplement-match/compare/$slug': typeof SupplementMatchCompareSlugRoute
   '/supplement-match/topic/$topic': typeof SupplementMatchTopicTopicRoute
   '/supplement-match/topic/': typeof SupplementMatchTopicIndexRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/supplement-match/$slug': typeof SupplementMatchSlugRoute
+  '/supplement-match/compare/$slug': typeof SupplementMatchCompareSlugRoute
   '/supplement-match/topic/$topic': typeof SupplementMatchTopicTopicRoute
   '/supplement-match/topic': typeof SupplementMatchTopicIndexRoute
 }
@@ -98,6 +107,7 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/supplement-match/$slug': typeof SupplementMatchSlugRoute
+  '/supplement-match/compare/$slug': typeof SupplementMatchCompareSlugRoute
   '/supplement-match/topic/$topic': typeof SupplementMatchTopicTopicRoute
   '/supplement-match/topic/': typeof SupplementMatchTopicIndexRoute
 }
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/sitemap.xml'
     | '/supplement-match/$slug'
+    | '/supplement-match/compare/$slug'
     | '/supplement-match/topic/$topic'
     | '/supplement-match/topic/'
   fileRoutesByTo: FileRoutesByTo
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/sitemap.xml'
     | '/supplement-match/$slug'
+    | '/supplement-match/compare/$slug'
     | '/supplement-match/topic/$topic'
     | '/supplement-match/topic'
   id:
@@ -133,6 +145,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/sitemap.xml'
     | '/supplement-match/$slug'
+    | '/supplement-match/compare/$slug'
     | '/supplement-match/topic/$topic'
     | '/supplement-match/topic/'
   fileRoutesById: FileRoutesById
@@ -145,6 +158,7 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupplementMatchSlugRoute: typeof SupplementMatchSlugRoute
+  SupplementMatchCompareSlugRoute: typeof SupplementMatchCompareSlugRoute
   SupplementMatchTopicTopicRoute: typeof SupplementMatchTopicTopicRoute
   SupplementMatchTopicIndexRoute: typeof SupplementMatchTopicIndexRoute
 }
@@ -214,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupplementMatchTopicTopicRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/supplement-match/compare/$slug': {
+      id: '/supplement-match/compare/$slug'
+      path: '/supplement-match/compare/$slug'
+      fullPath: '/supplement-match/compare/$slug'
+      preLoaderRoute: typeof SupplementMatchCompareSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,9 +246,20 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupplementMatchSlugRoute: SupplementMatchSlugRoute,
+  SupplementMatchCompareSlugRoute: SupplementMatchCompareSlugRoute,
   SupplementMatchTopicTopicRoute: SupplementMatchTopicTopicRoute,
   SupplementMatchTopicIndexRoute: SupplementMatchTopicIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
