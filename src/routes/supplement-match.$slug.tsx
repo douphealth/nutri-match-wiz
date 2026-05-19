@@ -654,6 +654,18 @@ function ResultPage({
           </div>
         </section>
 
+        {/* High-conversion bottom banner */}
+        {top && (() => {
+          const bannerProduct = productFor(top.supplement.id, answers);
+          return bannerProduct ? (
+            <MonetizationBanner
+              product={bannerProduct}
+              matchScore={matchScore}
+              supplementName={top.supplement.name.replace(/\s*\([^)]*\)/g, "")}
+            />
+          ) : null;
+        })()}
+
         {/* Credibility: sources, testimonials, reading, tools, kit, FAQ */}
         <CredibilitySections />
 
