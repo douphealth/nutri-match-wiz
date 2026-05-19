@@ -15,27 +15,45 @@ import type {
 
 const freqLow = (f: Frequency) => f === "never" || f === "rarely";
 const freqHigh = (f: Frequency) => f === "often" || f === "daily";
+const freqValue = (f: Frequency) =>
+  f === "never" ? 0 : f === "rarely" ? 1 : f === "weekly" ? 2 : f === "often" ? 3 : 4;
+const gapStrength = (f: Frequency) => 4 - freqValue(f);
 
 interface Bucket {
   score: number;
   reasons: string[];
   safetyFlags: string[];
+  tags: string[];
   suppressed?: boolean;
 }
 
 function newBuckets(): Record<string, Bucket> {
   const b: Record<string, Bucket> = {};
-  for (const s of SUPPLEMENTS) b[s.id] = { score: 0, reasons: [], safetyFlags: [] };
+  for (const s of SUPPLEMENTS) b[s.id] = { score: 0, reasons: [], safetyFlags: [], tags: [] };
   return b;
 }
 
 function add(b: Bucket, points: number, reason: string) {
   b.score += points;
-  if (reason) b.reasons.push(reason);
+  if (reason && !b.reasons.includes(reason)) b.reasons.push(reason);
+}
+
+function tag(b: Bucket, label: string) {
+  if (!b.tags.includes(label)) b.tags.push(label);
+}
+
+function addSignal(b: Bucket, points: number, reason: string, label: string) {
+  add(b, points, reason);
+  tag(b, label);
 }
 
 function flag(b: Bucket, msg: string) {
   if (!b.safetyFlags.includes(msg)) b.safetyFlags.push(msg);
+}
+
+function currentSupplementMentions(a: QuizAnswers, terms: string[]) {
+  const text = a.currentSupplements.toLowerCase();
+  return terms.some((t) => text.includes(t));
 }
 
 export function evaluateSafetyGate(a: QuizAnswers): EngineResult["safetyGate"] {
