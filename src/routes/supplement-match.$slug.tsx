@@ -307,8 +307,17 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
-  const product = productFor(rec.supplement.id);
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-background/30 p-3">
+      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: number; answers: QuizAnswers }) {
+  const product = productFor(rec.supplement.id, answers);
   const tone = confidenceTone(rec.confidence);
   const cleanName = rec.supplement.name.replace(/\s*\([^)]*\)/g, "");
   const isTop = rank === 1;
