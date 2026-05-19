@@ -1,0 +1,28 @@
+# GearUpToFit — Supplement Match
+
+> Free, evidence-aware vitamin and supplement quiz from GearUpToFit. Generates a personalized, safety-first supplement plan with transparent, deterministic scoring, food-first alternatives, medication-interaction checks, and third-party-tested product picks. Commission-blind ranking.
+
+Canonical host: https://gearuptofit.com/supplement-match/
+
+## Core pages
+
+- [Supplement Match quiz](https://gearuptofit.com/supplement-match/): 90-second adaptive quiz that returns a personalized supplement plan with transparent scoring and safety checks.
+- [Methodology](https://gearuptofit.com/supplement-match/methodology): How the deterministic scoring engine weighs diet, training, lifestyle, lab-risk markers, and medication interactions against an evidence-aware supplement catalog.
+- [About](https://gearuptofit.com/supplement-match/about): Editorial standards, conflict-of-interest policy, and the team behind the tool.
+- [FAQ](https://gearuptofit.com/supplement-match/faq): Common questions about safety, evidence basis, third-party testing, and how results are generated.
+- [Affiliate disclosure](https://gearuptofit.com/supplement-match/affiliate-disclosure): Why ranking is commission-blind and how affiliate links are added only after scoring.
+
+## Topic guides
+
+- [Supplement topics index](https://gearuptofit.com/supplement-match/topic): Index of every evidence-aware supplement guide (vitamin D, magnesium, creatine, omega-3, protein, iron, zinc, electrolytes, ashwagandha, melatonin, collagen, probiotics, multivitamin, B12).
+
+## Editorial guarantees
+
+- Same inputs always produce the same recommendation ranking. No randomization.
+- Affiliate revenue does not influence ranking — links are bolted on after scoring.
+- Third-party testing (USP, NSF, Informed Sport, Informed Choice, ConsumerLab) is prioritized for product picks.
+- Quiz output is educational and explicitly not medical advice.
+
+## License
+
+Content © GearUpToFit. Quotation with attribution and a link to the source page is welcome.
