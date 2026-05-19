@@ -7,7 +7,6 @@ export function installWebVitals() {
   void import("web-vitals").then(({ onCLS, onINP, onLCP, onFCP, onTTFB }) => {
     const report = (metric: { name: string; value: number; id: string }) => {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.debug("[vitals]", metric.name, Math.round(metric.value), metric.id);
       }
     };

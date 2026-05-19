@@ -1,9 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import {
-  resolveComparePair,
-  COMPARE_PAIRS,
-  type ResolvedPair,
-} from "@/lib/compare-pairs";
+import { resolveComparePair, COMPARE_PAIRS, type ResolvedPair } from "@/lib/compare-pairs";
 import type { TopicCopy } from "@/lib/seo-topics";
 
 const BASE = "https://gearuptofit.com/supplement-match";
@@ -66,12 +62,7 @@ export const Route = createFileRoute("/supplement-match/compare/$slug")({
   component: ComparePage,
 });
 
-function buildSchema(
-  resolved: ResolvedPair,
-  url: string,
-  title: string,
-  description: string,
-) {
+function buildSchema(resolved: ResolvedPair, url: string, title: string, description: string) {
   const { a, b } = resolved;
   return [
     {
@@ -199,10 +190,7 @@ function ComparePage() {
         </p>
       </header>
 
-      <section
-        aria-label="Comparison"
-        className="grid gap-5 md:grid-cols-2"
-      >
+      <section aria-label="Comparison" className="grid gap-5 md:grid-cols-2">
         <Column t={a} accent="primary" />
         <Column t={b} accent="muted" />
       </section>

@@ -25,8 +25,7 @@ describe("evidence traceability", () => {
     const iron = EVIDENCE_MATRIX.iron;
     expect(iron).toBeDefined();
     expect(
-      iron.labRequirement === "required_before_use" ||
-        iron.labRequirement === "clinician_directed",
+      iron.labRequirement === "required_before_use" || iron.labRequirement === "clinician_directed",
     ).toBe(true);
   });
 });

@@ -7,9 +7,11 @@ type Handler = (ctx: { request: Request }) => Promise<Response>;
 
 async function fetchSitemap(): Promise<string> {
   // Reach into the TanStack file route options to invoke the GET handler directly.
-  const opts = (SitemapRoute as unknown as {
-    options: { server: { handlers: { GET: Handler } } };
-  }).options;
+  const opts = (
+    SitemapRoute as unknown as {
+      options: { server: { handlers: { GET: Handler } } };
+    }
+  ).options;
   const res = await opts.server.handlers.GET({
     request: new Request("https://gearuptofit.com/sitemap.xml"),
   });

@@ -5,16 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { type QuizAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/engine";
 import { findTopic } from "@/lib/seo-topics";
-import {
-  TopicView,
-  buildTopicSchema,
-  topicCanonicalUrl,
-} from "@/components/topic/TopicView";
-import {
-  readAnswersForSlug,
-  decodeShareParam,
-  buildShareUrl,
-} from "@/lib/result-storage";
+import { TopicView, buildTopicSchema, topicCanonicalUrl } from "@/components/topic/TopicView";
+import { readAnswersForSlug, decodeShareParam, buildShareUrl } from "@/lib/result-storage";
 import type { Recommendation, EngineResult, RecommendationStatus } from "@/types/supplements";
 import type { Recommendation as RecType } from "@/types/supplements";
 import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
@@ -109,10 +101,10 @@ function ShareLinkButton({ slug, answers }: { slug: string; answers: QuizAnswers
           <AlertDialogTitle>Heads up — privacy notice</AlertDialogTitle>
           <AlertDialogDescription>
             Anyone with the link can see a sanitized version of your match. Before we encode it, we
-            strip sensitive fields: pregnancy status, medications, blood thinners,
-            antidepressants, diabetes / thyroid / blood-pressure meds, kidney or liver disease,
-            heart disease, planned surgery, anemia history, and your free-text supplement notes.
-            The receiver gets a less precise but still useful recommendation.
+            strip sensitive fields: pregnancy status, medications, blood thinners, antidepressants,
+            diabetes / thyroid / blood-pressure meds, kidney or liver disease, heart disease,
+            planned surgery, anemia history, and your free-text supplement notes. The receiver gets
+            a less precise but still useful recommendation.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -129,7 +121,11 @@ function ShareLinkButton({ slug, answers }: { slug: string; answers: QuizAnswers
 // only the slug.
 const searchSchema = z.object({ d: z.string().optional() });
 
-type LoaderTopic = { kind: "topic"; slug: string; topic: NonNullable<ReturnType<typeof findTopic>> };
+type LoaderTopic = {
+  kind: "topic";
+  slug: string;
+  topic: NonNullable<ReturnType<typeof findTopic>>;
+};
 type LoaderResult = {
   kind: "result";
   slug: string;
@@ -211,12 +207,20 @@ function RetakeQuizState({ slug }: { slug: string }) {
       </div>
       <h1 className="text-3xl font-bold tracking-tight">Your match isn’t on this device</h1>
       <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-        For your privacy, results stay in this browser’s session storage rather than the URL.
-        Take the 90-second quiz again to regenerate your personalized plan
-        <span className="hidden sm:inline"> for <code className="text-xs">{slug}</code></span>.
+        For your privacy, results stay in this browser’s session storage rather than the URL. Take
+        the 90-second quiz again to regenerate your personalized plan
+        <span className="hidden sm:inline">
+          {" "}
+          for <code className="text-xs">{slug}</code>
+        </span>
+        .
       </p>
       <div className="mt-8 flex justify-center gap-3">
-        <Button asChild size="lg" className="bg-gradient-primary font-semibold uppercase tracking-wider">
+        <Button
+          asChild
+          size="lg"
+          className="bg-gradient-primary font-semibold uppercase tracking-wider"
+        >
           <Link to="/">Retake the quiz</Link>
         </Button>
       </div>
