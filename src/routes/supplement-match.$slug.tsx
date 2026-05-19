@@ -148,6 +148,10 @@ function ResultPage() {
     (sum, rec) => sum + productsFor(rec.supplement.id).length,
     0,
   );
+  const clinicianGuidance = [
+    ...(safetyGate.triggered ? safetyGate.reasons : []),
+    ...(clinicianCallouts ?? []),
+  ].filter((item, index, list) => item && list.indexOf(item) === index);
 
   return (
     <div className="relative isolate">
@@ -271,8 +275,8 @@ function ResultPage() {
           </section>
         )}
 
-        {/* Safety gate */}
-        {safetyGate.triggered && (
+        {/* Safety gate + clinician callouts */}
+        {clinicianGuidance.length > 0 && (
           <Card className="mb-8 border-destructive/40 bg-destructive/5">
             <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
               <ShieldAlert className="h-5 w-5 text-destructive" />
@@ -282,27 +286,8 @@ function ResultPage() {
             </CardHeader>
             <CardContent>
               <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                {safetyGate.reasons.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Clinician callouts (test-first, clinician-only items) */}
-        {clinicianCallouts && clinicianCallouts.length > 0 && (
-          <Card className="mb-8 border-amber-500/40 bg-amber-500/5">
-            <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
-              <AlertTriangle className="h-5 w-5 text-amber-400" />
-              <CardTitle className="text-base">
-                Ask your clinician or pharmacist about these
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                {clinicianCallouts.map((c) => (
-                  <li key={c}>{c}</li>
+                {clinicianGuidance.map((item) => (
+                  <li key={item}>{item}</li>
                 ))}
               </ul>
             </CardContent>
@@ -652,27 +637,27 @@ function SupplementCard({
                   href={amazonLink(product.asin)}
                   target="_blank"
                   rel="nofollow sponsored noopener"
-                  className={`group relative flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-3 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:h-44 sm:w-44`}
+                  className="group relative flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-card p-2 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:h-44 sm:w-44"
                   aria-label={`${product.brand} ${product.title} — view on Amazon`}
                 >
-                  <div
-                    className={`absolute inset-0 opacity-60 ${TONE_STYLES[product.tone].bg}`}
-                    aria-hidden
-                  />
-                  <div
-                    className="relative z-10 flex flex-col items-center justify-center text-center px-3"
-                    aria-hidden
-                  >
-                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                      {product.brand}
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={`${product.brand} ${product.title}`}
+                      className="relative z-10 h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="relative z-10 flex flex-col items-center justify-center px-3 text-center">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                        {product.brand}
+                      </div>
+                      <div className="mt-1 text-base font-extrabold leading-tight text-foreground">
+                        {product.pill}
+                      </div>
                     </div>
-                    <div className="mt-1 text-base font-extrabold leading-tight text-slate-900">
-                      {product.pill}
-                    </div>
-                  </div>
-                  <div className="absolute inset-x-0 bottom-1.5 z-10 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700/80">
-                    View on Amazon →
-                  </div>
+                  )}
                 </a>
                 <div className="flex flex-1 flex-col gap-2.5">
                   <div>
