@@ -45,15 +45,29 @@ export interface EvidenceEntry {
   supportedClaims: string[];
   /** Plain-language summary of what the evidence does NOT support. */
   unsupportedClaims?: string[];
+  /** Conditions where this supplement provides no meaningful benefit. */
+  notUsefulFor?: string[];
   /** Populations where evidence is strongest. */
   populationFit: string[];
   /** Populations where evidence is weakest or where caution applies. */
   populationCaution?: string[];
+  /** Hard-block conditions — never recommend if any of these are true. */
+  avoidWhen?: string[];
+  /** Clinician must direct dosing if any of these are true. */
+  clinicianOnlyWhen?: string[];
+  /** Downgrade confidence/score if any of these are true. */
+  downgradeWhen?: string[];
+  /** Maximum safe default OTC dose (per day) for an average adult, in the supplement's native unit. */
+  maxSafeDefaultDose?: string;
   /** Authoritative citations rendered in the UI. */
   citations: Citation[];
   evidenceGrade: EvidenceGrade;
   labRequirement: LabRequirement;
+  /** ISO date (YYYY-MM-DD) the entry was last reviewed against sources. */
+  lastChecked: string;
 }
+
+const LAST_CHECKED = "2026-05-19";
 
 const C = {
   // Vitamin D
