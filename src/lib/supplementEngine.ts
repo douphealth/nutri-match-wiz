@@ -112,9 +112,20 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (freqLow(a.foodIntake.fortifiedFoods)) addSignal(vd, 0.8, "You rarely use fortified foods, so food-based vitamin D coverage may be low.", "low fortified foods");
   if (a.goals.includes("bone_health")) addSignal(vd, 1.4, "Bone-health goal strongly aligns with vitamin D status.", "bone goal");
   if (a.goals.includes("immune")) addSignal(vd, 0.8, "Adequate vitamin D supports normal immune function.", "immune goal");
-  if (currentSupplementMentions(a, ["vitamin d", "d3", "cholecalciferol"])) {
+  const alreadyOnD = currentSupplementMentions(a, ["vitamin d", "d3", "cholecalciferol"]);
+  if (alreadyOnD) {
     add(vd, -1.2, "");
     flag(vd, "You mentioned current vitamin D use — avoid stacking high doses unless labs justify it.");
+  }
+  // Vitamin D is always test-encouraged. Strong signal → test_first; otherwise → consider with conservative dose framing.
+  if (!alreadyOnD) {
+    if (a.sunExposure === "low" || a.ageRange === "60_plus" || a.diet === "vegan") {
+      vd.forcedStatus = "test_first";
+      vd.forcedStatusReason = "Confirm with a 25(OH)D blood test before starting more than a conservative daily dose.";
+    } else {
+      vd.forcedStatus = "consider";
+      vd.forcedStatusReason = "If you start, keep the daily dose conservative and test 25(OH)D before going higher.";
+    }
   }
 
   // ---- B12 ----
