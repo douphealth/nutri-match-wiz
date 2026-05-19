@@ -31,7 +31,7 @@ import {
   Star,
   Loader2,
 } from "lucide-react";
-import { downloadSupplementReport } from "@/lib/pdf-report";
+// PDF report is lazy-loaded on click to keep jsPDF out of the initial bundle.
 import { useState } from "react";
 import type { EngineResult } from "@/types/supplements";
 
