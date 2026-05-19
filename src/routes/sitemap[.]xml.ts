@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { SUPPLEMENT_CATALOG } from "@/lib/supplement-database";
+import { TOPIC_SLUGS } from "@/lib/seo-topics";
 
 const BASE_URL = "https://gearuptofit.com/supplement-match";
 
@@ -19,6 +20,11 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/about", changefreq: "monthly", priority: "0.5" },
           { path: "/methodology", changefreq: "monthly", priority: "0.6" },
           { path: "/affiliate-disclosure", changefreq: "yearly", priority: "0.3" },
+          ...TOPIC_SLUGS.map((slug) => ({
+            path: `/topic/${slug}`,
+            changefreq: "monthly" as const,
+            priority: "0.8",
+          })),
           ...SUPPLEMENT_CATALOG.map((s) => ({
             path: `/supplement/${s.slug}`,
             changefreq: "monthly" as const,
