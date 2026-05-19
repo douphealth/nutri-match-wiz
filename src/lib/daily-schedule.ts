@@ -215,8 +215,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
         weeklyNotes: ["Food-first: dairy, fortified plant milks, tofu, leafy greens. Most adults don't need a supplement if diet covers it."],
         separationWarnings: a.medical.thyroidMeds
           ? ["Separate from thyroid medication by at least 4 hours."]
-          : undefined as unknown as string[],
-      } as ProtocolBlueprint;
+          : undefined,
+      };
 
     case "prenatal":
       return {
