@@ -371,7 +371,7 @@ export const quizSteps: QuizStep[] = [
     type: "boolean-multi",
     tier: "branch",
     why: "Vegans & vegetarians often need B12, iron/ferritin, and algal omega-3 — but only when current intake or labs say so.",
-    image: U("1556910103-1c02745aa4dc"),
+    image: U("1471864190281-a93a3070b6de"),
     imageAlt: "Lab sample tubes and notes on a clean surface",
     booleans: [
       { path: "fatigueLabs.b12TestedLow", label: "I've had a low B12 result before" },
