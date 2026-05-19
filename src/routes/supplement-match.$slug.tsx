@@ -267,11 +267,6 @@ function ResultPage() {
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
-              <MiniMetric label="Product candidates" value={String(productCandidates)} />
-              <MiniMetric label="Affiliate tag" value="papalex-20" />
-              <MiniMetric label="Ranking bias" value="Commission-blind" />
-            </div>
           </section>
         )}
 
