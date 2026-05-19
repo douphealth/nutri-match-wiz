@@ -1,9 +1,22 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { z } from "zod";
-import { decodeAnswers, type QuizAnswers } from "@/lib/quiz-data";
+import { useEffect, useMemo, useState } from "react";
+import { type QuizAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/engine";
-import type { Recommendation } from "@/types/supplements";
+import { findTopic } from "@/lib/seo-topics";
+import {
+  TopicView,
+  buildTopicSchema,
+  topicCanonicalUrl,
+} from "@/components/topic/TopicView";
+import {
+  readAnswersForSlug,
+  decodeShareParam,
+  buildShareUrl,
+} from "@/lib/result-storage";
+import type { Recommendation, EngineResult, RecommendationStatus } from "@/types/supplements";
+import type { Recommendation as RecType } from "@/types/supplements";
 import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import {
   CredibilitySections,
@@ -12,7 +25,6 @@ import {
 } from "@/components/result/CredibilitySections";
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";
-import type { Recommendation as RecType, RecommendationStatus } from "@/types/supplements";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,15 +37,25 @@ import {
   Download,
   ExternalLink,
   Leaf,
+  Link2,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   Star,
   Loader2,
 } from "lucide-react";
-// PDF report is lazy-loaded on click to keep jsPDF out of the initial bundle.
-import { useState } from "react";
-import type { EngineResult } from "@/types/supplements";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function PdfDownloadButton({ result }: { result: EngineResult }) {
   const [loading, setLoading] = useState(false);
@@ -62,48 +84,184 @@ function PdfDownloadButton({ result }: { result: EngineResult }) {
   );
 }
 
-const searchSchema = z.object({ d: z.string().min(1) });
+function ShareLinkButton({ slug, answers }: { slug: string; answers: QuizAnswers }) {
+  const onShare = async () => {
+    const url = buildShareUrl(slug, answers);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Sanitized share link copied", {
+        description: "Medical, medication, and pregnancy fields were stripped before sharing.",
+      });
+    } catch {
+      toast.error("Could not copy link");
+    }
+  };
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="lg" variant="outline" className="font-semibold uppercase tracking-wider">
+          <Link2 className="mr-2 h-4 w-4" />
+          Create shareable link
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Heads up — privacy notice</AlertDialogTitle>
+          <AlertDialogDescription>
+            Anyone with the link can see a sanitized version of your match. Before we encode it, we
+            strip sensitive fields: pregnancy status, medications, blood thinners,
+            antidepressants, diabetes / thyroid / blood-pressure meds, kidney or liver disease,
+            heart disease, planned surgery, anemia history, and your free-text supplement notes.
+            The receiver gets a less precise but still useful recommendation.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onShare}>Copy sanitized link</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+// `?d=` is optional now — kept only for backwards compatibility with old share
+// links. The default flow stores answers in sessionStorage and the URL contains
+// only the slug.
+const searchSchema = z.object({ d: z.string().optional() });
+
+type LoaderTopic = { kind: "topic"; slug: string; topic: NonNullable<ReturnType<typeof findTopic>> };
+type LoaderResult = {
+  kind: "result";
+  slug: string;
+  answers: QuizAnswers | null;
+  result: EngineResult | null;
+};
+type LoaderData = LoaderTopic | LoaderResult;
 
 export const Route = createFileRoute("/supplement-match/$slug")({
   validateSearch: searchSchema,
   loaderDeps: ({ search: { d } }) => ({ d }),
-  loader: ({ params, deps }) => {
-    const answers = decodeAnswers(deps.d);
-    if (!answers) throw notFound();
-    const result = runEngine(answers);
-    return { slug: params.slug, answers, result };
+  loader: ({ params, deps }): LoaderData => {
+    // Dispatcher: if the slug matches an SEO topic, render the canonical topic page.
+    const topic = findTopic(params.slug);
+    if (topic) return { kind: "topic", slug: params.slug, topic };
+
+    // Otherwise this is a personalized result page. Try the legacy ?d= payload
+    // for back-compat; the privacy-first sessionStorage path is hydrated on the client.
+    const answers = deps.d ? decodeShareParam(deps.d) : null;
+    const result = answers ? runEngine(answers) : null;
+    return { kind: "result", slug: params.slug, answers, result };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Your Supplement Match" }] };
-    const top = loaderData.result.recommendations
-      .slice(0, 3)
+    if (loaderData?.kind === "topic") {
+      const t = loaderData.topic;
+      const url = topicCanonicalUrl(loaderData.slug);
+      return {
+        meta: [
+          { title: t.metaTitle },
+          { name: "description", content: t.metaDescription },
+          { property: "og:title", content: t.metaTitle },
+          { property: "og:description", content: t.metaDescription },
+          { property: "og:url", content: url },
+          { property: "og:type", content: "article" },
+          { name: "twitter:card", content: "summary_large_image" },
+        ],
+        links: [{ rel: "canonical", href: url }],
+        scripts: [
+          { type: "application/ld+json", children: JSON.stringify(buildTopicSchema(t, url)) },
+        ],
+      };
+    }
+    // Personalized result page — never index.
+    const top = loaderData?.result?.recommendations
+      ?.slice(0, 3)
       .map((r) => r.supplement.name.replace(/\s*\([^)]*\)/g, ""))
       .join(", ");
-    const title = `Your Supplement Match — ${top || "Personalized Plan"}`;
-    const description = top
-      ? `Your evidence-aware top picks: ${top}. Safety-first, food-first, transparently scored.`
-      : "Your personalized, safety-first supplement plan from GearUpToFit.";
-    const url = `https://gearuptofit.com/supplement-match/${loaderData.slug}`;
+    const title = top ? `Your Supplement Match — ${top}` : "Your Supplement Match";
     return {
       meta: [
         { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:url", content: url },
-        { property: "og:type", content: "article" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "robots", content: "noindex, follow" },
+        {
+          name: "description",
+          content:
+            "Your personalized, safety-first supplement plan from GearUpToFit. Private by default — answers stay on your device.",
+        },
+        { name: "robots", content: "noindex, nofollow" },
       ],
-      links: [{ rel: "canonical", href: url }],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(faqJsonLd()) },
         { type: "application/ld+json", children: JSON.stringify(reviewJsonLd()) },
       ],
     };
   },
-  component: ResultPage,
+  component: SupplementMatchSlugRoute,
 });
+
+function SupplementMatchSlugRoute() {
+  const data = Route.useLoaderData() as LoaderData;
+  if (data.kind === "topic") return <TopicView topic={data.topic} />;
+  return <ResultPageClient slug={data.slug} ssrAnswers={data.answers} ssrResult={data.result} />;
+}
+
+function RetakeQuizState({ slug }: { slug: string }) {
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+        <Sparkles className="h-6 w-6 text-primary" />
+      </div>
+      <h1 className="text-3xl font-bold tracking-tight">Your match isn’t on this device</h1>
+      <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+        For your privacy, results stay in this browser’s session storage rather than the URL.
+        Take the 90-second quiz again to regenerate your personalized plan
+        <span className="hidden sm:inline"> for <code className="text-xs">{slug}</code></span>.
+      </p>
+      <div className="mt-8 flex justify-center gap-3">
+        <Button asChild size="lg" className="bg-gradient-primary font-semibold uppercase tracking-wider">
+          <Link to="/">Retake the quiz</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function ResultPageClient({
+  slug,
+  ssrAnswers,
+  ssrResult,
+}: {
+  slug: string;
+  ssrAnswers: QuizAnswers | null;
+  ssrResult: EngineResult | null;
+}) {
+  const [answers, setAnswers] = useState<QuizAnswers | null>(ssrAnswers);
+  const [hydrated, setHydrated] = useState<boolean>(ssrAnswers !== null);
+
+  useEffect(() => {
+    if (answers) return;
+    const stored = readAnswersForSlug(slug);
+    if (stored) setAnswers(stored);
+    setHydrated(true);
+  }, [answers, slug]);
+
+  const result = useMemo<EngineResult | null>(() => {
+    if (ssrResult && answers === ssrAnswers) return ssrResult;
+    return answers ? runEngine(answers) : null;
+  }, [answers, ssrAnswers, ssrResult]);
+
+  if (!answers || !result) {
+    if (!hydrated) {
+      return (
+        <div className="mx-auto flex h-[60vh] max-w-md items-center justify-center px-4 text-sm text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading your match…
+        </div>
+      );
+    }
+    return <RetakeQuizState slug={slug} />;
+  }
+
+  return <ResultPage slug={slug} answers={answers} result={result} />;
+}
 
 function confidenceTone(c: Recommendation["confidence"]) {
   if (c === "High")
