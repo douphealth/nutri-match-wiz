@@ -13,8 +13,22 @@ import type { QuizAnswers } from "@/types/supplements";
 
 // jsdom is the default vitest env in this project; if not present, polyfill.
 function ensureSession() {
-  // jsdom-style env is configured for this project; nothing to polyfill.
-  return;
+  if (typeof (globalThis as { window?: unknown }).window !== "undefined") return;
+  const map = new Map<string, string>();
+  const storage = {
+    getItem: (k: string) => (map.has(k) ? (map.get(k) as string) : null),
+    setItem: (k: string, v: string) => void map.set(k, v),
+    removeItem: (k: string) => void map.delete(k),
+    clear: () => map.clear(),
+    key: (i: number) => Array.from(map.keys())[i] ?? null,
+    get length() {
+      return map.size;
+    },
+  };
+  (globalThis as Record<string, unknown>).window = {
+    sessionStorage: storage,
+    location: { origin: "https://test" },
+  };
 }
 
 const sensitive: QuizAnswers = {
