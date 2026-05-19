@@ -1,9 +1,12 @@
 import { SUPPLEMENTS } from "./supplementData";
+import { EVIDENCE_MATRIX } from "./evidence/evidence-matrix";
 import type {
   EngineResult,
   Frequency,
   QuizAnswers,
   Recommendation,
+  RecommendationStatus,
+  SuppressedRecommendation,
   Supplement,
 } from "@/types/supplements";
 
