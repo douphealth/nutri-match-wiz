@@ -292,15 +292,14 @@ function drawCover(doc: jsPDF, result: EngineResult, dateStr: string) {
   const ph = 150;
   roundedCard(doc, M, py, pw, ph, COL.card, COL.primary, 16);
 
-  // Big score
+  // Big score (single string — avoids manual % positioning drifting on 3-digit scores)
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(64);
   doc.text(`${result.matchScore}`, M + 36, py + 92);
-  setText(doc, COL.primary);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.text("%", M + 36 + doc.getTextWidth(`${result.matchScore}`), py + 60);
+  const heroW = doc.getTextWidth(`${result.matchScore}`);
+  doc.setFontSize(22);
+  doc.text("%", M + 36 + heroW + 4, py + 64);
 
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
