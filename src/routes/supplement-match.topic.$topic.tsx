@@ -266,6 +266,34 @@ function TopicPage() {
         </ul>
       </section>
 
+      {(() => {
+        const pairs = COMPARE_PAIRS.filter((p) => p.a === t.slug || p.b === t.slug);
+        if (pairs.length === 0) return null;
+        return (
+          <section className="mt-10">
+            <h2 className="text-lg font-semibold">Compare {t.supplement} with…</h2>
+            <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+              {pairs.map((p) => (
+                <li key={p.slug}>
+                  <Link
+                    to="/supplement-match/compare/$slug"
+                    params={{ slug: p.slug }}
+                    className="block rounded-lg border border-border p-4 transition-colors hover:bg-accent"
+                  >
+                    <div className="text-sm font-semibold capitalize">
+                      {p.slug.replaceAll("-", " ")}
+                    </div>
+                    <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                      {p.decisionFrame}
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })()}
+
       <p className="mt-12 text-xs text-muted-foreground">
         This page is informational and not medical advice. Always consult a qualified clinician
         before starting, stopping, or changing any supplement — especially during pregnancy,
