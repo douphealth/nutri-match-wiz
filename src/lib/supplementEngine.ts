@@ -185,6 +185,15 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(fe, 1.0, "Plant-based diets require attention to iron — pair with vitamin C.", "plant-based");
   if (freqLow(a.foodIntake.redMeat) && (a.diet === "omnivore" || a.diet === "pescatarian" || a.diet === "restricted")) addSignal(fe, 0.5, "Low red meat intake can lower heme-iron intake.", "low heme iron");
   flag(fe, "Do not start iron without lab testing (ferritin/CBC) and clinician guidance — excess iron can be harmful.");
+  // Iron is ALWAYS test-first (or clinician-only when a safety gate is triggered).
+  // It must never be a normal "take this today" recommendation.
+  if (a.medical.medications || a.medical.kidneyLiver || a.medical.heartDisease || a.pregnancy !== "none") {
+    fe.forcedStatus = "clinician_only";
+    fe.forcedStatusReason = "Iron dosing must be set by your clinician given your medical profile.";
+  } else {
+    fe.forcedStatus = "test_first";
+    fe.forcedStatusReason = "Check ferritin and CBC with your clinician before starting any iron — excess iron is harmful.";
+  }
 
   // ---- Calcium ----
   const ca = buckets["calcium"];
