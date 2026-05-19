@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { decodeAnswers, type QuizAnswers } from "@/lib/quiz-data";
-import { runEngine } from "@/lib/recommendation-engine";
+import { runEngine } from "@/lib/engine";
 import type { Recommendation } from "@/types/supplements";
 import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import {
@@ -31,7 +31,7 @@ import {
   Star,
   Loader2,
 } from "lucide-react";
-import { downloadSupplementReport } from "@/lib/pdf-report";
+// PDF report is lazy-loaded on click to keep jsPDF out of the initial bundle.
 import { useState } from "react";
 import type { EngineResult } from "@/types/supplements";
 
@@ -44,6 +44,7 @@ function PdfDownloadButton({ result }: { result: EngineResult }) {
       onClick={async () => {
         setLoading(true);
         try {
+          const { downloadSupplementReport } = await import("@/lib/pdf-report");
           await downloadSupplementReport(result);
         } finally {
           setLoading(false);

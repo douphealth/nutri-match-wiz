@@ -5,7 +5,7 @@
 // the deterministic scoring engine in `recommendation-engine.ts`.
 
 import type { QuizAnswers, Frequency, Goal } from "@/types/supplements";
-import { DEFAULT_ANSWERS } from "./supplementEngine";
+import { DEFAULT_ANSWERS } from "./engine";
 
 export { DEFAULT_ANSWERS as defaultAnswers };
 export type { QuizAnswers };

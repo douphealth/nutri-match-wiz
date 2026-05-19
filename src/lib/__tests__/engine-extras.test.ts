@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runEngine, DEFAULT_ANSWERS } from "@/lib/supplementEngine";
+import { runEngine, DEFAULT_ANSWERS } from "@/lib/engine";
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { encodeAnswers, decodeAnswers, generateSlug } from "@/lib/quiz-data";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";

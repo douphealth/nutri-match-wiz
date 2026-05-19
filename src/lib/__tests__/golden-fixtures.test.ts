@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runEngine, DEFAULT_ANSWERS } from "@/lib/supplementEngine";
+import { runEngine, DEFAULT_ANSWERS } from "@/lib/engine";
 import { selectEligibleProduct } from "@/lib/engine/product-eligibility";
 import {
   sanitizeForShare,

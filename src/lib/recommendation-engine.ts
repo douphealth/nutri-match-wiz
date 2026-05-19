@@ -1,7 +1,5 @@
-// Re-export of the deterministic scoring engine under the Watch-Finder-style
-// filename so downstream code (quiz UI, result routes, PDF report) imports
-// from a single canonical module.
-export { runEngine, evaluateSafetyGate, DEFAULT_ANSWERS } from "./supplementEngine";
+// DEPRECATED: import from `@/lib/engine` instead. Kept as a back-compat shim.
+export { runEngine, evaluateSafetyGate, DEFAULT_ANSWERS } from "./engine";
 export type {
   QuizAnswers,
   Recommendation,
