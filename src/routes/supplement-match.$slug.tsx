@@ -1,10 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { z } from "zod";
-import { decodeAnswers } from "@/lib/quiz-data";
+import { decodeAnswers, type QuizAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
 import type { Recommendation } from "@/types/supplements";
-import { productFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
+import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
 
 import { Badge } from "@/components/ui/badge";
@@ -106,10 +106,12 @@ function confidenceTone(c: Recommendation["confidence"]) {
 function ResultPage() {
   const data = Route.useLoaderData() as {
     slug: string;
+    answers: QuizAnswers;
     result: ReturnType<typeof runEngine>;
   };
-  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes } = data.result;
+  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile } = data.result;
   const top = recommendations[0];
+  const productCandidates = recommendations.reduce((sum, rec) => sum + productsFor(rec.supplement.id).length, 0);
 
   return (
     <div className="relative isolate">
@@ -171,6 +173,7 @@ function ResultPage() {
 
             <div className="flex flex-col items-center gap-3 sm:items-start sm:text-left">
               <Stat label="Top picks" value={String(recommendations.length)} />
+              <Stat label="Weighted signals" value={String(personalizationProfile?.signalCount ?? recommendations.length)} />
               <Stat
                 label="Top recommendation"
                 value={top ? top.supplement.name.replace(/\s*\([^)]*\)/g, "") : "Food-first only"}
@@ -185,6 +188,28 @@ function ResultPage() {
             </span>
           </div>
         </motion.header>
+
+        {personalizationProfile && (
+          <section className="mb-8 grid gap-3 rounded-2xl border border-border/60 bg-card/50 p-4 sm:grid-cols-[1.25fr_0.75fr]">
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Personalization engine</div>
+              <h2 className="mt-1 text-xl font-bold text-foreground">{personalizationProfile.label}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{personalizationProfile.summary}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {personalizationProfile.differentiators.map((item) => (
+                  <span key={item} className="rounded-md border border-primary/25 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
+              <MiniMetric label="Product candidates" value={String(productCandidates)} />
+              <MiniMetric label="Affiliate tag" value="papalex-20" />
+              <MiniMetric label="Ranking bias" value="Commission-blind" />
+            </div>
+          </section>
+        )}
 
         {/* Safety gate */}
         {safetyGate.triggered && (
@@ -214,7 +239,7 @@ function ResultPage() {
             </Card>
           ) : (
             recommendations.map((rec, i) => (
-              <SupplementCard key={rec.supplement.id} rec={rec} rank={i + 1} />
+              <SupplementCard key={rec.supplement.id} rec={rec} rank={i + 1} answers={data.answers} />
             ))
           )}
         </section>
