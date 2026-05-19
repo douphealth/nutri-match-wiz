@@ -293,12 +293,16 @@ function confidenceTone(c: Recommendation["confidence"]) {
   };
 }
 
-function ResultPage() {
-  const data = Route.useLoaderData() as {
-    slug: string;
-    answers: QuizAnswers;
-    result: ReturnType<typeof runEngine>;
-  };
+function ResultPage({
+  slug,
+  answers,
+  result,
+}: {
+  slug: string;
+  answers: QuizAnswers;
+  result: EngineResult;
+}) {
+  const data = { slug, answers, result };
   const {
     matchScore,
     recommendations,
