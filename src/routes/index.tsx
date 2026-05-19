@@ -12,9 +12,10 @@ import {
   answeredCount,
   isStepAnswered,
   generateSlug,
-  encodeAnswers,
+  visibleSteps,
   type QuizAnswers,
 } from "@/lib/quiz-data";
+import { storeAnswersForSlug } from "@/lib/result-storage";
 import { captureUTM } from "@/lib/utm";
 
 const SITE = "https://gearuptofit.com/supplement-match/";
