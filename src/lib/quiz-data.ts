@@ -342,7 +342,7 @@ export const quizSteps: QuizStep[] = [
     title: "Red meat",
     type: "slider-freq",
     tier: "advanced",
-    image: U("1607116176323-d055d6bd1ce1"),
+    image: U("1558030006-450675393462"),
     imageAlt: "Cut of red meat on a board",
     options: FREQUENCY_OPTIONS,
   },
