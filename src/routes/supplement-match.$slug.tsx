@@ -18,6 +18,7 @@ import {
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";
 import { WellnessProfilePanel } from "@/components/result/WellnessProfilePanel";
+import MonetizationBanner from "@/components/result/MonetizationBanner";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -652,6 +653,18 @@ function ResultPage({
             ))}
           </div>
         </section>
+
+        {/* High-conversion bottom banner */}
+        {top && (() => {
+          const bannerProduct = productFor(top.supplement.id, answers);
+          return bannerProduct ? (
+            <MonetizationBanner
+              product={bannerProduct}
+              matchScore={matchScore}
+              supplementName={top.supplement.name.replace(/\s*\([^)]*\)/g, "")}
+            />
+          ) : null;
+        })()}
 
         {/* Credibility: sources, testimonials, reading, tools, kit, FAQ */}
         <CredibilitySections />
