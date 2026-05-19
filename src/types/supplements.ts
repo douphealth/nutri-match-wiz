@@ -103,7 +103,9 @@ export interface Recommendation {
   precisionScore?: number;
   reasons: string[];
   safetyFlags: string[];
-  confidence: "Low" | "Moderate" | "High";
+  confidence: "Low" | "Moderate" | "High" | "Blocked";
+  /** "core" (top-3 active), "secondary" (next-2), or undefined (not in active stack). */
+  tier?: "core" | "secondary";
   personalizationTags?: string[];
   /** Action label for this supplement given the user's profile. */
   status?: RecommendationStatus;
