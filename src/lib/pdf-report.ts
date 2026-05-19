@@ -325,17 +325,18 @@ function drawCover(doc: jsPDF, result: EngineResult, dateStr: string) {
     ["SAFETY REVIEW", result.safetyGate.triggered ? "Clinician input" : "Standard"],
     ["GENERATED", dateStr],
   ];
+  const statMaxW = pw / 2 - 40;
   stats.forEach((s, i) => {
-    const sy = py + 22 + i * 30;
+    const sy = py + 24 + i * 30;
     setText(doc, COL.muted);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.text(s[0], rx, sy);
     setText(doc, COL.text);
+    const size = fitFont(doc, s[1], statMaxW, 11, 8.5);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    const v = wrap(doc, s[1], pw / 2 - 30);
-    doc.text(v.slice(0, 1), rx, sy + 14);
+    doc.setFontSize(size);
+    doc.text(s[1], rx, sy + 15);
   });
 
   // Pillars row
