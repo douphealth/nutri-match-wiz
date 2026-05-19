@@ -116,18 +116,23 @@ function Index() {
     captureUTM();
   }, []);
 
-  const answered = useMemo(() => answeredCount(answers), [answers]);
-  const confidence = Math.round((answered / quizSteps.length) * 100);
+  // Adaptive flow: drive the quiz from visibleSteps so we skip
+  // advanced/non-applicable questions automatically (fast mode default).
+  const visible = useMemo(() => visibleSteps(answers, "fast"), [answers]);
+  const totalSteps = visible.length;
 
-  const progress = currentStep >= 0 ? ((currentStep + 1) / quizSteps.length) * 100 : 0;
-  const isLast = currentStep === quizSteps.length - 1;
-  const step = currentStep >= 0 ? quizSteps[currentStep] : null;
+  const answered = useMemo(
+    () => visible.filter((s) => isStepAnswered(s, answers)).length,
+    [visible, answers],
+  );
+  const confidence = totalSteps > 0 ? Math.round((answered / totalSteps) * 100) : 0;
+
+  const progress = currentStep >= 0 ? ((currentStep + 1) / Math.max(1, totalSteps)) * 100 : 0;
+  const isLast = currentStep === totalSteps - 1;
+  const step = currentStep >= 0 && currentStep < totalSteps ? visible[currentStep] : null;
 
   const finish = useCallback(() => {
     const slug = generateSlug(answers);
-    // Privacy-first: answers live only in sessionStorage. The URL contains the
-    // slug — nothing else. Users can opt in to a sanitized share link from the
-    // result page.
     storeAnswersForSlug(slug, answers);
     setPendingSlug(slug);
     setAnalyzing(true);
@@ -143,18 +148,13 @@ function Index() {
     });
   }, [pendingSlug, navigate]);
 
-  // Adaptive navigation: skip steps whose showWhen predicate is false.
-  const visible = useMemo(() => visibleSteps(answers), [answers]);
-  const isVisibleStep = (idx: number) =>
-    idx < 0 || idx >= quizSteps.length || visible.includes(quizSteps[idx]);
-
   const handleNext = useCallback(() => {
     setCurrentStep((p) => {
-      if (p < quizSteps.length - 1) return p + 1;
+      if (p < totalSteps - 1) return p + 1;
       finish();
       return p;
     });
-  }, [finish]);
+  }, [finish, totalSteps]);
 
   const handleBack = useCallback(() => {
     setCurrentStep((p) => Math.max(-1, p - 1));
