@@ -86,7 +86,34 @@ export interface QuizAnswers {
   };
   budget: "low" | "moderate" | "premium";
   pillPreference: "capsule" | "powder" | "gummy" | "liquid" | "no_preference";
+
+  // ---- Adaptive branch answers (optional; only filled when relevant
+  //      branches are shown). The deterministic engine ignores absent
+  //      values, so adding new branches never destabilizes existing tests.
+  endurance?: {
+    sweatRate?: "low" | "moderate" | "high";
+    longSessionMin?: "under_45" | "45_90" | "90_plus";
+    heatExposure?: "low" | "moderate" | "high";
+    crampHistory?: boolean;
+    giIssues?: boolean;
+  };
+  strength?: {
+    proteinIntake?: "low" | "moderate" | "high";
+    creatineHistory?: "never" | "past" | "current";
+  };
+  sleepDetail?: {
+    caffeineAfter2pm?: boolean;
+    shiftWorkOrJetLag?: boolean;
+  };
+  fatigueLabs?: {
+    vitDTestedLow?: boolean;
+    b12TestedLow?: boolean;
+    ironTestedLow?: boolean;
+    thyroidFlagged?: boolean;
+  };
 }
+
+export type QuizMode = "fast" | "advanced";
 
 export type RecommendationStatus =
   | "recommended"
