@@ -10,7 +10,14 @@ interface Props {
   isFirst?: boolean;
 }
 
-export default function QuizNavigation({ onBack, onNext, canProceed, isLast, hideNext, isFirst }: Props) {
+export default function QuizNavigation({
+  onBack,
+  onNext,
+  canProceed,
+  isLast,
+  hideNext,
+  isFirst,
+}: Props) {
   return (
     <div className="sticky bottom-0 z-20 border-t border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
@@ -25,7 +32,13 @@ export default function QuizNavigation({ onBack, onNext, canProceed, isLast, hid
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         {!hideNext && (
-          <Button type="button" size="sm" onClick={onNext} disabled={!canProceed} className="gap-1.5">
+          <Button
+            type="button"
+            size="sm"
+            onClick={onNext}
+            disabled={!canProceed}
+            className="gap-1.5"
+          >
             {isLast ? (
               <>
                 See my matches <Check className="h-4 w-4" />

@@ -27,15 +27,20 @@ function AboutPage() {
       <h1>About Supplement Match</h1>
       <p>
         Supplement Match is a free tool from{" "}
-        <a href="https://gearuptofit.com" rel="noopener">GearUpToFit</a> that turns a short
-        evidence-aware quiz into a personalized, safety-first list of vitamins and supplements
-        that actually fit your diet, training, lifestyle, and medications.
+        <a href="https://gearuptofit.com" rel="noopener">
+          GearUpToFit
+        </a>{" "}
+        that turns a short evidence-aware quiz into a personalized, safety-first list of vitamins
+        and supplements that actually fit your diet, training, lifestyle, and medications.
       </p>
       <h2>What we built</h2>
       <ul>
         <li>A catalog of 15+ supplements rated for evidence strength and safety.</li>
         <li>A deterministic scoring engine — the same answers always produce the same ranking.</li>
-        <li>Safety gates for pregnancy, blood thinners, antidepressants, kidney/liver disease, and more.</li>
+        <li>
+          Safety gates for pregnancy, blood thinners, antidepressants, kidney/liver disease, and
+          more.
+        </li>
         <li>Food-first alternatives surfaced before any pill recommendation.</li>
       </ul>
       <h2>What we don't do</h2>

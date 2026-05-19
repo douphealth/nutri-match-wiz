@@ -170,7 +170,9 @@ function Index() {
                 step={step}
                 answers={answers}
                 setAnswers={setAnswers}
-                onAutoAdvance={step.type === "single" || step.type === "slider-freq" ? handleNext : undefined}
+                onAutoAdvance={
+                  step.type === "single" || step.type === "slider-freq" ? handleNext : undefined
+                }
               />
             </motion.div>
           </AnimatePresence>
@@ -190,7 +192,9 @@ function Index() {
                   <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                     Match confidence
                   </span>
-                  <span className="text-xs font-semibold text-primary tabular-nums">{confidence}%</span>
+                  <span className="text-xs font-semibold text-primary tabular-nums">
+                    {confidence}%
+                  </span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
                   <motion.div

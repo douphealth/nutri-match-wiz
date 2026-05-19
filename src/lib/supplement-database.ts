@@ -3,7 +3,10 @@
 import type { Supplement } from "@/types/supplements";
 export type { Supplement } from "@/types/supplements";
 
-import { SUPPLEMENTS as RAW_SUPPLEMENTS, RED_FLAG_INGREDIENTS as RAW_RED_FLAGS } from "./supplementData";
+import {
+  SUPPLEMENTS as RAW_SUPPLEMENTS,
+  RED_FLAG_INGREDIENTS as RAW_RED_FLAGS,
+} from "./supplementData";
 
 export interface SupplementCatalogEntry extends Supplement {
   /** Optional Amazon ASIN for affiliate product cards. Populated in Stage 3. */

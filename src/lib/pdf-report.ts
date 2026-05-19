@@ -37,8 +37,7 @@ const M = 44; // page margin
 const setFill = (d: jsPDF, c: RGB) => d.setFillColor(c[0], c[1], c[2]);
 const setStroke = (d: jsPDF, c: RGB) => d.setDrawColor(c[0], c[1], c[2]);
 const setText = (d: jsPDF, c: RGB) => d.setTextColor(c[0], c[1], c[2]);
-const opacity = (d: jsPDF, a: number) =>
-  d.setGState(new (d as any).GState({ opacity: a }));
+const opacity = (d: jsPDF, a: number) => d.setGState(new (d as any).GState({ opacity: a }));
 
 /* ---------- Image preloading (Amazon CDN supports CORS) ---------- */
 
@@ -74,9 +73,7 @@ async function loadImage(url: string): Promise<ImageEntry | null> {
   });
 }
 
-async function preloadProductImages(
-  recs: Recommendation[]
-): Promise<Map<string, ImageEntry>> {
+async function preloadProductImages(recs: Recommendation[]): Promise<Map<string, ImageEntry>> {
   const map = new Map<string, ImageEntry>();
   const tasks = recs.map(async (r) => {
     const p = productFor(r.supplement.id);
@@ -112,7 +109,7 @@ function roundedCard(
   h: number,
   fill: RGB = COL.card,
   border: RGB = COL.borderSoft,
-  radius = 12
+  radius = 12,
 ) {
   setFill(doc, fill);
   setStroke(doc, border);
@@ -120,14 +117,7 @@ function roundedCard(
   doc.roundedRect(x, y, w, h, radius, radius, "FD");
 }
 
-function chip(
-  doc: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  fg: RGB,
-  bg: RGB
-): number {
+function chip(doc: jsPDF, text: string, x: number, y: number, fg: RGB, bg: RGB): number {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
   const padX = 7;
@@ -240,7 +230,7 @@ function drawCover(doc: jsPDF, result: EngineResult, dateStr: string) {
   const intro = wrap(
     doc,
     "An evidence-aware, safety-first, commission-blind report. Ranking happens before any affiliate link is attached — every pick is matched to your answers first.",
-    PAGE_W - M * 2 - 40
+    PAGE_W - M * 2 - 40,
   );
   doc.text(intro, M, 388);
 
@@ -277,7 +267,7 @@ function drawCover(doc: jsPDF, result: EngineResult, dateStr: string) {
       "LEAD RECOMMENDATION",
       (result.recommendations[0]?.supplement.name ?? "Food-first only").replace(
         /\s*\([^)]*\)/g,
-        ""
+        "",
       ),
     ],
     ["SAFETY REVIEW", result.safetyGate.triggered ? "Clinician input" : "Standard"],
@@ -329,7 +319,7 @@ function drawCover(doc: jsPDF, result: EngineResult, dateStr: string) {
   doc.text(
     "Educational only. Not medical advice. Consult a qualified clinician before starting any new supplement.",
     M,
-    PAGE_H - 50
+    PAGE_H - 50,
   );
   doc.text("Affiliate tag: papalex-20  ·  Ranking is commission-blind.", M, PAGE_H - 36);
 }
@@ -365,7 +355,7 @@ function drawTOC(doc: jsPDF, recs: Recommendation[]) {
     { title: "03  Food-first plan", sub: "Where the diet should do the work" },
     { title: "04  Lifestyle notes", sub: "Sleep, stress, caffeine, alcohol" },
     { title: "05  Safety appendix", sub: "Interactions, cautions, clinician check-ins" },
-    { title: "06  Methodology & disclosure", sub: "How we score, how we link, what we don't do" }
+    { title: "06  Methodology & disclosure", sub: "How we score, how we link, what we don't do" },
   );
 
   let y = 180;
@@ -412,7 +402,7 @@ function drawExecSummary(doc: jsPDF, result: EngineResult) {
   const intro = wrap(
     doc,
     "This is a synthesis of every signal in your quiz, weighted by published evidence, your safety profile, and how strongly each pattern showed up. Use it as a conversation starter with a clinician — not a prescription.",
-    PAGE_W - M * 2
+    PAGE_W - M * 2,
   );
   doc.text(intro, M, 162);
 
@@ -443,20 +433,18 @@ function drawExecSummary(doc: jsPDF, result: EngineResult) {
   doc.text(
     "Built from signal density, evidence-weighted picks, and your safety profile.",
     barX,
-    y + 70
+    y + 70,
   );
   doc.text(
     `${result.recommendations.length} ranked picks  ·  ${result.safetyGate.triggered ? "Clinician review recommended" : "Standard safety review"}`,
     barX,
-    y + 86
+    y + 86,
   );
   y += 124;
 
   // Safety gate
   if (result.safetyGate.triggered) {
-    const lines = result.safetyGate.reasons.flatMap((r) =>
-      wrap(doc, `•  ${r}`, pw - 40)
-    );
+    const lines = result.safetyGate.reasons.flatMap((r) => wrap(doc, `•  ${r}`, pw - 40));
     const h = 40 + lines.length * 12 + 14;
     roundedCard(doc, M, y, pw, h, [56, 26, 30], [200, 90, 90]);
     setText(doc, [255, 188, 188]);
@@ -503,7 +491,7 @@ function drawExecSummary(doc: jsPDF, result: EngineResult) {
       doc.text(
         `Evidence: ${r.supplement.evidenceLevel}  ·  Score ${Math.round(r.score)}`,
         x + 12,
-        y + 70
+        y + 70,
       );
       const why = wrap(doc, r.reasons[0] ?? "", cw - 24);
       setText(doc, COL.textDim);
@@ -526,7 +514,7 @@ function drawSupplementPage(
   rec: Recommendation,
   rank: number,
   product: AmazonProduct | undefined,
-  productImg: ImageEntry | undefined
+  productImg: ImageEntry | undefined,
 ) {
   doc.addPage();
   paintBackground(doc);
@@ -551,8 +539,22 @@ function drawSupplementPage(
   let cx = M;
   const cy = 158;
   cx = chip(doc, conf.label, cx, cy, conf.fg, conf.bg);
-  cx = chip(doc, `EVIDENCE · ${rec.supplement.evidenceLevel.toUpperCase()}`, cx, cy, COL.text, COL.surface);
-  cx = chip(doc, `SAFETY · ${rec.supplement.safetyLevel.toUpperCase()}`, cx, cy, COL.text, COL.surface);
+  cx = chip(
+    doc,
+    `EVIDENCE · ${rec.supplement.evidenceLevel.toUpperCase()}`,
+    cx,
+    cy,
+    COL.text,
+    COL.surface,
+  );
+  cx = chip(
+    doc,
+    `SAFETY · ${rec.supplement.safetyLevel.toUpperCase()}`,
+    cx,
+    cy,
+    COL.text,
+    COL.surface,
+  );
   cx = chip(doc, `SIGNAL SCORE · ${Math.round(rec.score)}`, cx, cy, COL.text, COL.surface);
 
   let y = 195;
@@ -652,11 +654,7 @@ function drawSupplementPage(
     setText(doc, COL.muted);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
-    doc.text(
-      `Affiliate · tag papalex-20 · ASIN ${product.asin}`,
-      tx + ctaW + 12,
-      ctaY + 14
-    );
+    doc.text(`Affiliate · tag papalex-20 · ASIN ${product.asin}`, tx + ctaW + 12, ctaY + 14);
 
     y += ph + 16;
   }
@@ -774,13 +772,7 @@ function drawSupplementPage(
 
 /* ---------- Generic chapter (food-first / lifestyle / safety appendix) ---------- */
 
-function drawChapter(
-  doc: jsPDF,
-  num: string,
-  title: string,
-  intro: string,
-  items: string[]
-) {
+function drawChapter(doc: jsPDF, num: string, title: string, intro: string, items: string[]) {
   doc.addPage();
   paintBackground(doc);
   header(doc, `${num} · ${title}`);
@@ -904,7 +896,7 @@ function drawMethodology(doc: jsPDF) {
   const dis = wrap(
     doc,
     "Speak with a qualified clinician before starting any new supplement — especially if you're pregnant, breastfeeding, under 18, taking medication, or managing a medical condition. Doses, forms, and timing should always be confirmed with someone who knows your full picture.",
-    pw - 32
+    pw - 32,
   );
   doc.text(dis, M + 16, y + 40);
 }
@@ -956,7 +948,12 @@ function drawDailyProtocol(doc: jsPDF, schedule: DailySchedule) {
     doc.setFontSize(9);
     doc.text(slot.label.toUpperCase(), M + 14, y + 16);
     setText(doc, COL.text);
-    doc.text(`${slot.doses.length} item${slot.doses.length > 1 ? "s" : ""}`, PAGE_W - M - 14, y + 16, { align: "right" });
+    doc.text(
+      `${slot.doses.length} item${slot.doses.length > 1 ? "s" : ""}`,
+      PAGE_W - M - 14,
+      y + 16,
+      { align: "right" },
+    );
 
     // Card body
     const bodyY = y + 28;
@@ -1060,7 +1057,7 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
   const sd = wrap(
     doc,
     "Each pick gets its own page: a hero card with the real Amazon product, why we recommended it, what to verify on the label, who it's for, safety notes, and a food-first plan in case the diet can do the work.",
-    PAGE_W - M * 2
+    PAGE_W - M * 2,
   );
   doc.text(sd, M, 200);
 
@@ -1077,7 +1074,9 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
     "Most vitamin and mineral gaps close fastest at the plate. These are the diet moves your answers point to — make them first; let supplements fill what's left.",
     result.foodFirstNotes.length
       ? result.foodFirstNotes
-      : ["No specific food-first gaps stood out. Keep variety and produce high, and revisit if symptoms appear."]
+      : [
+          "No specific food-first gaps stood out. Keep variety and produce high, and revisit if symptoms appear.",
+        ],
   );
 
   // Lifestyle
@@ -1088,7 +1087,9 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
     "Sleep, stress, caffeine, and alcohol move the needle more than most supplements. These notes are personalized to the answers you gave.",
     result.generalNotes.length
       ? result.generalNotes
-      : ["No specific lifestyle flags. Keep monitoring sleep, stress, and stimulant intake — they shape supplement need."]
+      : [
+          "No specific lifestyle flags. Keep monitoring sleep, stress, and stimulant intake — they shape supplement need.",
+        ],
   );
 
   // Safety appendix
@@ -1096,7 +1097,7 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
   if (result.safetyGate.triggered) safetyItems.push(...result.safetyGate.reasons);
   result.recommendations.forEach((r) => {
     r.safetyFlags.forEach((f) =>
-      safetyItems.push(`${r.supplement.name.replace(/\s*\([^)]*\)/g, "")}: ${f}`)
+      safetyItems.push(`${r.supplement.name.replace(/\s*\([^)]*\)/g, "")}: ${f}`),
     );
   });
   drawChapter(
@@ -1104,7 +1105,7 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
     "05",
     "Safety appendix",
     "Every safety flag the engine raised for your profile, consolidated in one place to share with a pharmacist or clinician.",
-    safetyItems.length ? safetyItems : ["No safety flags raised by your answers."]
+    safetyItems.length ? safetyItems : ["No safety flags raised by your answers."],
   );
 
   // Methodology

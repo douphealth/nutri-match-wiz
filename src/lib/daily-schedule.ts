@@ -59,7 +59,10 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
         steps: [
           {
             slot: "with_breakfast",
-            dose: a.sunExposure === "low" || a.ageRange === "60_plus" ? "1000–2000 IU (25–50 mcg) D3" : "800–1000 IU (20–25 mcg) D3",
+            dose:
+              a.sunExposure === "low" || a.ageRange === "60_plus"
+                ? "1000–2000 IU (25–50 mcg) D3"
+                : "800–1000 IU (20–25 mcg) D3",
             form: "Softgel or drops",
             withFood: "with food",
             cadence: "Daily",
@@ -69,7 +72,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
         weeklyNotes: [
           "Test 25(OH)D after 8–12 weeks; aim for 30–50 ng/mL unless your clinician sets another target.",
         ],
-        startProtocol: "Start at the lower end for 4 weeks, then reassess via labs before increasing.",
+        startProtocol:
+          "Start at the lower end for 4 weeks, then reassess via labs before increasing.",
       };
 
     case "b12":
@@ -77,7 +81,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
         steps: [
           {
             slot: "morning",
-            dose: a.diet === "vegan" ? "500–1000 mcg methylcobalamin" : "250–500 mcg methylcobalamin",
+            dose:
+              a.diet === "vegan" ? "500–1000 mcg methylcobalamin" : "250–500 mcg methylcobalamin",
             form: "Sublingual lozenge or capsule",
             withFood: "either",
             cadence: a.diet === "vegan" ? "Daily" : "5×/week",
@@ -87,7 +92,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
         weeklyNotes: [
           "Recheck serum B12 + MMA at 3–6 months if symptoms (fatigue, tingling) persist.",
         ],
-        startProtocol: "Loading not needed for oral maintenance — steady daily dose is more reliable.",
+        startProtocol:
+          "Loading not needed for oral maintenance — steady daily dose is more reliable.",
       };
 
     case "omega3":
@@ -124,7 +130,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
               : "Evening dose supports muscle relaxation and overnight recovery.",
           },
         ],
-        weeklyNotes: ["If loose stools occur, split the dose or switch form (glycinate is gentlest)."],
+        weeklyNotes: [
+          "If loose stools occur, split the dose or switch form (glycinate is gentlest).",
+        ],
         startProtocol: "Start at 200 mg for 5 nights, then increase by 100 mg if needed.",
       };
 
@@ -138,7 +146,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
                 form: "Micronized powder, dissolved in water or a recovery drink",
                 withFood: "with food",
                 cadence: "Daily",
-                notes: "Post-workout with carbs has a small absorption edge; on rest days, any time works.",
+                notes:
+                  "Post-workout with carbs has a small absorption edge; on rest days, any time works.",
               },
             ]
           : [
@@ -148,11 +157,13 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
                 form: "Micronized powder",
                 withFood: "with food",
                 cadence: "Daily",
-                notes: "Consistency matters more than timing — saturate the muscle pool over ~3 weeks.",
+                notes:
+                  "Consistency matters more than timing — saturate the muscle pool over ~3 weeks.",
               },
             ],
         weeklyNotes: ["Drink water throughout the day. No loading phase needed at 5 g/day."],
-        startProtocol: "Skip the 20 g loading phase — 5 g/day reaches saturation in ~21 days with fewer GI complaints.",
+        startProtocol:
+          "Skip the 20 g loading phase — 5 g/day reaches saturation in ~21 days with fewer GI complaints.",
       };
 
     case "protein":
@@ -165,7 +176,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
                 form: "Shake or smoothie",
                 withFood: "either",
                 cadence: "Training days",
-                notes: "Aim for total daily protein of 1.6–2.2 g per kg bodyweight, split into 3–4 meals.",
+                notes:
+                  "Aim for total daily protein of 1.6–2.2 g per kg bodyweight, split into 3–4 meals.",
               },
             ]
           : [
@@ -178,7 +190,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
                 notes: "Use to plug the smallest protein meal of your day — usually breakfast.",
               },
             ],
-        weeklyNotes: ["Track total daily protein for one week — the gap is usually breakfast or snacks."],
+        weeklyNotes: [
+          "Track total daily protein for one week — the gap is usually breakfast or snacks.",
+        ],
       };
 
     case "iron":
@@ -190,7 +204,8 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             form: "Capsule",
             withFood: "empty stomach",
             cadence: "Daily",
-            notes: "Take with 100–200 mg vitamin C; avoid coffee, tea, calcium, and dairy within 2 hours.",
+            notes:
+              "Take with 100–200 mg vitamin C; avoid coffee, tea, calcium, and dairy within 2 hours.",
           },
         ],
         weeklyNotes: [
@@ -212,7 +227,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             notes: "Cap single doses at 500–600 mg — higher doses don't absorb well.",
           },
         ],
-        weeklyNotes: ["Food-first: dairy, fortified plant milks, tofu, leafy greens. Most adults don't need a supplement if diet covers it."],
+        weeklyNotes: [
+          "Food-first: dairy, fortified plant milks, tofu, leafy greens. Most adults don't need a supplement if diet covers it.",
+        ],
         separationWarnings: a.medical.thyroidMeds
           ? ["Separate from thyroid medication by at least 4 hours."]
           : undefined,
@@ -230,7 +247,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             notes: "If iron causes nausea, split the dose or move to dinner.",
           },
         ],
-        weeklyNotes: ["Continue throughout breastfeeding. Coordinate dose changes with your OB or midwife."],
+        weeklyNotes: [
+          "Continue throughout breastfeeding. Coordinate dose changes with your OB or midwife.",
+        ],
       };
 
     case "electrolytes":
@@ -242,11 +261,14 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             form: "Powder stick",
             withFood: "either",
             cadence: trains ? "Training days" : "As needed",
-            notes: "Use on hot days, long sessions (>60 min), or after sauna. Plain water is fine otherwise.",
+            notes:
+              "Use on hot days, long sessions (>60 min), or after sauna. Plain water is fine otherwise.",
           },
         ],
         weeklyNotes: a.medical.bloodPressureMeds
-          ? ["High-sodium products can interact with BP medication — pick a low-sodium variant or discuss with your clinician."]
+          ? [
+              "High-sodium products can interact with BP medication — pick a low-sodium variant or discuss with your clinician.",
+            ]
           : ["Skip on light days — over-sodiating is a real thing."],
       };
 
@@ -262,7 +284,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             notes: "Drink immediately — it gels fast. Increases satiety and feeds gut microbes.",
           },
         ],
-        weeklyNotes: ["Food-first: aim for 25–35 g total fiber/day from beans, oats, fruit, vegetables, nuts."],
+        weeklyNotes: [
+          "Food-first: aim for 25–35 g total fiber/day from beans, oats, fruit, vegetables, nuts.",
+        ],
         startProtocol: "Start at 3 g/day for a week to let your gut adjust, then scale up.",
       };
 
@@ -275,10 +299,13 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             form: "Capsule",
             withFood: "either",
             cadence: "Daily",
-            notes: "Pick a brand that lists strains by full name (e.g., L. rhamnosus GG) and a CFU at expiration.",
+            notes:
+              "Pick a brand that lists strains by full name (e.g., L. rhamnosus GG) and a CFU at expiration.",
           },
         ],
-        weeklyNotes: ["Feed the microbiome with fiber and fermented foods — probiotics work best with prebiotics."],
+        weeklyNotes: [
+          "Feed the microbiome with fiber and fermented foods — probiotics work best with prebiotics.",
+        ],
         startProtocol: "Trial for 6–8 weeks; if no symptom change, stop or switch strain.",
       };
 
@@ -294,7 +321,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             notes: "Avoid chronic high doses (>40 mg/day) — they can lower copper status.",
           },
         ],
-        weeklyNotes: ["Limit ongoing supplementation to ≤12 weeks unless directed; food-first via meat, shellfish, legumes."],
+        weeklyNotes: [
+          "Limit ongoing supplementation to ≤12 weeks unless directed; food-first via meat, shellfish, legumes.",
+        ],
       };
 
     case "vitamin_c":
@@ -309,7 +338,9 @@ function basePlan(id: string, a: QuizAnswers): ProtocolBlueprint | null {
             notes: "Pairs well with plant-based iron meals (citrus + lentils, etc.).",
           },
         ],
-        weeklyNotes: ["Food-first via citrus, peppers, berries, kiwi — easy to hit 200 mg from food alone."],
+        weeklyNotes: [
+          "Food-first via citrus, peppers, berries, kiwi — easy to hit 200 mg from food alone.",
+        ],
       };
 
     case "melatonin":
@@ -351,10 +382,7 @@ export interface DailySchedule {
   globalSeparations: string[];
 }
 
-export function buildDailySchedule(
-  recs: Recommendation[],
-  a: QuizAnswers,
-): DailySchedule {
+export function buildDailySchedule(recs: Recommendation[], a: QuizAnswers): DailySchedule {
   const bucket: Record<string, ScheduledDose[]> = {};
   const trainingDayAdjustments: string[] = [];
   const globalSeparations: string[] = [];
@@ -376,13 +404,19 @@ export function buildDailySchedule(
   }
 
   if (a.medical.thyroidMeds) {
-    globalSeparations.push("Separate calcium, iron, and magnesium from thyroid medication by 4+ hours.");
+    globalSeparations.push(
+      "Separate calcium, iron, and magnesium from thyroid medication by 4+ hours.",
+    );
   }
   if (a.medical.medications) {
-    globalSeparations.push("If you take any prescription medication, separate supplements by 2+ hours unless told otherwise.");
+    globalSeparations.push(
+      "If you take any prescription medication, separate supplements by 2+ hours unless told otherwise.",
+    );
   }
   if (recs.some((r) => r.supplement.id === "iron")) {
-    globalSeparations.push("Keep iron away from coffee, tea, dairy, and calcium by 2 hours; pair with vitamin C.");
+    globalSeparations.push(
+      "Keep iron away from coffee, tea, dairy, and calcium by 2 hours; pair with vitamin C.",
+    );
   }
 
   const bySlot = SLOT_ORDER.filter((s) => bucket[s]?.length).map((slot) => ({

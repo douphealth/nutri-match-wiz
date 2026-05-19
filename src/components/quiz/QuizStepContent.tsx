@@ -25,7 +25,7 @@ export default function QuizStepContent({ step, answers, setAnswers, onAutoAdvan
             decoding="async"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             onError={(e) => {
-              const fig = (e.currentTarget.closest("figure") as HTMLElement | null);
+              const fig = e.currentTarget.closest("figure") as HTMLElement | null;
               if (fig) fig.style.display = "none";
             }}
           />
@@ -42,7 +42,9 @@ export default function QuizStepContent({ step, answers, setAnswers, onAutoAdvan
       )}
       <header className="space-y-2 text-center">
         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{step.title}</h2>
-        {step.subtitle && <p className="text-sm text-muted-foreground sm:text-base">{step.subtitle}</p>}
+        {step.subtitle && (
+          <p className="text-sm text-muted-foreground sm:text-base">{step.subtitle}</p>
+        )}
       </header>
 
       {step.type === "single" && step.options && (
@@ -71,9 +73,7 @@ export default function QuizStepContent({ step, answers, setAnswers, onAutoAdvan
         <BooleanGrid step={step} answers={answers} setAnswers={setAnswers} />
       )}
 
-      {step.helper && (
-        <p className="text-center text-xs text-muted-foreground">{step.helper}</p>
-      )}
+      {step.helper && <p className="text-center text-xs text-muted-foreground">{step.helper}</p>}
     </div>
   );
 }
@@ -142,7 +142,13 @@ function MultiChoice({ step, answers, setAnswers }: Props) {
               )}
             >
               {active && (
-                <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={3}>
+                <svg
+                  viewBox="0 0 16 16"
+                  className="h-3 w-3"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
                   <path d="M3 8.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}

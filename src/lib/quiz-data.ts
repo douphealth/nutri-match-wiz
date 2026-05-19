@@ -420,7 +420,11 @@ export function generateSlug(a: QuizAnswers): string {
 export function encodeAnswers(a: QuizAnswers): string {
   const json = JSON.stringify(a);
   if (typeof window === "undefined") {
-    return Buffer.from(json, "utf-8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return Buffer.from(json, "utf-8")
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
   }
   return btoa(unescape(encodeURIComponent(json)))
     .replace(/\+/g, "-")
@@ -430,8 +434,12 @@ export function encodeAnswers(a: QuizAnswers): string {
 
 export function decodeAnswers(encoded: string): QuizAnswers | null {
   try {
-    const b64 = encoded.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((encoded.length + 3) % 4);
-    const json = typeof window === "undefined" ? Buffer.from(b64, "base64").toString("utf-8") : decodeURIComponent(escape(atob(b64)));
+    const b64 =
+      encoded.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((encoded.length + 3) % 4);
+    const json =
+      typeof window === "undefined"
+        ? Buffer.from(b64, "base64").toString("utf-8")
+        : decodeURIComponent(escape(atob(b64)));
     return JSON.parse(json) as QuizAnswers;
   } catch {
     return null;

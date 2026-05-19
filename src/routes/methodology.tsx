@@ -30,34 +30,33 @@ function MethodologyPage() {
       <h2>1. Catalog</h2>
       <p>
         Each supplement in the catalog carries an <em>evidence level</em> (Strong, Moderate,
-        Limited, Situational) and a <em>safety level</em> (Low, Moderate, High caution),
-        plus contraindications, common drug interactions, and food-first alternatives.
-        These are populated from public references such as NIH ODS fact sheets and
-        position stands from the ISSN, ACSM, AGA, ACOG, and Endocrine Society.
+        Limited, Situational) and a <em>safety level</em> (Low, Moderate, High caution), plus
+        contraindications, common drug interactions, and food-first alternatives. These are
+        populated from public references such as NIH ODS fact sheets and position stands from the
+        ISSN, ACSM, AGA, ACOG, and Endocrine Society.
       </p>
 
       <h2>2. Scoring</h2>
       <p>
-        Every supplement starts at zero points. Specific quiz answers add points
-        (e.g. low sun exposure adds points to Vitamin D; vegan diet adds points to B12).
-        The same answers always produce the same ranking — the engine is deterministic
-        and stateless.
+        Every supplement starts at zero points. Specific quiz answers add points (e.g. low sun
+        exposure adds points to Vitamin D; vegan diet adds points to B12). The same answers always
+        produce the same ranking — the engine is deterministic and stateless.
       </p>
 
       <h2>3. Safety gates</h2>
       <p>
-        Pregnancy, breastfeeding, age &lt; 18, blood thinners, antidepressants, diabetes
-        medication, thyroid medication, blood pressure medication, kidney/liver disease,
-        heart disease, planned surgery, and history of anemia all trigger explicit
-        clinician-review warnings. High-caution supplements (iron, calcium, melatonin)
-        have additional gates — iron, for example, is never recommended without lab testing.
+        Pregnancy, breastfeeding, age &lt; 18, blood thinners, antidepressants, diabetes medication,
+        thyroid medication, blood pressure medication, kidney/liver disease, heart disease, planned
+        surgery, and history of anemia all trigger explicit clinician-review warnings. High-caution
+        supplements (iron, calcium, melatonin) have additional gates — iron, for example, is never
+        recommended without lab testing.
       </p>
 
       <h2>4. Confidence</h2>
       <p>
-        Each recommendation carries a confidence level (Low, Moderate, High) that combines
-        the supplement's evidence level with how strongly your answers point to it. If the
-        safety gate is triggered, confidence on non-low-risk items is downgraded.
+        Each recommendation carries a confidence level (Low, Moderate, High) that combines the
+        supplement's evidence level with how strongly your answers point to it. If the safety gate
+        is triggered, confidence on non-low-risk items is downgraded.
       </p>
 
       <h2>5. Commission-blind ranking</h2>

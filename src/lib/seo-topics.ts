@@ -60,8 +60,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Evidence-based guide to vitamin D: who actually benefits, conservative doses, when to test 25(OH)D, and safety limits. By GearUpToFit.",
     h1: "Vitamin D: Who Actually Benefits, and How to Supplement Safely",
-    lede:
-      "Vitamin D supports calcium absorption, bone health, and immune function. Most adults do not need megadoses — they need to know their 25(OH)D level first.",
+    lede: "Vitamin D supports calcium absorption, bone health, and immune function. Most adults do not need megadoses — they need to know their 25(OH)D level first.",
     whoItMayHelp: [
       "Adults with low sun exposure (office work, northern latitudes, covered skin)",
       "Older adults (60+), who synthesize vitamin D less efficiently",
@@ -128,8 +127,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Vegans, vegetarians, adults 50+, and people on metformin or PPIs are at higher risk of B12 deficiency. Evidence-based dosing and safety.",
     h1: "Vitamin B12: A Required Supplement for Vegans and Adults 50+",
-    lede:
-      "Vitamin B12 (cobalamin) is essential for red blood cell formation, neurological function, and DNA synthesis. Deficiency is common, often silent, and entirely preventable.",
+    lede: "Vitamin B12 (cobalamin) is essential for red blood cell formation, neurological function, and DNA synthesis. Deficiency is common, often silent, and entirely preventable.",
     whoItMayHelp: [
       "Anyone following a vegan or strict vegetarian diet",
       "Adults 50 and older (reduced gastric acid impairs absorption from food)",
@@ -184,8 +182,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Marine omega-3 (EPA/DHA) for heart, brain, and triglycerides. Conservative doses, who benefits most, drug interactions, and food-first sources.",
     h1: "Omega-3 (EPA/DHA): What the Evidence Actually Shows",
-    lede:
-      "Marine omega-3 fatty acids (EPA and DHA) play documented roles in cardiovascular and neurological health. Benefits are clearest for people with low fish intake or elevated triglycerides.",
+    lede: "Marine omega-3 fatty acids (EPA and DHA) play documented roles in cardiovascular and neurological health. Benefits are clearest for people with low fish intake or elevated triglycerides.",
     whoItMayHelp: [
       "Adults eating fatty fish less than twice per week",
       "People with elevated triglycerides (per clinician)",
@@ -245,8 +242,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Magnesium glycinate, citrate, oxide — which form, what dose, and who actually benefits. Evidence-based guide with safety and interactions.",
     h1: "Magnesium: Choosing the Right Form for the Right Reason",
-    lede:
-      "Magnesium is involved in over 300 enzymatic reactions, including muscle function, nerve signaling, and energy metabolism. Many adults fall below the recommended intake from diet alone.",
+    lede: "Magnesium is involved in over 300 enzymatic reactions, including muscle function, nerve signaling, and energy metabolism. Many adults fall below the recommended intake from diet alone.",
     whoItMayHelp: [
       "Adults whose diets are low in leafy greens, nuts, seeds, and whole grains",
       "People with frequent muscle cramps (after ruling out other causes)",
@@ -303,8 +299,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Iron should be supplemented only when a blood test shows you need it. Risks of overload, who's actually deficient, and food-first strategies.",
     h1: "Iron: Why You Should Never Supplement Without a Blood Test",
-    lede:
-      "Iron deficiency is common, especially in menstruating people and pregnancy — but iron overload is dangerous, often silent, and can damage the heart and liver. Test before you supplement.",
+    lede: "Iron deficiency is common, especially in menstruating people and pregnancy — but iron overload is dangerous, often silent, and can damage the heart and liver. Test before you supplement.",
     whoItMayHelp: [
       "People with documented iron-deficiency anemia (low ferritin, low hemoglobin, low MCV)",
       "Pregnant people — under prenatal care, per ACOG",
@@ -366,8 +361,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Creatine monohydrate is one of the most-studied sports supplements. Who benefits, conservative dosing, hydration, and kidney safety.",
     h1: "Creatine Monohydrate: The Most-Studied Sports Supplement",
-    lede:
-      "Creatine monohydrate has decades of evidence for improving strength, power, and lean mass when combined with resistance training. Effects are real, modest, and well-characterized.",
+    lede: "Creatine monohydrate has decades of evidence for improving strength, power, and lean mass when combined with resistance training. Effects are real, modest, and well-characterized.",
     whoItMayHelp: [
       "Adults doing regular resistance training (3+ sessions/week)",
       "Athletes in power, sprint, or repeated-effort sports",
@@ -429,8 +423,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Zinc for immune support and wound healing — short courses only. Long-term overuse causes copper deficiency. Conservative doses and safety.",
     h1: "Zinc: A Short-Course Supplement, Not a Daily Habit",
-    lede:
-      "Zinc plays a key role in immune function, wound healing, taste, and protein synthesis. It works best in clear deficiency or short, targeted courses — chronic high-dose use depletes copper.",
+    lede: "Zinc plays a key role in immune function, wound healing, taste, and protein synthesis. It works best in clear deficiency or short, targeted courses — chronic high-dose use depletes copper.",
     whoItMayHelp: [
       "Adults with documented zinc deficiency",
       "People with malabsorption (Crohn's, celiac, post-bariatric)",
@@ -483,8 +476,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Vitamin C supports collagen synthesis, antioxidant defense, and non-heme iron absorption. Conservative dosing and the truth about colds.",
     h1: "Vitamin C: What It Does, and What Megadoses Don't Do",
-    lede:
-      "Vitamin C is essential for collagen synthesis, antioxidant defense, and dramatically improves non-heme iron absorption. The body can only absorb a limited amount at once — megadoses mostly become expensive urine.",
+    lede: "Vitamin C is essential for collagen synthesis, antioxidant defense, and dramatically improves non-heme iron absorption. The body can only absorb a limited amount at once — megadoses mostly become expensive urine.",
     whoItMayHelp: [
       "People with low fruit and vegetable intake",
       "Smokers (RDA is 35 mg/day higher)",
@@ -534,8 +526,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Calcium supports bone and muscle function — but food sources are safer than high-dose pills. Cardiovascular concerns and conservative dosing.",
     h1: "Calcium: Food Is the Better Delivery System",
-    lede:
-      "Calcium is essential for bone, muscle, and nerve function. Modern guidance favors meeting needs through food first — high-dose calcium supplements have been linked to cardiovascular and kidney-stone concerns in some studies.",
+    lede: "Calcium is essential for bone, muscle, and nerve function. Modern guidance favors meeting needs through food first — high-dose calcium supplements have been linked to cardiovascular and kidney-stone concerns in some studies.",
     whoItMayHelp: [
       "People who avoid dairy and fortified plant milks and don't get calcium from greens, tofu, or fish bones",
       "Postmenopausal people, under clinician guidance with vitamin D",
@@ -586,8 +577,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Probiotics work strain by strain, not as a generic category. What's actually supported, and who should avoid them.",
     h1: "Probiotics: Strains Matter More Than Brands",
-    lede:
-      "Probiotic effects are strain-specific. 'A probiotic' is not a single thing — different strains target different outcomes. Generic labels rarely tell you what you're getting.",
+    lede: "Probiotic effects are strain-specific. 'A probiotic' is not a single thing — different strains target different outcomes. Generic labels rarely tell you what you're getting.",
     whoItMayHelp: [
       "People taking antibiotics — Saccharomyces boulardii or specific Lactobacillus strains for antibiotic-associated diarrhea",
       "Travelers — strain-specific prevention of traveler's diarrhea",
@@ -642,8 +632,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Melatonin works best at low doses for jet lag and shift work — not as a nightly sleeping pill. Safety in pregnancy and children covered.",
     h1: "Melatonin: A Circadian Cue, Not a Sleeping Pill",
-    lede:
-      "Melatonin is a hormone that signals nighttime to the body. It is most useful for resetting circadian rhythm (jet lag, shift work) at low doses — not as a sedative.",
+    lede: "Melatonin is a hormone that signals nighttime to the body. It is most useful for resetting circadian rhythm (jet lag, shift work) at low doses — not as a sedative.",
     whoItMayHelp: [
       "Adults with jet lag — 0.3–1 mg, timed to destination bedtime, for a few nights",
       "Shift workers, under occupational health guidance",
@@ -704,8 +693,7 @@ export const SEO_TOPICS: TopicCopy[] = [
     metaDescription:
       "Multivitamins are insurance, not optimization. Who genuinely benefits, what to look for, and what to avoid.",
     h1: "Multivitamins: Useful Insurance for Some, Unnecessary for Many",
-    lede:
-      "A multivitamin is dietary insurance — it covers gaps when intake is inconsistent. It does not extend lifespan in well-nourished adults and is not a substitute for food.",
+    lede: "A multivitamin is dietary insurance — it covers gaps when intake is inconsistent. It does not extend lifespan in well-nourished adults and is not a substitute for food.",
     whoItMayHelp: [
       "Adults with inconsistent diets, calorie restriction, or restrictive eating patterns",
       "Older adults (B12 absorption declines with age)",
