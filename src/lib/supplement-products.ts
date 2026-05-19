@@ -26,15 +26,50 @@ export function amazonImage(_asin: string, _size: 250 | 160 | 500 = 250): string
   return "";
 }
 
-export const TONE_STYLES: Record<AmazonProduct["tone"], { bg: string; ring: string; text: string }> = {
-  amber: { bg: "bg-gradient-to-br from-amber-400/25 via-amber-500/15 to-orange-600/10", ring: "ring-amber-400/40", text: "text-amber-200" },
-  violet: { bg: "bg-gradient-to-br from-violet-400/25 via-violet-500/15 to-fuchsia-600/10", ring: "ring-violet-400/40", text: "text-violet-200" },
-  teal: { bg: "bg-gradient-to-br from-teal-400/25 via-cyan-500/15 to-blue-600/10", ring: "ring-teal-400/40", text: "text-teal-200" },
-  emerald: { bg: "bg-gradient-to-br from-emerald-400/25 via-emerald-500/15 to-green-600/10", ring: "ring-emerald-400/40", text: "text-emerald-200" },
-  rose: { bg: "bg-gradient-to-br from-rose-400/25 via-pink-500/15 to-red-600/10", ring: "ring-rose-400/40", text: "text-rose-200" },
-  sky: { bg: "bg-gradient-to-br from-sky-400/25 via-blue-500/15 to-indigo-600/10", ring: "ring-sky-400/40", text: "text-sky-200" },
-  lime: { bg: "bg-gradient-to-br from-lime-400/25 via-green-500/15 to-emerald-600/10", ring: "ring-lime-400/40", text: "text-lime-200" },
-  orange: { bg: "bg-gradient-to-br from-orange-400/25 via-red-500/15 to-rose-600/10", ring: "ring-orange-400/40", text: "text-orange-200" },
+export const TONE_STYLES: Record<
+  AmazonProduct["tone"],
+  { bg: string; ring: string; text: string }
+> = {
+  amber: {
+    bg: "bg-gradient-to-br from-amber-400/25 via-amber-500/15 to-orange-600/10",
+    ring: "ring-amber-400/40",
+    text: "text-amber-200",
+  },
+  violet: {
+    bg: "bg-gradient-to-br from-violet-400/25 via-violet-500/15 to-fuchsia-600/10",
+    ring: "ring-violet-400/40",
+    text: "text-violet-200",
+  },
+  teal: {
+    bg: "bg-gradient-to-br from-teal-400/25 via-cyan-500/15 to-blue-600/10",
+    ring: "ring-teal-400/40",
+    text: "text-teal-200",
+  },
+  emerald: {
+    bg: "bg-gradient-to-br from-emerald-400/25 via-emerald-500/15 to-green-600/10",
+    ring: "ring-emerald-400/40",
+    text: "text-emerald-200",
+  },
+  rose: {
+    bg: "bg-gradient-to-br from-rose-400/25 via-pink-500/15 to-red-600/10",
+    ring: "ring-rose-400/40",
+    text: "text-rose-200",
+  },
+  sky: {
+    bg: "bg-gradient-to-br from-sky-400/25 via-blue-500/15 to-indigo-600/10",
+    ring: "ring-sky-400/40",
+    text: "text-sky-200",
+  },
+  lime: {
+    bg: "bg-gradient-to-br from-lime-400/25 via-green-500/15 to-emerald-600/10",
+    ring: "ring-lime-400/40",
+    text: "text-lime-200",
+  },
+  orange: {
+    bg: "bg-gradient-to-br from-orange-400/25 via-red-500/15 to-rose-600/10",
+    ring: "ring-orange-400/40",
+    text: "text-orange-200",
+  },
 };
 
 export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
@@ -288,7 +323,8 @@ export function productFor(supplementId: string, answers?: QuizAnswers): AmazonP
   if (products.length === 0) return undefined;
   if (!answers) return products[0];
 
-  const wantsVegan = answers.diet === "vegan" || answers.diet === "vegetarian" || answers.allergies.vegan;
+  const wantsVegan =
+    answers.diet === "vegan" || answers.diet === "vegetarian" || answers.allergies.vegan;
   const wantsDairyFree = wantsVegan || answers.allergies.lactoseFree;
   const wantsPremium = answers.budget === "premium" || answers.allergies.thirdPartyTestedOnly;
 

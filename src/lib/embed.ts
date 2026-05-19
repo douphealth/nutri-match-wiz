@@ -23,10 +23,7 @@ export function installEmbedHeightReporter(): () => void {
 
   let last = 0;
   const post = () => {
-    const h = Math.max(
-      document.documentElement.scrollHeight,
-      document.body?.scrollHeight ?? 0,
-    );
+    const h = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0);
     if (h !== last) {
       last = h;
       window.parent?.postMessage({ type: EMBED_MESSAGE_TYPE, height: h }, "*");

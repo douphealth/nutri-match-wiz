@@ -1,5 +1,13 @@
 import { motion } from "framer-motion";
-import { ArrowRight, FlaskConical, ShieldCheck, Sparkles, Pill, Activity, HeartPulse } from "lucide-react";
+import {
+  ArrowRight,
+  FlaskConical,
+  ShieldCheck,
+  Sparkles,
+  Pill,
+  Activity,
+  HeartPulse,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -18,10 +26,7 @@ export default function QuizHero({ onStart }: Props) {
   return (
     <section className="relative isolate overflow-hidden">
       {/* Background glows */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-      >
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-[400px] w-[400px] rounded-full bg-primary/5 blur-3xl" />
@@ -59,9 +64,9 @@ export default function QuizHero({ onStart }: Props) {
           transition={{ duration: 0.55, delay: 0.1 }}
           className="max-w-2xl text-balance text-base text-muted-foreground sm:text-lg"
         >
-          19 expert questions. One personalized supplement plan. Vitamins, minerals
-          and performance aids — scored against your diet, training, lifestyle and
-          medications, with safety gates built in.
+          19 expert questions. One personalized supplement plan. Vitamins, minerals and performance
+          aids — scored against your diet, training, lifestyle and medications, with safety gates
+          built in.
         </motion.p>
 
         {/* Feature cards */}
@@ -146,9 +151,8 @@ export default function QuizHero({ onStart }: Props) {
         </div>
 
         <p className="mt-4 max-w-xl text-[11px] leading-relaxed text-muted-foreground">
-          Educational only. Not medical advice. Talk with a qualified clinician,
-          pharmacist, or registered dietitian before starting, stopping, or changing
-          supplements.
+          Educational only. Not medical advice. Talk with a qualified clinician, pharmacist, or
+          registered dietitian before starting, stopping, or changing supplements.
         </p>
       </div>
     </section>

@@ -5,7 +5,11 @@ import { decodeAnswers, type QuizAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
 import type { Recommendation } from "@/types/supplements";
 import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
-import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
+import {
+  CredibilitySections,
+  faqJsonLd,
+  reviewJsonLd,
+} from "@/components/result/CredibilitySections";
 import { buildDailySchedule } from "@/lib/daily-schedule";
 import { citationsFor } from "@/lib/evidence/evidence-matrix";
 import type { Recommendation as RecType, RecommendationStatus } from "@/types/supplements";
@@ -101,9 +105,26 @@ export const Route = createFileRoute("/supplement-match/$slug")({
 });
 
 function confidenceTone(c: Recommendation["confidence"]) {
-  if (c === "High") return { label: "HIGH MATCH", color: "text-primary", ring: "ring-primary/40", bg: "bg-primary/10" };
-  if (c === "Moderate") return { label: "GOOD MATCH", color: "text-amber-400", ring: "ring-amber-500/30", bg: "bg-amber-500/10" };
-  return { label: "WORTH CONSIDERING", color: "text-muted-foreground", ring: "ring-border", bg: "bg-muted/40" };
+  if (c === "High")
+    return {
+      label: "HIGH MATCH",
+      color: "text-primary",
+      ring: "ring-primary/40",
+      bg: "bg-primary/10",
+    };
+  if (c === "Moderate")
+    return {
+      label: "GOOD MATCH",
+      color: "text-amber-400",
+      ring: "ring-amber-500/30",
+      bg: "bg-amber-500/10",
+    };
+  return {
+    label: "WORTH CONSIDERING",
+    color: "text-muted-foreground",
+    ring: "ring-border",
+    bg: "bg-muted/40",
+  };
 }
 
 function ResultPage() {
@@ -112,9 +133,21 @@ function ResultPage() {
     answers: QuizAnswers;
     result: ReturnType<typeof runEngine>;
   };
-  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile, notRecommended, clinicianCallouts } = data.result;
+  const {
+    matchScore,
+    recommendations,
+    safetyGate,
+    foodFirstNotes,
+    generalNotes,
+    personalizationProfile,
+    notRecommended,
+    clinicianCallouts,
+  } = data.result;
   const top = recommendations[0];
-  const productCandidates = recommendations.reduce((sum, rec) => sum + productsFor(rec.supplement.id).length, 0);
+  const productCandidates = recommendations.reduce(
+    (sum, rec) => sum + productsFor(rec.supplement.id).length,
+    0,
+  );
 
   return (
     <div className="relative isolate">
@@ -124,7 +157,6 @@ function ResultPage() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:py-16">
-
         {/* Hero score */}
         <motion.header
           initial={{ opacity: 0, y: 12 }}
@@ -147,7 +179,15 @@ function ResultPage() {
             <div className="flex flex-col items-center">
               <div className="relative">
                 <svg className="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="52" stroke="currentColor" strokeWidth="8" fill="none" className="text-border" />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="none"
+                    className="text-border"
+                  />
                   <circle
                     cx="60"
                     cy="60"
@@ -166,7 +206,9 @@ function ResultPage() {
                   </defs>
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold text-foreground tabular-nums">{matchScore}</div>
+                  <div className="text-4xl font-bold text-foreground tabular-nums">
+                    {matchScore}
+                  </div>
                   <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                     Match score
                   </div>
@@ -176,12 +218,18 @@ function ResultPage() {
 
             <div className="flex flex-col items-center gap-3 sm:items-start sm:text-left">
               <Stat label="Top picks" value={String(recommendations.length)} />
-              <Stat label="Weighted signals" value={String(personalizationProfile?.signalCount ?? recommendations.length)} />
+              <Stat
+                label="Weighted signals"
+                value={String(personalizationProfile?.signalCount ?? recommendations.length)}
+              />
               <Stat
                 label="Top recommendation"
                 value={top ? top.supplement.name.replace(/\s*\([^)]*\)/g, "") : "Food-first only"}
               />
-              <Stat label="Safety review" value={safetyGate.triggered ? "Clinician input" : "Standard"} />
+              <Stat
+                label="Safety review"
+                value={safetyGate.triggered ? "Clinician input" : "Standard"}
+              />
             </div>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -195,12 +243,21 @@ function ResultPage() {
         {personalizationProfile && (
           <section className="mb-8 grid gap-3 rounded-2xl border border-border/60 bg-card/50 p-4 sm:grid-cols-[1.25fr_0.75fr]">
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Personalization engine</div>
-              <h2 className="mt-1 text-xl font-bold text-foreground">{personalizationProfile.label}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{personalizationProfile.summary}</p>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                Personalization engine
+              </div>
+              <h2 className="mt-1 text-xl font-bold text-foreground">
+                {personalizationProfile.label}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {personalizationProfile.summary}
+              </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {personalizationProfile.differentiators.map((item) => (
-                  <span key={item} className="rounded-md border border-primary/25 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                  <span
+                    key={item}
+                    className="rounded-md border border-primary/25 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary"
+                  >
                     {item}
                   </span>
                 ))}
@@ -219,7 +276,9 @@ function ResultPage() {
           <Card className="mb-8 border-destructive/40 bg-destructive/5">
             <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
               <ShieldAlert className="h-5 w-5 text-destructive" />
-              <CardTitle className="text-base">Talk with a clinician or pharmacist before starting anything new</CardTitle>
+              <CardTitle className="text-base">
+                Talk with a clinician or pharmacist before starting anything new
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
@@ -236,11 +295,15 @@ function ResultPage() {
           <Card className="mb-8 border-amber-500/40 bg-amber-500/5">
             <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
               <AlertTriangle className="h-5 w-5 text-amber-400" />
-              <CardTitle className="text-base">Ask your clinician or pharmacist about these</CardTitle>
+              <CardTitle className="text-base">
+                Ask your clinician or pharmacist about these
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                {clinicianCallouts.map((c) => (<li key={c}>{c}</li>))}
+                {clinicianCallouts.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
               </ul>
             </CardContent>
           </Card>
@@ -254,13 +317,18 @@ function ResultPage() {
           {recommendations.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                Based on your answers, no specific supplements rose above the baseline.
-                Food-first wins. See your food-first plan below.
+                Based on your answers, no specific supplements rose above the baseline. Food-first
+                wins. See your food-first plan below.
               </CardContent>
             </Card>
           ) : (
             recommendations.map((rec, i) => (
-              <SupplementCard key={rec.supplement.id} rec={rec} rank={i + 1} answers={data.answers} />
+              <SupplementCard
+                key={rec.supplement.id}
+                rec={rec}
+                rank={i + 1}
+                answers={data.answers}
+              />
             ))
           )}
         </section>
@@ -269,15 +337,26 @@ function ResultPage() {
         {notRecommended && notRecommended.length > 0 && (
           <section className="mt-10">
             <div className="mb-3">
-              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Transparency</div>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Not recommended for you today</h2>
-              <p className="mt-1 text-sm text-muted-foreground">We deliberately excluded these — here's why.</p>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                Transparency
+              </div>
+              <h2 className="mt-1 text-xl font-bold text-foreground">
+                Not recommended for you today
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                We deliberately excluded these — here's why.
+              </p>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {notRecommended.map((n) => (
-                <div key={n.supplementId} className="rounded-xl border border-border/60 bg-card/40 p-3">
+                <div
+                  key={n.supplementId}
+                  className="rounded-xl border border-border/60 bg-card/40 p-3"
+                >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-foreground">{n.supplementName}</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {n.supplementName}
+                    </span>
                     <StatusBadge status={n.status} />
                   </div>
                   <p className="mt-1.5 text-xs text-muted-foreground">{n.reason}</p>
@@ -326,20 +405,42 @@ function ResultPage() {
         {/* Quality checklist — what to demand from any supplement brand */}
         <section className="mt-10">
           <div className="mb-3">
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Quality checklist</div>
-            <h2 className="mt-1 text-xl font-bold text-foreground">What a high-quality supplement looks like</h2>
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+              Quality checklist
+            </div>
+            <h2 className="mt-1 text-xl font-bold text-foreground">
+              What a high-quality supplement looks like
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Apply this to every product on this page — and every product we did not pick.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
-              { t: "Third-party tested", d: "USP Verified, NSF Certified for Sport, or Informed Choice / Informed Sport on the label." },
-              { t: "No proprietary blends", d: "Every active ingredient lists an exact mg or mcg dose — never hidden behind a 'blend'." },
-              { t: "Disclosed form", d: "Methylcobalamin not generic B12, magnesium glycinate not oxide, D3 not D2, EPA+DHA totals printed." },
-              { t: "Allergen + diet fit", d: "Vegan, gluten-free, lactose-free, gelatin-free flags match your profile — not just marketing." },
-              { t: "Conservative dose", d: "Per-capsule dose lets you titrate up with labs instead of mega-dosing on day one." },
-              { t: "Honest claims", d: "No 'cures', no 'detox', no before/after photos. FDA/FTC-aligned structure-function language only." },
+              {
+                t: "Third-party tested",
+                d: "USP Verified, NSF Certified for Sport, or Informed Choice / Informed Sport on the label.",
+              },
+              {
+                t: "No proprietary blends",
+                d: "Every active ingredient lists an exact mg or mcg dose — never hidden behind a 'blend'.",
+              },
+              {
+                t: "Disclosed form",
+                d: "Methylcobalamin not generic B12, magnesium glycinate not oxide, D3 not D2, EPA+DHA totals printed.",
+              },
+              {
+                t: "Allergen + diet fit",
+                d: "Vegan, gluten-free, lactose-free, gelatin-free flags match your profile — not just marketing.",
+              },
+              {
+                t: "Conservative dose",
+                d: "Per-capsule dose lets you titrate up with labs instead of mega-dosing on day one.",
+              },
+              {
+                t: "Honest claims",
+                d: "No 'cures', no 'detox', no before/after photos. FDA/FTC-aligned structure-function language only.",
+              },
             ].map((x) => (
               <div key={x.t} className="rounded-xl border border-border/60 bg-card/40 p-4">
                 <div className="flex items-center gap-2">
@@ -358,15 +459,20 @@ function ResultPage() {
         {/* Privacy + Disclosure */}
         <div className="mt-12 space-y-2 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
           <p>
-            <span className="font-semibold text-foreground">Privacy:</span> your answers are encoded in this URL only — we
-            do not store them on a server. Bookmark or share this page to keep your plan.
+            <span className="font-semibold text-foreground">Privacy:</span> your answers are encoded
+            in this URL only — we do not store them on a server. Bookmark or share this page to keep
+            your plan.
           </p>
           <p>
-            Educational only. Not medical advice. Product links are Amazon affiliate links — ranking is commission-blind
-            and computed before any product is attached.{" "}
-            <Link to="/methodology" className="underline hover:text-primary">How this is scored</Link>{" "}
+            Educational only. Not medical advice. Product links are Amazon affiliate links — ranking
+            is commission-blind and computed before any product is attached.{" "}
+            <Link to="/methodology" className="underline hover:text-primary">
+              How this is scored
+            </Link>{" "}
             ·{" "}
-            <Link to="/affiliate-disclosure" className="underline hover:text-primary">Affiliate disclosure</Link>
+            <Link to="/affiliate-disclosure" className="underline hover:text-primary">
+              Affiliate disclosure
+            </Link>
           </p>
         </div>
       </div>
@@ -388,7 +494,9 @@ function Stat({ label, value }: { label: string; value: string }) {
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border/60 bg-background/30 p-3">
-      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </div>
       <div className="mt-1 text-sm font-semibold text-foreground">{value}</div>
     </div>
   );
@@ -397,9 +505,15 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
 const STATUS_META: Record<RecommendationStatus, { label: string; cls: string }> = {
   recommended: { label: "Recommended", cls: "bg-primary/15 text-primary ring-primary/30" },
   consider: { label: "Consider", cls: "bg-sky-500/15 text-sky-300 ring-sky-500/30" },
-  food_first: { label: "Food-first", cls: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30" },
+  food_first: {
+    label: "Food-first",
+    cls: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
+  },
   test_first: { label: "Test first", cls: "bg-amber-500/15 text-amber-300 ring-amber-500/30" },
-  clinician_only: { label: "Clinician only", cls: "bg-orange-500/15 text-orange-300 ring-orange-500/30" },
+  clinician_only: {
+    label: "Clinician only",
+    cls: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
+  },
   not_recommended: { label: "Not recommended", cls: "bg-muted text-muted-foreground ring-border" },
   avoid: { label: "Avoid", cls: "bg-destructive/15 text-destructive ring-destructive/30" },
 };
@@ -407,13 +521,23 @@ const STATUS_META: Record<RecommendationStatus, { label: string; cls: string }> 
 function StatusBadge({ status }: { status: RecommendationStatus }) {
   const m = STATUS_META[status];
   return (
-    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ${m.cls}`}>
+    <span
+      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ${m.cls}`}
+    >
       {m.label}
     </span>
   );
 }
 
-function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: number; answers: QuizAnswers }) {
+function SupplementCard({
+  rec,
+  rank,
+  answers,
+}: {
+  rec: Recommendation;
+  rank: number;
+  answers: QuizAnswers;
+}) {
   const product = productFor(rec.supplement.id, answers);
   const candidateCount = productsFor(rec.supplement.id).length;
   const tone = confidenceTone(rec.confidence);
@@ -436,7 +560,9 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
             <div className="flex items-start gap-3">
               <div
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
-                  isTop ? "bg-gradient-primary text-primary-foreground glow-primary-sm" : "bg-secondary text-foreground"
+                  isTop
+                    ? "bg-gradient-primary text-primary-foreground glow-primary-sm"
+                    : "bg-secondary text-foreground"
                 }`}
               >
                 {rank}
@@ -456,13 +582,19 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
                 )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   {rec.supplement.category} · Evidence{" "}
-                  <span className="font-semibold text-foreground">{rec.supplement.evidenceLevel}</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    {rec.supplement.evidenceLevel}
+                  </span>{" "}
                   · Safety{" "}
-                  <span className="font-semibold text-foreground">{rec.supplement.safetyLevel}</span>
+                  <span className="font-semibold text-foreground">
+                    {rec.supplement.safetyLevel}
+                  </span>
                 </p>
               </div>
             </div>
-            <div className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ring-1 ${tone.color} ${tone.ring} ${tone.bg}`}>
+            <div
+              className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ring-1 ${tone.color} ${tone.ring} ${tone.bg}`}
+            >
               {tone.label}
             </div>
           </div>
@@ -473,16 +605,26 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
 
           <div className="rounded-xl border border-border/60 bg-background/30 p-3">
             <div className="mb-2 flex items-center justify-between gap-3">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Signal precision</span>
-              <span className="text-xs font-bold text-primary tabular-nums">{rec.precisionScore ?? Math.round(rec.score * 10)} / 100</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Signal precision
+              </span>
+              <span className="text-xs font-bold text-primary tabular-nums">
+                {rec.precisionScore ?? Math.round(rec.score * 10)} / 100
+              </span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-              <div className="h-full rounded-full bg-gradient-primary" style={{ width: `${Math.min(100, rec.precisionScore ?? rec.score * 10)}%` }} />
+              <div
+                className="h-full rounded-full bg-gradient-primary"
+                style={{ width: `${Math.min(100, rec.precisionScore ?? rec.score * 10)}%` }}
+              />
             </div>
             {rec.personalizationTags && rec.personalizationTags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {rec.personalizationTags.slice(0, 5).map((tag) => (
-                  <span key={tag} className="rounded-md border border-border/70 bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                  <span
+                    key={tag}
+                    className="rounded-md border border-border/70 bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground"
+                  >
                     {tag}
                   </span>
                 ))}
@@ -493,7 +635,10 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
           {/* Amazon product card */}
           {product && (
             <div className="group/prod relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card-elevated/80 via-card-elevated/40 to-card-elevated/20 p-5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] transition-all hover:border-primary/40 hover:shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.35)]">
-              <div aria-hidden className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-40 blur-3xl ${TONE_STYLES[product.tone].bg}`} />
+              <div
+                aria-hidden
+                className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-40 blur-3xl ${TONE_STYLES[product.tone].bg}`}
+              />
               <div className="relative mb-3 flex items-center justify-between">
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
                   <Star className="h-3 w-3 fill-current" /> Editor's Pick on Amazon
@@ -510,7 +655,10 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
                   className={`group relative flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-3 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:h-44 sm:w-44`}
                   aria-label={`${product.brand} ${product.title} — view on Amazon`}
                 >
-                  <div className={`absolute inset-0 opacity-60 ${TONE_STYLES[product.tone].bg}`} aria-hidden />
+                  <div
+                    className={`absolute inset-0 opacity-60 ${TONE_STYLES[product.tone].bg}`}
+                    aria-hidden
+                  />
                   <img
                     src={product.image}
                     alt={`${product.brand} ${product.title}`}
@@ -523,7 +671,8 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
                       const parent = img.parentElement;
                       if (parent && !parent.querySelector(".img-fallback")) {
                         const fb = document.createElement("div");
-                        fb.className = "img-fallback relative z-10 flex flex-col items-center justify-center text-center px-3";
+                        fb.className =
+                          "img-fallback relative z-10 flex flex-col items-center justify-center text-center px-3";
                         fb.innerHTML = `<div class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">${product.brand}</div><div class="mt-1 text-base font-extrabold text-slate-900 leading-tight">${product.pill}</div>`;
                         parent.appendChild(fb);
                       }
@@ -579,7 +728,6 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
               </div>
             </div>
           )}
-
 
           {/* Why we recommended */}
           {rec.reasons.length > 0 && (
@@ -688,11 +836,14 @@ function DailyScheduleSection({ recs, answers }: { recs: RecType[]; answers: Qui
             Take this, at this time, with this.
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            A clinician-style timeline built from your answers — dose, form, timing, and food pairing.
+            A clinician-style timeline built from your answers — dose, form, timing, and food
+            pairing.
           </p>
         </div>
         <div className="hidden text-right sm:block">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Doses / day</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Doses / day
+          </div>
           <div className="text-3xl font-bold text-primary tabular-nums">{schedule.totalDoses}</div>
         </div>
       </div>
@@ -711,7 +862,10 @@ function DailyScheduleSection({ recs, answers }: { recs: RecType[]; answers: Qui
               </div>
               <div className="space-y-3">
                 {slot.doses.map((d, idx) => (
-                  <div key={idx} className="grid gap-1 rounded-xl border border-border/40 bg-background/30 p-3 sm:grid-cols-[1.4fr_1fr]">
+                  <div
+                    key={idx}
+                    className="grid gap-1 rounded-xl border border-border/40 bg-background/30 p-3 sm:grid-cols-[1.4fr_1fr]"
+                  >
                     <div>
                       <div className="text-sm font-bold text-foreground">{d.supplementName}</div>
                       <div className="mt-0.5 text-xs text-muted-foreground">{d.dose}</div>
@@ -741,10 +895,14 @@ function DailyScheduleSection({ recs, answers }: { recs: RecType[]; answers: Qui
             <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-amber-300">
                 <AlertTriangle className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Timing separations</span>
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Timing separations
+                </span>
               </div>
               <ul className="ml-4 list-disc space-y-1 text-xs text-muted-foreground">
-                {schedule.globalSeparations.map((s) => (<li key={s}>{s}</li>))}
+                {schedule.globalSeparations.map((s) => (
+                  <li key={s}>{s}</li>
+                ))}
               </ul>
             </div>
           )}
@@ -752,10 +910,14 @@ function DailyScheduleSection({ recs, answers }: { recs: RecType[]; answers: Qui
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-primary">
                 <Sparkles className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Training-day adjustments</span>
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Training-day adjustments
+                </span>
               </div>
               <ul className="ml-4 list-disc space-y-1 text-xs text-muted-foreground">
-                {schedule.trainingDayAdjustments.map((s) => (<li key={s}>{s}</li>))}
+                {schedule.trainingDayAdjustments.map((s) => (
+                  <li key={s}>{s}</li>
+                ))}
               </ul>
             </div>
           )}

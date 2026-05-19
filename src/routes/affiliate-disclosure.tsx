@@ -34,27 +34,26 @@ function AffiliateDisclosurePage() {
     <article className="mx-auto max-w-2xl px-4 py-12 prose prose-neutral dark:prose-invert">
       <h1>Affiliate Disclosure</h1>
       <p>
-        GearUpToFit is a participant in the Amazon Services LLC Associates Program and
-        other affiliate programs. When you click a product link inside Supplement Match
-        and make a purchase, we may earn a small commission — at no additional cost to you.
+        GearUpToFit is a participant in the Amazon Services LLC Associates Program and other
+        affiliate programs. When you click a product link inside Supplement Match and make a
+        purchase, we may earn a small commission — at no additional cost to you.
       </p>
       <h2>How affiliate links interact with our ranking</h2>
       <p>
-        Our scoring engine is <strong>commission-blind</strong>. Affiliate links are added
-        only <em>after</em> the recommendation list is calculated. If the top-ranked
-        supplement earns us nothing and the fourth-ranked supplement earns us a commission,
-        the top-ranked supplement still wins.
+        Our scoring engine is <strong>commission-blind</strong>. Affiliate links are added only{" "}
+        <em>after</em> the recommendation list is calculated. If the top-ranked supplement earns us
+        nothing and the fourth-ranked supplement earns us a commission, the top-ranked supplement
+        still wins.
       </p>
       <h2>Product selection</h2>
       <p>
-        We prioritize products that are independently verified by third parties (USP, NSF,
-        Informed Sport, Informed Choice, ConsumerLab) when those options exist. We do not
-        accept payment from brands to be featured in the catalog.
+        We prioritize products that are independently verified by third parties (USP, NSF, Informed
+        Sport, Informed Choice, ConsumerLab) when those options exist. We do not accept payment from
+        brands to be featured in the catalog.
       </p>
       <h2>Questions</h2>
       <p>
-        Reach the team at{" "}
-        <a href="mailto:hello@gearuptofit.com">hello@gearuptofit.com</a>.
+        Reach the team at <a href="mailto:hello@gearuptofit.com">hello@gearuptofit.com</a>.
       </p>
     </article>
   );

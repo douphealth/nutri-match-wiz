@@ -11,8 +11,14 @@ export function TopBar() {
     const url = typeof window !== "undefined" ? window.location.href : "";
     const title = "My Supplement Match — GearUpToFit";
     try {
-      if (typeof navigator !== "undefined" && (navigator as Navigator & { share?: (data: ShareData) => Promise<void> }).share) {
-        await (navigator as Navigator & { share: (data: ShareData) => Promise<void> }).share({ title, url });
+      if (
+        typeof navigator !== "undefined" &&
+        (navigator as Navigator & { share?: (data: ShareData) => Promise<void> }).share
+      ) {
+        await (navigator as Navigator & { share: (data: ShareData) => Promise<void> }).share({
+          title,
+          url,
+        });
         return;
       }
     } catch {

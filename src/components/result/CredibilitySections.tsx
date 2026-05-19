@@ -1,42 +1,133 @@
-import { ExternalLink, BookOpen, Wrench, ShoppingBag, FlaskConical, Quote, HelpCircle, Star } from "lucide-react";
+import {
+  ExternalLink,
+  BookOpen,
+  Wrench,
+  ShoppingBag,
+  FlaskConical,
+  Quote,
+  HelpCircle,
+  Star,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 /* ---------- Data ---------- */
 
 export const READING = [
-  { icon: "💊", tag: "Foundations", title: "Do You Really Need a Multivitamin?", href: "https://gearuptofit.com/blog/do-you-really-need-a-multivitamin/" },
-  { icon: "🐟", tag: "Omega-3", title: "EPA vs DHA: What the Evidence Actually Says", href: "https://gearuptofit.com/blog/epa-vs-dha/" },
-  { icon: "☀️", tag: "Vitamin D", title: "Vitamin D Dosing: How Much Is Too Much?", href: "https://gearuptofit.com/blog/vitamin-d-dosing/" },
-  { icon: "💪", tag: "Performance", title: "Creatine for Non-Athletes: Cognition & Aging", href: "https://gearuptofit.com/blog/creatine-cognition/" },
-  { icon: "🌱", tag: "Vegan", title: "The 5 Nutrients Every Vegan Should Track", href: "https://gearuptofit.com/blog/vegan-nutrients/" },
-  { icon: "😴", tag: "Sleep", title: "Magnesium & Melatonin: A Practical Guide", href: "https://gearuptofit.com/blog/magnesium-melatonin/" },
+  {
+    icon: "💊",
+    tag: "Foundations",
+    title: "Do You Really Need a Multivitamin?",
+    href: "https://gearuptofit.com/blog/do-you-really-need-a-multivitamin/",
+  },
+  {
+    icon: "🐟",
+    tag: "Omega-3",
+    title: "EPA vs DHA: What the Evidence Actually Says",
+    href: "https://gearuptofit.com/blog/epa-vs-dha/",
+  },
+  {
+    icon: "☀️",
+    tag: "Vitamin D",
+    title: "Vitamin D Dosing: How Much Is Too Much?",
+    href: "https://gearuptofit.com/blog/vitamin-d-dosing/",
+  },
+  {
+    icon: "💪",
+    tag: "Performance",
+    title: "Creatine for Non-Athletes: Cognition & Aging",
+    href: "https://gearuptofit.com/blog/creatine-cognition/",
+  },
+  {
+    icon: "🌱",
+    tag: "Vegan",
+    title: "The 5 Nutrients Every Vegan Should Track",
+    href: "https://gearuptofit.com/blog/vegan-nutrients/",
+  },
+  {
+    icon: "😴",
+    tag: "Sleep",
+    title: "Magnesium & Melatonin: A Practical Guide",
+    href: "https://gearuptofit.com/blog/magnesium-melatonin/",
+  },
 ];
 
 export const TOOLS = [
-  { icon: "🥗", title: "Macro Calculator", sub: "Dial in protein, carbs & fat", href: "https://gearuptofit.com/macro-calculator/" },
-  { icon: "📋", title: "Free Custom Workout Plan", sub: "AI-generated plan for your goals", href: "https://gearuptofit.com/workout-plan/" },
-  { icon: "😴", title: "Sleep Efficiency Calculator", sub: "Recovery starts with sleep", href: "https://gearuptofit.com/sleep-calculator/" },
-  { icon: "👟", title: "Find Your Running Shoes", sub: "Personalized shoe finder", href: "https://gearuptofit.com/shoe-finder/" },
-  { icon: "⌚", title: "Find Your Fitness Watch", sub: "Match a watch to your training", href: "https://gearuptofit.com/watch-match/" },
-  { icon: "📐", title: "Running Distance Calculator", sub: "Pace, splits & route maths", href: "https://gearuptofit.com/distance-calculator/" },
+  {
+    icon: "🥗",
+    title: "Macro Calculator",
+    sub: "Dial in protein, carbs & fat",
+    href: "https://gearuptofit.com/macro-calculator/",
+  },
+  {
+    icon: "📋",
+    title: "Free Custom Workout Plan",
+    sub: "AI-generated plan for your goals",
+    href: "https://gearuptofit.com/workout-plan/",
+  },
+  {
+    icon: "😴",
+    title: "Sleep Efficiency Calculator",
+    sub: "Recovery starts with sleep",
+    href: "https://gearuptofit.com/sleep-calculator/",
+  },
+  {
+    icon: "👟",
+    title: "Find Your Running Shoes",
+    sub: "Personalized shoe finder",
+    href: "https://gearuptofit.com/shoe-finder/",
+  },
+  {
+    icon: "⌚",
+    title: "Find Your Fitness Watch",
+    sub: "Match a watch to your training",
+    href: "https://gearuptofit.com/watch-match/",
+  },
+  {
+    icon: "📐",
+    title: "Running Distance Calculator",
+    sub: "Pace, splits & route maths",
+    href: "https://gearuptofit.com/distance-calculator/",
+  },
 ];
 
 export const KIT = [
-  { icon: "💧", tag: "Hydration", title: "Best Insulated Water Bottles", href: "https://gearuptofit.com/best-water-bottles/" },
-  { icon: "🥤", tag: "Nutrition", title: "Best Shaker Bottles", href: "https://gearuptofit.com/best-shaker-bottles/" },
-  { icon: "🧘", tag: "Recovery", title: "Best Foam Rollers", href: "https://gearuptofit.com/best-foam-rollers/" },
-  { icon: "⌚", tag: "Tech", title: "Best Fitness Watches", href: "https://gearuptofit.com/best-fitness-watches/" },
+  {
+    icon: "💧",
+    tag: "Hydration",
+    title: "Best Insulated Water Bottles",
+    href: "https://gearuptofit.com/best-water-bottles/",
+  },
+  {
+    icon: "🥤",
+    tag: "Nutrition",
+    title: "Best Shaker Bottles",
+    href: "https://gearuptofit.com/best-shaker-bottles/",
+  },
+  {
+    icon: "🧘",
+    tag: "Recovery",
+    title: "Best Foam Rollers",
+    href: "https://gearuptofit.com/best-foam-rollers/",
+  },
+  {
+    icon: "⌚",
+    tag: "Tech",
+    title: "Best Fitness Watches",
+    href: "https://gearuptofit.com/best-fitness-watches/",
+  },
 ];
 
 export const SOURCES = [
   {
-    claim: "Vitamin D supplementation (1,000–4,000 IU/day) corrects deficiency in most adults; mortality benefit strongest when baseline 25(OH)D <50 nmol/L",
-    cite: "Bouillon R. et al., Endocrine Reviews, 2019 — \"Skeletal and Extraskeletal Actions of Vitamin D\"",
+    claim:
+      "Vitamin D supplementation (1,000–4,000 IU/day) corrects deficiency in most adults; mortality benefit strongest when baseline 25(OH)D <50 nmol/L",
+    cite: 'Bouillon R. et al., Endocrine Reviews, 2019 — "Skeletal and Extraskeletal Actions of Vitamin D"',
     href: "https://academic.oup.com/edrv/article/40/4/1109/5485407",
   },
   {
-    claim: "Creatine monohydrate (3–5 g/day) is the most studied ergogenic aid — safe and effective in healthy adults",
+    claim:
+      "Creatine monohydrate (3–5 g/day) is the most studied ergogenic aid — safe and effective in healthy adults",
     cite: "International Society of Sports Nutrition Position Stand, JISSN 2017",
     href: "https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0173-z",
   },
@@ -46,22 +137,26 @@ export const SOURCES = [
     href: "https://www.jacc.org/doi/10.1016/j.jacc.2011.06.063",
   },
   {
-    claim: "Vegans and adults >50 should supplement B12 (cyanocobalamin or methylcobalamin) to prevent neurological deficiency",
+    claim:
+      "Vegans and adults >50 should supplement B12 (cyanocobalamin or methylcobalamin) to prevent neurological deficiency",
     cite: "NIH Office of Dietary Supplements — Vitamin B12 Fact Sheet for Health Professionals",
     href: "https://ods.od.nih.gov/factsheets/VitaminB12-HealthProfessional/",
   },
   {
-    claim: "Iron supplementation should only follow ferritin / CBC labs — empirical iron can cause GI distress and oxidative load",
+    claim:
+      "Iron supplementation should only follow ferritin / CBC labs — empirical iron can cause GI distress and oxidative load",
     cite: "WHO Guideline: Daily Iron Supplementation in Adult Women and Adolescent Girls, 2016",
     href: "https://www.who.int/publications/i/item/9789241510196",
   },
   {
-    claim: "Magnesium glycinate / citrate are better tolerated than oxide; 200–400 mg/day supports sleep and muscle relaxation",
+    claim:
+      "Magnesium glycinate / citrate are better tolerated than oxide; 200–400 mg/day supports sleep and muscle relaxation",
     cite: "NIH ODS — Magnesium Fact Sheet for Health Professionals",
     href: "https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/",
   },
   {
-    claim: "Third-party certification (USP, NSF, Informed Sport) materially reduces contaminant and label-claim risk",
+    claim:
+      "Third-party certification (USP, NSF, Informed Sport) materially reduces contaminant and label-claim risk",
     cite: "U.S. Pharmacopeia — Dietary Supplement Verification Program",
     href: "https://www.quality-supplements.org/",
   },
@@ -172,7 +267,10 @@ function SectionHeader({
       <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
         <Icon className="h-3 w-3" /> {eyebrow}
       </div>
-      <h2 className="font-bold uppercase tracking-tight text-foreground" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}>
+      <h2
+        className="font-bold uppercase tracking-tight text-foreground"
+        style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}
+      >
         {title}
       </h2>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
@@ -201,7 +299,9 @@ export function RecommendedReading() {
             <div className="flex items-start gap-3">
               <div className="text-2xl leading-none">{r.icon}</div>
               <div className="flex-1">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-primary">{r.tag}</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                  {r.tag}
+                </div>
                 <div className="mt-1 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
                   {r.title}
                 </div>
@@ -234,7 +334,9 @@ export function UsefulTools() {
           >
             <div className="text-2xl">{t.icon}</div>
             <div className="flex-1">
-              <div className="text-sm font-semibold text-foreground group-hover:text-primary">{t.title}</div>
+              <div className="text-sm font-semibold text-foreground group-hover:text-primary">
+                {t.title}
+              </div>
               <div className="text-xs text-muted-foreground">{t.sub}</div>
             </div>
             <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
@@ -264,8 +366,12 @@ export function CompleteYourKit() {
             className="group glass flex flex-col items-start gap-2 rounded-xl border border-border/60 p-4 transition hover:border-primary/40 hover:-translate-y-0.5"
           >
             <div className="text-2xl">{k.icon}</div>
-            <Badge variant="outline" className="border-primary/30 text-[10px] text-primary">{k.tag}</Badge>
-            <div className="text-sm font-semibold text-foreground group-hover:text-primary">{k.title}</div>
+            <Badge variant="outline" className="border-primary/30 text-[10px] text-primary">
+              {k.tag}
+            </Badge>
+            <div className="text-sm font-semibold text-foreground group-hover:text-primary">
+              {k.title}
+            </div>
           </a>
         ))}
       </div>
@@ -317,7 +423,10 @@ export function Testimonials() {
           <span className="ml-1 text-sm font-bold text-foreground">4.9</span>
           <span className="text-sm text-muted-foreground">· 2,400+ reviews</span>
         </div>
-        <h2 className="font-bold uppercase tracking-tight text-foreground" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}>
+        <h2
+          className="font-bold uppercase tracking-tight text-foreground"
+          style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}
+        >
           Trusted by people who hate guesswork
         </h2>
       </div>
@@ -369,7 +478,9 @@ export function FAQSection() {
               </span>
               <span className="shrink-0 text-primary transition group-open:rotate-45">+</span>
             </summary>
-            <div className="px-4 pb-4 pl-[3.25rem] text-sm leading-relaxed text-muted-foreground">{f.a}</div>
+            <div className="px-4 pb-4 pl-[3.25rem] text-sm leading-relaxed text-muted-foreground">
+              {f.a}
+            </div>
           </details>
         ))}
       </div>

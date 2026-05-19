@@ -129,9 +129,7 @@ function TopicPage() {
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">
           Evidence-based guide
         </p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight md:text-4xl">
-          {t.h1}
-        </h1>
+        <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight md:text-4xl">{t.h1}</h1>
         <p className="mt-4 text-lg text-muted-foreground">{t.lede}</p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link

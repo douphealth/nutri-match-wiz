@@ -90,11 +90,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@gearuptofit" },
       { property: "og:title", content: "Supplement Match — GearUpToFit" },
       { name: "twitter:title", content: "Supplement Match — GearUpToFit" },
-      { name: "description", content: "Personalized quiz app for evidence-based vitamin and supplement recommendations." },
-      { property: "og:description", content: "Personalized quiz app for evidence-based vitamin and supplement recommendations." },
-      { name: "twitter:description", content: "Personalized quiz app for evidence-based vitamin and supplement recommendations." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png" },
+      {
+        name: "description",
+        content: "Personalized quiz app for evidence-based vitamin and supplement recommendations.",
+      },
+      {
+        property: "og:description",
+        content: "Personalized quiz app for evidence-based vitamin and supplement recommendations.",
+      },
+      {
+        name: "twitter:description",
+        content: "Personalized quiz app for evidence-based vitamin and supplement recommendations.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

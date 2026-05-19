@@ -36,11 +36,7 @@ export interface Citation {
 }
 
 export type EvidenceGrade = "Strong" | "Moderate" | "Limited" | "Situational";
-export type LabRequirement =
-  | "none"
-  | "encouraged"
-  | "required_before_use"
-  | "clinician_directed";
+export type LabRequirement = "none" | "encouraged" | "required_before_use" | "clinician_directed";
 
 export interface EvidenceEntry {
   /** Matches Supplement.id from supplementData. */
@@ -218,7 +214,12 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     supportedClaims: [
       "Treats and prevents B12 deficiency, particularly in vegans, older adults, and those on metformin or PPIs.",
     ],
-    populationFit: ["Vegans / vegetarians", "Adults 50+", "Long-term metformin or acid-reducer users", "History of pernicious anemia"],
+    populationFit: [
+      "Vegans / vegetarians",
+      "Adults 50+",
+      "Long-term metformin or acid-reducer users",
+      "History of pernicious anemia",
+    ],
     citations: [C.odsB12],
     evidenceGrade: "Strong",
     labRequirement: "encouraged",
@@ -229,7 +230,9 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
       "EPA + DHA support cardiovascular and triglyceride markers at adequate doses.",
       "Useful for people who rarely eat oily fish.",
     ],
-    unsupportedClaims: ["Routine high-dose fish oil for primary prevention in healthy adults without baseline shortfall."],
+    unsupportedClaims: [
+      "Routine high-dose fish oil for primary prevention in healthy adults without baseline shortfall.",
+    ],
     populationFit: ["Low oily-fish eaters", "Vegans (algal EPA/DHA)"],
     populationCaution: ["People on blood thinners — discuss dose with clinician"],
     citations: [C.odsOmega, C.nccihOmega],
@@ -242,7 +245,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
       "Corrects shortfall in adults with low dietary intake.",
       "May support sleep quality in deficient or older adults.",
     ],
-    populationFit: ["Low intake of greens/legumes/nuts/whole grains", "Frequent training", "Adults 60+"],
+    populationFit: [
+      "Low intake of greens/legumes/nuts/whole grains",
+      "Frequent training",
+      "Adults 60+",
+    ],
     populationCaution: ["Severe kidney disease — clinician oversight required"],
     citations: [C.odsMg],
     evidenceGrade: "Moderate",
@@ -254,7 +261,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
       "Creatine monohydrate increases lean mass, strength, and high-intensity performance with resistance training.",
       "Emerging evidence for cognitive performance under stress, sleep deprivation, and in older adults.",
     ],
-    populationFit: ["Resistance-trained adults", "Older adults pairing creatine with resistance training", "Vegetarians/vegans (lower baseline)"],
+    populationFit: [
+      "Resistance-trained adults",
+      "Older adults pairing creatine with resistance training",
+      "Vegetarians/vegans (lower baseline)",
+    ],
     populationCaution: ["Significant kidney disease — clinician guidance"],
     citations: [C.issnCr, C.nccihCr, C.nsfSport],
     evidenceGrade: "Strong",
@@ -265,7 +276,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     supportedClaims: [
       "Distributed daily protein 1.4–2.0 g/kg supports muscle mass during training; whey and quality plant blends are convenient sources.",
     ],
-    populationFit: ["Higher training loads", "Calorie deficits / weight management", "Older adults to protect lean mass"],
+    populationFit: [
+      "Higher training loads",
+      "Calorie deficits / weight management",
+      "Older adults to protect lean mass",
+    ],
     citations: [C.issnProtein, C.nsfSport],
     evidenceGrade: "Strong",
     labRequirement: "none",
@@ -278,8 +293,16 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     unsupportedClaims: [
       "Routine iron 'energy' supplementation in adults without confirmed deficiency.",
     ],
-    populationFit: ["Documented low ferritin", "Pregnancy under obstetric care", "Heavy menstrual losses (with labs)"],
-    populationCaution: ["Hemochromatosis", "Any iron overload condition", "Men and post-menopausal women without confirmed deficiency"],
+    populationFit: [
+      "Documented low ferritin",
+      "Pregnancy under obstetric care",
+      "Heavy menstrual losses (with labs)",
+    ],
+    populationCaution: [
+      "Hemochromatosis",
+      "Any iron overload condition",
+      "Men and post-menopausal women without confirmed deficiency",
+    ],
     citations: [C.odsIron, C.fdaIron],
     evidenceGrade: "Situational",
     labRequirement: "required_before_use",
@@ -289,8 +312,14 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     supportedClaims: [
       "Used to close a measured dietary calcium gap, especially in low-dairy or vegan diets and older adults.",
     ],
-    unsupportedClaims: ["High-dose calcium supplements as routine prevention — adds limited benefit and some risk."],
-    populationFit: ["Low-dairy / vegan with low fortified intake", "Post-menopausal at risk", "Older adults"],
+    unsupportedClaims: [
+      "High-dose calcium supplements as routine prevention — adds limited benefit and some risk.",
+    ],
+    populationFit: [
+      "Low-dairy / vegan with low fortified intake",
+      "Post-menopausal at risk",
+      "Older adults",
+    ],
     populationCaution: ["History of some kidney stones", "Hypercalcemia"],
     citations: [C.odsCa],
     evidenceGrade: "Moderate",
@@ -314,7 +343,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
       "Sodium-led electrolyte replacement during long, hot, or sweaty endurance work improves hydration and performance.",
     ],
     populationFit: ["Endurance athletes", "Heat / humidity training", "Heavy sweat losses"],
-    populationCaution: ["Salt-sensitive hypertension", "Kidney disease", "Potassium-sparing diuretic / ACE-i / ARB users"],
+    populationCaution: [
+      "Salt-sensitive hypertension",
+      "Kidney disease",
+      "Potassium-sparing diuretic / ACE-i / ARB users",
+    ],
     citations: [C.acsmHydration],
     evidenceGrade: "Moderate",
     labRequirement: "none",
@@ -350,9 +383,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     supportedClaims: [
       "Short-term, modest zinc lozenges may slightly shorten cold duration in some adults.",
     ],
-    unsupportedClaims: [
-      "Chronic high-dose zinc — risks copper deficiency and immune issues.",
-    ],
+    unsupportedClaims: ["Chronic high-dose zinc — risks copper deficiency and immune issues."],
     populationFit: ["Early cold symptoms (short term)", "Documented low intake"],
     populationCaution: ["Avoid intranasal zinc (anosmia risk)"],
     citations: [C.odsZinc],
@@ -364,9 +395,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     supportedClaims: [
       "Modest daily vitamin C helps when produce intake is low; smokers have higher needs.",
     ],
-    unsupportedClaims: [
-      "Megadoses to prevent colds in the general population.",
-    ],
+    unsupportedClaims: ["Megadoses to prevent colds in the general population."],
     populationFit: ["Low fruit / vegetable intake", "Smokers"],
     populationCaution: ["History of oxalate kidney stones — avoid high doses"],
     citations: [C.odsC],
@@ -382,7 +411,11 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
       "Nightly long-term sedative use, high-dose gummies (commonly mis-dosed), and routine pediatric use without clinician oversight.",
     ],
     populationFit: ["Jet lag", "Shift work (clinician-guided)"],
-    populationCaution: ["Pregnancy / breastfeeding", "Under 18 without clinician guidance", "Users of sedatives, blood thinners, or immunosuppressants"],
+    populationCaution: [
+      "Pregnancy / breastfeeding",
+      "Under 18 without clinician guidance",
+      "Users of sedatives, blood thinners, or immunosuppressants",
+    ],
     citations: [C.aasmMel, C.nccihMel],
     evidenceGrade: "Moderate",
     labRequirement: "none",
