@@ -153,7 +153,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   creatine: [
     {
       asin: "B002DYIZEO",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71SGNJz5y8L._AC_SL1500_.jpg",
       brand: "Optimum Nutrition",
       title: "Micronized Creatine Monohydrate Powder (120 servings)",
       pill: "Creatine Monohydrate",
@@ -164,7 +164,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
     },
     {
       asin: "B07978VPPH",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71-lmdLaYmL._AC_SL1500_.jpg",
       brand: "Thorne",
       title: "Creatine Monohydrate Powder, NSF Certified for Sport (90 servings)",
       pill: "NSF Creatine",
@@ -177,7 +177,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   protein: [
     {
       asin: "B000QSNYGI",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71Lw7FkgniL._AC_SL1500_.jpg",
       brand: "Optimum Nutrition",
       title: "Gold Standard 100% Whey, Double Rich Chocolate (5 lb)",
       pill: "Whey Protein 24g",
@@ -188,7 +188,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
     },
     {
       asin: "B00J074W7Q",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/7191gyxaAQL._AC_SL1500_.jpg",
       brand: "Orgain",
       title: "Organic Vegan Protein Powder, Vanilla Bean, 21g Plant Protein (2.03 lb)",
       pill: "Vegan Protein 21g",
