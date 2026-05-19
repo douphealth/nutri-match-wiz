@@ -122,18 +122,26 @@ function Index() {
 
   const finish = useCallback(() => {
     const slug = generateSlug(answers);
-    const encoded = encodeAnswers(answers);
-    // The result route lands in Stage 2; for now route into a placeholder
-    // share URL that still encodes everything needed to re-score.
-    navigate({
-      to: "/supplement-match/$slug",
-      params: { slug },
-      search: { d: encoded },
-    }).catch(() => {
-      // Result route not yet present — fall back to staying on the hero.
-      // Users still see their answers persist in memory.
+    // Privacy: store in sessionStorage so the result page can render without
+    // putting sensitive answers in the URL. We still pass `?d=` for back-compat
+    // and to support bookmark/refresh in environments without sessionStorage.
+    storeAnswersForSlug(slug, answers);
+    import("@/lib/quiz-data").then(({ encodeAnswers }) => {
+      const encoded = encodeAnswers(answers);
+      navigate({
+        to: "/supplement-match/$slug",
+        params: { slug },
+        search: { d: encoded },
+      }).catch(() => {
+        /* result route may be absent — sessionStorage still holds the answers */
+      });
     });
   }, [answers, navigate]);
+
+  // Adaptive navigation: skip steps whose showWhen predicate is false.
+  const visible = useMemo(() => visibleSteps(answers), [answers]);
+  const isVisibleStep = (idx: number) =>
+    idx < 0 || idx >= quizSteps.length || visible.includes(quizSteps[idx]);
 
   const handleNext = useCallback(() => {
     setCurrentStep((p) => {
