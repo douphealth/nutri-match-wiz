@@ -548,3 +548,95 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
     </motion.div>
   );
 }
+
+function DailyScheduleSection({ recs, answers }: { recs: RecType[]; answers: QuizAnswers }) {
+  if (recs.length === 0) return null;
+  const schedule = buildDailySchedule(recs, answers);
+  if (schedule.totalDoses === 0) return null;
+  return (
+    <section className="mt-10">
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+            Your daily protocol
+          </div>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground">
+            Take this, at this time, with this.
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            A clinician-style timeline built from your answers — dose, form, timing, and food pairing.
+          </p>
+        </div>
+        <div className="hidden text-right sm:block">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Doses / day</div>
+          <div className="text-3xl font-bold text-primary tabular-nums">{schedule.totalDoses}</div>
+        </div>
+      </div>
+      <ol className="relative ml-2 border-l border-border/60 pl-5">
+        {schedule.bySlot.map((slot) => (
+          <li key={slot.slot} className="relative mb-5">
+            <span className="absolute -left-[27px] top-1.5 h-3 w-3 rounded-full bg-gradient-primary ring-4 ring-background" />
+            <div className="rounded-2xl border border-border/60 bg-card/60 p-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                  {slot.label}
+                </div>
+                <Badge variant="secondary" className="text-[10px]">
+                  {slot.doses.length} item{slot.doses.length > 1 ? "s" : ""}
+                </Badge>
+              </div>
+              <div className="space-y-3">
+                {slot.doses.map((d, idx) => (
+                  <div key={idx} className="grid gap-1 rounded-xl border border-border/40 bg-background/30 p-3 sm:grid-cols-[1.4fr_1fr]">
+                    <div>
+                      <div className="text-sm font-bold text-foreground">{d.supplementName}</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">{d.dose}</div>
+                      <div className="mt-1 text-[11px] text-muted-foreground">{d.notes}</div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 sm:items-start sm:justify-end">
+                      <span className="rounded-md border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                        {d.form}
+                      </span>
+                      <span className="rounded-md border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                        {d.withFood}
+                      </span>
+                      <span className="rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        {d.cadence}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+      {(schedule.globalSeparations.length > 0 || schedule.trainingDayAdjustments.length > 0) && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {schedule.globalSeparations.length > 0 && (
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className="mb-2 flex items-center gap-2 text-amber-300">
+                <AlertTriangle className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Timing separations</span>
+              </div>
+              <ul className="ml-4 list-disc space-y-1 text-xs text-muted-foreground">
+                {schedule.globalSeparations.map((s) => (<li key={s}>{s}</li>))}
+              </ul>
+            </div>
+          )}
+          {schedule.trainingDayAdjustments.length > 0 && (
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+              <div className="mb-2 flex items-center gap-2 text-primary">
+                <Sparkles className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Training-day adjustments</span>
+              </div>
+              <ul className="ml-4 list-disc space-y-1 text-xs text-muted-foreground">
+                {schedule.trainingDayAdjustments.map((s) => (<li key={s}>{s}</li>))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
