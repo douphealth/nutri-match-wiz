@@ -40,10 +40,13 @@ describe("deprecated engine wrappers", () => {
           continue;
         }
         if (!/\.(ts|tsx)$/.test(ent.name)) continue;
-        // Skip the wrappers themselves.
+        // Skip the wrappers themselves and any test files (which legitimately
+        // mention the legacy paths in assertions).
         if (
           full.endsWith("/lib/supplementEngine.ts") ||
-          full.endsWith("/lib/recommendation-engine.ts")
+          full.endsWith("/lib/recommendation-engine.ts") ||
+          full.includes("/__tests__/") ||
+          /\.test\.tsx?$/.test(full)
         )
           continue;
         const src = readFileSync(full, "utf8");
