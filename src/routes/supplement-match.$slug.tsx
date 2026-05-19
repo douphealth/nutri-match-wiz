@@ -446,6 +446,9 @@ function ResultPage({
           </section>
         )}
 
+        {/* Wellness profile (radar + stat cards) */}
+        <WellnessProfilePanel answers={data.answers} result={data.result} />
+
         {/* Safety gate + clinician callouts */}
         {clinicianGuidance.length > 0 && (
           <Card className="mb-8 border-destructive/40 bg-destructive/5">
