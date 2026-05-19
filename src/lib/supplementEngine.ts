@@ -208,8 +208,12 @@ export function runEngine(a: QuizAnswers): EngineResult {
   const pn = buckets["prenatal"];
   if (a.pregnancy === "pregnant" || a.pregnancy === "breastfeeding" || a.pregnancy === "trying") {
     addSignal(pn, 6.4, "Pregnancy/breastfeeding/preconception — prenatal with folate is standard of care.", "life-stage critical");
+    pn.forcedStatus = "clinician_only";
+    pn.forcedStatusReason = "Choose the specific prenatal (folate/iron/DHA amounts) with your obstetric clinician.";
   } else {
     pn.suppressed = true;
+    pn.suppressionStatus = "not_recommended";
+    pn.suppressionReason = "Prenatal vitamins are only indicated when pregnant, breastfeeding, or trying to conceive.";
   }
 
   // ---- Electrolytes ----
