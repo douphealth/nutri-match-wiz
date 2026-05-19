@@ -115,10 +115,10 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   ],
   omega3: [
     {
-      asin: "B0011865IQ",
-      image: "",
+      asin: "B00TBNUQ1A",
+      image: "https://m.media-amazon.com/images/I/71wf1r3LRCL._AC_SL1500_.jpg",
       brand: "Nordic Naturals",
-      title: "Ultimate Omega 1,280 mg EPA+DHA, Lemon (120 Softgels)",
+      title: "Ultimate Omega 1,280 mg EPA+DHA, Lemon (180 Softgels)",
       pill: "Omega-3 EPA+DHA",
       tone: "teal",
       fit: "default",
@@ -127,7 +127,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
     },
     {
       asin: "B0096M62O6",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/61MV+5ZTheL._AC_SL1198_.jpg",
       brand: "Nordic Naturals",
       title: "Algae Omega — Certified Vegan Plant-Based EPA & DHA (60 Softgels)",
       pill: "Algae EPA+DHA",
@@ -140,7 +140,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   magnesium: [
     {
       asin: "B000BD0RT0",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/61A-zRQCJiL._AC_SL1500_.jpg",
       brand: "Doctor's Best",
       title: "High-Absorption Magnesium Glycinate 100 mg (240 Tabs)",
       pill: "Magnesium Glycinate",
