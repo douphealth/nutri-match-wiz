@@ -89,6 +89,17 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       badges: ["GMP tested", "D3 cholecalciferol"],
     },
     {
+      asin: "B00DEYV558",
+      image: "https://m.media-amazon.com/images/I/51lEOs1upCL._AC_SL1080_.jpg",
+      brand: "Nature Made",
+      title: "Vitamin D3 2,000 IU Softgels (320 ct)",
+      pill: "D3 2000 IU",
+      tone: "amber",
+      fit: "budget",
+      why: "USP Verified, conservative 2,000 IU dose — best lean-budget pick when sun exposure is the main gap.",
+      badges: ["USP Verified", "2,000 IU"],
+    },
+    {
       asin: "B07255MPRN",
       image: "https://m.media-amazon.com/images/I/61uhxiVJqCL._AC_SL1500_.jpg",
       brand: "Sports Research",
@@ -100,6 +111,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       badges: ["Vegan certified", "Lichen D3", "Non-GMO"],
     },
   ],
+
   b12: [
     {
       asin: "B002FJW3ZY",
