@@ -449,7 +449,7 @@ function ResultPage({
             </div>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <PdfDownloadButton result={data.result} />
+            <PdfDownloadButton result={data.result} answers={data.answers} />
             <ShareLinkButton slug={data.slug} answers={data.answers} />
             <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               Livebook · Product images · Print-ready
