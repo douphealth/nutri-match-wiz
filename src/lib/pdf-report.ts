@@ -138,9 +138,50 @@ function chip(doc: jsPDF, text: string, x: number, y: number, fg: RGB, bg: RGB):
   return x + w + 6;
 }
 
+/** Wrap-aware chip row. Wraps to a new line if a chip would exceed maxX. */
+function chipRow(
+  doc: jsPDF,
+  chips: { text: string; fg: RGB; bg: RGB }[],
+  x: number,
+  y: number,
+  maxX: number,
+): number {
+  let cx = x;
+  let cy = y;
+  const lineH = 20;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  for (const c of chips) {
+    const w = doc.getTextWidth(c.text) + 14;
+    if (cx + w > maxX && cx !== x) {
+      cx = x;
+      cy += lineH;
+    }
+    setFill(doc, c.bg);
+    doc.roundedRect(cx, cy, w, 15, 4, 4, "F");
+    setText(doc, c.fg);
+    doc.text(c.text, cx + 7, cy + 10.2);
+    cx += w + 6;
+  }
+  return cy + 15;
+}
+
 function wrap(doc: jsPDF, text: string, maxW: number): string[] {
   if (!text) return [];
   return doc.splitTextToSize(text, maxW) as string[];
+}
+
+/** Auto-shrink font size so `text` fits within maxW (one line). Returns chosen size. */
+function fitFont(doc: jsPDF, text: string, maxW: number, max: number, min: number): number {
+  let s = max;
+  doc.setFont("helvetica", "bold");
+  while (s > min) {
+    doc.setFontSize(s);
+    if (doc.getTextWidth(text) <= maxW) return s;
+    s -= 0.5;
+  }
+  doc.setFontSize(min);
+  return min;
 }
 
 function header(doc: jsPDF, eyebrow: string) {
@@ -172,6 +213,9 @@ function header(doc: jsPDF, eyebrow: string) {
 }
 
 function footer(doc: jsPDF, page: number, total: number) {
+  setStroke(doc, COL.borderSoft);
+  doc.setLineWidth(0.4);
+  doc.line(M, PAGE_H - 34, PAGE_W - M, PAGE_H - 34);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
@@ -281,17 +325,18 @@ function drawCover(doc: jsPDF, result: EngineResult, dateStr: string) {
     ["SAFETY REVIEW", result.safetyGate.triggered ? "Clinician input" : "Standard"],
     ["GENERATED", dateStr],
   ];
+  const statMaxW = pw / 2 - 40;
   stats.forEach((s, i) => {
-    const sy = py + 22 + i * 30;
+    const sy = py + 24 + i * 30;
     setText(doc, COL.muted);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.text(s[0], rx, sy);
     setText(doc, COL.text);
+    const size = fitFont(doc, s[1], statMaxW, 11, 8.5);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    const v = wrap(doc, s[1], pw / 2 - 30);
-    doc.text(v.slice(0, 1), rx, sy + 14);
+    doc.setFontSize(size);
+    doc.text(s[1], rx, sy + 15);
   });
 
   // Pillars row
@@ -540,32 +585,26 @@ function drawSupplementPage(
 
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(30);
+  const titleMaxW = PAGE_W - M * 2;
+  const titleSize = fitFont(doc, cleanName, titleMaxW, 30, 18);
+  doc.setFontSize(titleSize);
   doc.text(cleanName, M, 144);
 
-  // Confidence + meta chips
-  let cx = M;
-  const cy = 158;
-  cx = chip(doc, conf.label, cx, cy, conf.fg, conf.bg);
-  cx = chip(
+  // Confidence + meta chips (wrapping row)
+  const chipsY = chipRow(
     doc,
-    `EVIDENCE · ${rec.supplement.evidenceLevel.toUpperCase()}`,
-    cx,
-    cy,
-    COL.text,
-    COL.surface,
+    [
+      { text: conf.label, fg: conf.fg, bg: conf.bg },
+      { text: `EVIDENCE · ${rec.supplement.evidenceLevel.toUpperCase()}`, fg: COL.text, bg: COL.surface },
+      { text: `SAFETY · ${rec.supplement.safetyLevel.toUpperCase()}`, fg: COL.text, bg: COL.surface },
+      { text: `SIGNAL SCORE · ${Math.round(rec.score)}`, fg: COL.text, bg: COL.surface },
+    ],
+    M,
+    158,
+    PAGE_W - M,
   );
-  cx = chip(
-    doc,
-    `SAFETY · ${rec.supplement.safetyLevel.toUpperCase()}`,
-    cx,
-    cy,
-    COL.text,
-    COL.surface,
-  );
-  cx = chip(doc, `SIGNAL SCORE · ${Math.round(rec.score)}`, cx, cy, COL.text, COL.surface);
 
-  let y = 195;
+  let y = Math.max(195, chipsY + 20);
   const pw = PAGE_W - M * 2;
 
   // Why summary
@@ -689,53 +728,76 @@ function drawSupplementPage(
   });
   y += 8;
 
-  // Two-column: Label guide / Best for
-  y = ensure(doc, y, 140, eyebrow);
+  // Two-column: Label guide / Best for — heights computed from wrapped content
   const colW = (pw - 12) / 2;
-  // Label guide
   const labelItems = rec.supplement.whatToLookFor;
-  const guideH = 24 + labelItems.length * 14 + 14;
-  roundedCard(doc, M, y, colW, guideH, COL.surface);
-  setText(doc, COL.primary);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("WHAT TO LOOK FOR ON THE LABEL", M + 14, y + 20);
-  setText(doc, COL.text);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9.5);
-  labelItems.forEach((it, i) => {
-    doc.text(`✓  ${it}`, M + 14, y + 38 + i * 14, { maxWidth: colW - 28 });
-  });
+  const labelInner = colW - 36;
+  const labelWrapped = labelItems.map((it) => wrap(doc, it, labelInner));
+  const labelBodyH = labelWrapped.reduce((s, l) => s + l.length * 12 + 6, 0);
+  const guideH = 34 + labelBodyH + 12;
 
   // Best for / typical use
   const bestForLines = wrap(doc, rec.supplement.typicalUseCase, colW - 28);
   const recOnly = rec.supplement.recommendedOnlyIf;
-  const bestH = 24 + bestForLines.length * 13 + 12 + recOnly.length * 13 + 14;
+  const recOnlyWrapped = recOnly.map((it) => wrap(doc, it, colW - 36));
+  const recOnlyH = recOnlyWrapped.reduce((s, l) => s + l.length * 12 + 4, 0);
+  const bestH = 34 + bestForLines.length * 13 + 18 + recOnlyH + 12;
+
   const colH = Math.max(guideH, bestH);
+  y = ensure(doc, y, colH + 16, eyebrow);
+
+  // LEFT column — label guide
+  roundedCard(doc, M, y, colW, colH, COL.surface);
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("WHAT TO LOOK FOR ON THE LABEL", M + 14, y + 22);
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  let ly = y + 40;
+  labelWrapped.forEach((lines) => {
+    // primary check bullet drawn as two lines (no glyph dependency)
+    setFill(doc, COL.primary);
+    doc.roundedRect(M + 14, ly - 7, 8, 8, 2, 2, "F");
+    setStroke(doc, COL.bg);
+    doc.setLineWidth(1.1);
+    doc.line(M + 16, ly - 3.2, M + 17.5, ly - 1.6);
+    doc.line(M + 17.5, ly - 1.6, M + 20.5, ly - 5);
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(lines, M + 28, ly);
+    ly += lines.length * 12 + 6;
+  });
+
+  // RIGHT column — who this is for + consider only if
   roundedCard(doc, M + colW + 12, y, colW, colH, COL.surface);
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.text("WHO THIS IS FOR", M + colW + 26, y + 20);
+  doc.text("WHO THIS IS FOR", M + colW + 26, y + 22);
   setText(doc, COL.text);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
-  doc.text(bestForLines, M + colW + 26, y + 38);
-  let by2 = y + 38 + bestForLines.length * 13 + 8;
+  doc.text(bestForLines, M + colW + 26, y + 40);
+  let by2 = y + 40 + bestForLines.length * 13 + 12;
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.text("CONSIDER ONLY IF", M + colW + 26, by2);
-  by2 += 12;
+  by2 += 14;
   setText(doc, COL.textDim);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  recOnly.forEach((it) => {
-    doc.text(`•  ${it}`, M + colW + 26, by2, { maxWidth: colW - 28 });
-    by2 += 13;
+  recOnlyWrapped.forEach((lines) => {
+    setFill(doc, COL.muted);
+    doc.circle(M + colW + 30, by2 - 3, 1.4, "F");
+    doc.text(lines, M + colW + 38, by2);
+    by2 += lines.length * 12 + 4;
   });
 
-  y += Math.max(guideH, colH) + 14;
+  y += colH + 16;
 
   // Safety / interactions
   const safety = [
@@ -1142,53 +1204,60 @@ function drawWellnessProfile(doc: jsPDF, answers: QuizAnswers, result: EngineRes
   drawWellnessRadar(doc, axes, radarCX, radarCY, 88);
 
   // Right: overall + strongest/weakest
-  const rx = M + 300;
+  const rx = M + 290;
+  const rxRight = PAGE_W - M - 16;
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text("OVERALL WELLNESS", rx, y + 28);
+  doc.text("OVERALL WELLNESS", rx, y + 30);
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(46);
-  doc.text(`${overall}`, rx, y + 76);
+  const bigW = doc.getTextWidth(`${overall}`);
+  doc.text(`${overall}`, rx, y + 80);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text("/ 100", rx + doc.getTextWidth(`${overall}`) + 6, y + 70);
+  doc.setFontSize(11);
+  doc.text("/ 100", rx + bigW + 8, y + 80);
+
+  // Divider line
+  setStroke(doc, COL.borderSoft);
+  doc.setLineWidth(0.5);
+  doc.line(rx, y + 100, rxRight, y + 100);
 
   // Mini stat: strongest
   const ss = tierForAxis(strongest.value);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("STRONGEST", rx, y + 108);
+  doc.text("STRONGEST", rx, y + 120);
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text(`${strongest.key}  ${strongest.value}`, rx, y + 124);
+  doc.text(`${strongest.key}  ${strongest.value}`, rx, y + 136);
   setText(doc, ss.rgb as unknown as RGB);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(ss.label.toUpperCase(), rx, y + 137);
+  doc.text(ss.label.toUpperCase(), rx, y + 149);
 
   const ws = tierForAxis(weakest.value);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("FOCUS ON NEXT", rx, y + 162);
+  doc.text("FOCUS ON NEXT", rx, y + 174);
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text(`${weakest.key}  ${weakest.value}`, rx, y + 178);
+  doc.text(`${weakest.key}  ${weakest.value}`, rx, y + 190);
   setText(doc, ws.rgb as unknown as RGB);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(ws.label.toUpperCase(), rx, y + 191);
+  doc.text(ws.label.toUpperCase(), rx, y + 203);
 
   setText(doc, COL.muted);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.text("Derived from goals, sleep, training, diet & stress.", rx, y + radarH - 14);
+  doc.text("Derived from goals, sleep, training, diet & stress.", rx, y + radarH - 16);
 
   y += radarH + 16;
 
@@ -1274,9 +1343,13 @@ function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
   resources.forEach((r) => {
     const titleLines = wrap(doc, r.title, pw - 32);
     const whyLines = wrap(doc, r.why, pw - 32);
-    const urlLines = wrap(doc, r.url, pw - 32);
-    const h = 14 + titleLines.length * 14 + whyLines.length * 12 + urlLines.length * 11 + 22;
-    y = ensure(doc, y, h, eyebrow);
+    // Display a shortened URL on a single line; the actual link uses r.url
+    const display =
+      r.url.replace(/^https?:\/\//, "").length > 78
+        ? r.url.replace(/^https?:\/\//, "").slice(0, 75) + "…"
+        : r.url.replace(/^https?:\/\//, "");
+    const h = 18 + titleLines.length * 14 + 6 + whyLines.length * 12 + 22;
+    y = ensure(doc, y, h + 12, eyebrow);
     roundedCard(doc, M, y, pw, h, COL.card);
 
     setText(doc, COL.text);
@@ -1289,13 +1362,13 @@ function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
     doc.text(whyLines, M + 16, cy);
-    cy += whyLines.length * 12 + 4;
+    cy += whyLines.length * 12 + 6;
 
     setText(doc, COL.primary);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.textWithLink(r.url, M + 16, cy + 4, { url: r.url });
-    y += h + 10;
+    doc.setFontSize(8.5);
+    doc.textWithLink(`READ →  ${display}`, M + 16, cy + 8, { url: r.url });
+    y += h + 12;
   });
 
   // Site-wide CTA card
