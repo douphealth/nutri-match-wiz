@@ -240,7 +240,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   electrolytes: [
     {
       asin: "B019GU4ILQ",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/81qjVIWun+L._AC_SL1500_.jpg",
       brand: "Nuun",
       title: "Sport Electrolyte Tablets — Mg / Ca / K / Cl / Na (40 servings)",
       pill: "Electrolytes",
@@ -253,7 +253,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   fiber: [
     {
       asin: "B0013I4WJS",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71HbwUpfDSL._AC_SL1500_.jpg",
       brand: "Metamucil",
       title: "Psyllium Husk Powder, Unflavored (114 doses)",
       pill: "Psyllium Fiber",
@@ -266,7 +266,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   probiotic: [
     {
       asin: "B07K98GCXM",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/81gKX9nCzyL._AC_SL1500_.jpg",
       brand: "Align",
       title: "Probiotic Extra Strength — B. infantis 35624 (42 ct)",
       pill: "Probiotic 35624",
