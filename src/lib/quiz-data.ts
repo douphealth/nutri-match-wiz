@@ -408,8 +408,8 @@ export const quizSteps: QuizStep[] = [
     type: "single",
     tier: "branch",
     why: "High sweat losses point to electrolytes / sodium replacement before flashy ergogenic aids.",
-    image: U("1517438476312-10d79c077509"),
-    imageAlt: "Athlete after a hard session",
+    image: U("1599058917212-d750089bc07e"),
+    imageAlt: "Athlete training hard with battle ropes, sweating",
     options: [
       { value: "low", label: "Light" },
       { value: "moderate", label: "Moderate" },
