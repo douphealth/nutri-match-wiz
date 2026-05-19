@@ -1,10 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { z } from "zod";
-import { decodeAnswers } from "@/lib/quiz-data";
+import { decodeAnswers, type QuizAnswers } from "@/lib/quiz-data";
 import { runEngine } from "@/lib/recommendation-engine";
 import type { Recommendation } from "@/types/supplements";
-import { productFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
+import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +22,10 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Loader2,
 } from "lucide-react";
 import { downloadSupplementReport } from "@/lib/pdf-report";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import type { EngineResult } from "@/types/supplements";
 
 function PdfDownloadButton({ result }: { result: EngineResult }) {
@@ -106,10 +106,12 @@ function confidenceTone(c: Recommendation["confidence"]) {
 function ResultPage() {
   const data = Route.useLoaderData() as {
     slug: string;
+    answers: QuizAnswers;
     result: ReturnType<typeof runEngine>;
   };
-  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes } = data.result;
+  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile } = data.result;
   const top = recommendations[0];
+  const productCandidates = recommendations.reduce((sum, rec) => sum + productsFor(rec.supplement.id).length, 0);
 
   return (
     <div className="relative isolate">
@@ -171,6 +173,7 @@ function ResultPage() {
 
             <div className="flex flex-col items-center gap-3 sm:items-start sm:text-left">
               <Stat label="Top picks" value={String(recommendations.length)} />
+              <Stat label="Weighted signals" value={String(personalizationProfile?.signalCount ?? recommendations.length)} />
               <Stat
                 label="Top recommendation"
                 value={top ? top.supplement.name.replace(/\s*\([^)]*\)/g, "") : "Food-first only"}
@@ -185,6 +188,28 @@ function ResultPage() {
             </span>
           </div>
         </motion.header>
+
+        {personalizationProfile && (
+          <section className="mb-8 grid gap-3 rounded-2xl border border-border/60 bg-card/50 p-4 sm:grid-cols-[1.25fr_0.75fr]">
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Personalization engine</div>
+              <h2 className="mt-1 text-xl font-bold text-foreground">{personalizationProfile.label}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{personalizationProfile.summary}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {personalizationProfile.differentiators.map((item) => (
+                  <span key={item} className="rounded-md border border-primary/25 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
+              <MiniMetric label="Product candidates" value={String(productCandidates)} />
+              <MiniMetric label="Affiliate tag" value="papalex-20" />
+              <MiniMetric label="Ranking bias" value="Commission-blind" />
+            </div>
+          </section>
+        )}
 
         {/* Safety gate */}
         {safetyGate.triggered && (
@@ -214,7 +239,7 @@ function ResultPage() {
             </Card>
           ) : (
             recommendations.map((rec, i) => (
-              <SupplementCard key={rec.supplement.id} rec={rec} rank={i + 1} />
+              <SupplementCard key={rec.supplement.id} rec={rec} rank={i + 1} answers={data.answers} />
             ))
           )}
         </section>
@@ -282,8 +307,18 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
-  const product = productFor(rec.supplement.id);
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-background/30 p-3">
+      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: number; answers: QuizAnswers }) {
+  const product = productFor(rec.supplement.id, answers);
+  const candidateCount = productsFor(rec.supplement.id).length;
   const tone = confidenceTone(rec.confidence);
   const cleanName = rec.supplement.name.replace(/\s*\([^)]*\)/g, "");
   const isTop = rank === 1;
@@ -335,6 +370,25 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
         <CardContent className="space-y-4">
           <p className="text-sm leading-relaxed text-foreground/90">{rec.supplement.resultCopy}</p>
 
+          <div className="rounded-xl border border-border/60 bg-background/30 p-3">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Signal precision</span>
+              <span className="text-xs font-bold text-primary tabular-nums">{rec.precisionScore ?? Math.round(rec.score * 10)} / 100</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-gradient-primary" style={{ width: `${Math.min(100, rec.precisionScore ?? rec.score * 10)}%` }} />
+            </div>
+            {rec.personalizationTags && rec.personalizationTags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {rec.personalizationTags.slice(0, 5).map((tag) => (
+                  <span key={tag} className="rounded-md border border-border/70 bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Amazon product card */}
           {product && (
             <div className="group/prod relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card-elevated/80 via-card-elevated/40 to-card-elevated/20 p-5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] transition-all hover:border-primary/40 hover:shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.35)]">
@@ -344,7 +398,7 @@ function SupplementCard({ rec, rank }: { rec: Recommendation; rank: number }) {
                   <Star className="h-3 w-3 fill-current" /> Editor's Pick on Amazon
                 </div>
                 <div className="hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline-flex">
-                  Affiliate · papalex-20
+                  {candidateCount} curated pick{candidateCount === 1 ? "" : "s"} · papalex-20
                 </div>
               </div>
               <div className="relative flex flex-col gap-5 sm:flex-row">

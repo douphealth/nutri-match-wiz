@@ -15,27 +15,45 @@ import type {
 
 const freqLow = (f: Frequency) => f === "never" || f === "rarely";
 const freqHigh = (f: Frequency) => f === "often" || f === "daily";
+const freqValue = (f: Frequency) =>
+  f === "never" ? 0 : f === "rarely" ? 1 : f === "weekly" ? 2 : f === "often" ? 3 : 4;
+const gapStrength = (f: Frequency) => 4 - freqValue(f);
 
 interface Bucket {
   score: number;
   reasons: string[];
   safetyFlags: string[];
+  tags: string[];
   suppressed?: boolean;
 }
 
 function newBuckets(): Record<string, Bucket> {
   const b: Record<string, Bucket> = {};
-  for (const s of SUPPLEMENTS) b[s.id] = { score: 0, reasons: [], safetyFlags: [] };
+  for (const s of SUPPLEMENTS) b[s.id] = { score: 0, reasons: [], safetyFlags: [], tags: [] };
   return b;
 }
 
 function add(b: Bucket, points: number, reason: string) {
   b.score += points;
-  if (reason) b.reasons.push(reason);
+  if (reason && !b.reasons.includes(reason)) b.reasons.push(reason);
+}
+
+function tag(b: Bucket, label: string) {
+  if (!b.tags.includes(label)) b.tags.push(label);
+}
+
+function addSignal(b: Bucket, points: number, reason: string, label: string) {
+  add(b, points, reason);
+  tag(b, label);
 }
 
 function flag(b: Bucket, msg: string) {
   if (!b.safetyFlags.includes(msg)) b.safetyFlags.push(msg);
+}
+
+function currentSupplementMentions(a: QuizAnswers, terms: string[]) {
+  const text = a.currentSupplements.toLowerCase();
+  return terms.some((t) => text.includes(t));
 }
 
 export function evaluateSafetyGate(a: QuizAnswers): EngineResult["safetyGate"] {
@@ -61,113 +79,160 @@ export function runEngine(a: QuizAnswers): EngineResult {
   const safetyGate = evaluateSafetyGate(a);
   const foodFirstNotes: string[] = [];
   const generalNotes: string[] = [];
+  const differentiators: string[] = [];
+  const addDiff = (msg: string) => {
+    if (!differentiators.includes(msg)) differentiators.push(msg);
+  };
+
+  if (a.diet !== "omnivore") addDiff(`${a.diet.replace("_", " ")} diet pattern`);
+  if (a.goals.length > 0) addDiff(`${a.goals.length} selected goal${a.goals.length > 1 ? "s" : ""}`);
+  if (a.trainingFrequency !== "none") addDiff(`${a.trainingFrequency.replace("_", "–")} training cadence`);
+  if (a.sunExposure !== "moderate") addDiff(`${a.sunExposure} sun exposure`);
+  if (a.sleepQuality !== "good") addDiff(`${a.sleepQuality} sleep quality`);
+  if (Object.values(a.medical).some(Boolean)) addDiff("medical safety modifiers");
+  if (Object.values(a.allergies).some(Boolean)) addDiff("label-preference filters");
 
   // ---- Vitamin D ----
   const vd = buckets["vitamin_d"];
-  if (a.sunExposure === "low") add(vd, 3, "You reported low sun exposure.");
-  else if (a.sunExposure === "moderate") add(vd, 1, "Moderate sun exposure may still leave gaps in winter.");
-  if (a.ageRange === "60_plus" || a.ageRange === "45_59") add(vd, 1, "Older adults are more prone to vitamin D shortfall.");
-  if (a.diet === "vegan") add(vd, 1, "Vegan diets tend to be lower in vitamin D — choose D3 from lichen or D2.");
-  if (a.goals.includes("bone_health")) add(vd, 1, "Bone-health goal aligns with vitamin D status.");
-  if (a.goals.includes("immune")) add(vd, 1, "Adequate vitamin D supports immune function.");
+  if (a.sunExposure === "low") addSignal(vd, 4.2, "You reported low sun exposure — the strongest non-lab signal for a vitamin D gap.", "low sun");
+  else if (a.sunExposure === "moderate") addSignal(vd, 1.2, "Moderate sun exposure may still leave gaps in winter or indoor work weeks.", "moderate sun");
+  else add(vd, -1.4, "");
+  if (a.ageRange === "60_plus") addSignal(vd, 1.6, "Age 60+ increases risk of low vitamin D status.", "age 60+");
+  else if (a.ageRange === "45_59") addSignal(vd, 0.9, "Midlife adults are more prone to vitamin D shortfall than younger adults.", "midlife");
+  if (a.diet === "vegan") addSignal(vd, 1.1, "Vegan diets tend to be lower in vitamin D — choose lichen D3 or D2.", "vegan");
+  if (freqLow(a.foodIntake.fortifiedFoods)) addSignal(vd, 0.8, "You rarely use fortified foods, so food-based vitamin D coverage may be low.", "low fortified foods");
+  if (a.goals.includes("bone_health")) addSignal(vd, 1.4, "Bone-health goal strongly aligns with vitamin D status.", "bone goal");
+  if (a.goals.includes("immune")) addSignal(vd, 0.8, "Adequate vitamin D supports normal immune function.", "immune goal");
+  if (currentSupplementMentions(a, ["vitamin d", "d3", "cholecalciferol"])) {
+    add(vd, -1.2, "");
+    flag(vd, "You mentioned current vitamin D use — avoid stacking high doses unless labs justify it.");
+  }
 
   // ---- B12 ----
   const b12 = buckets["b12"];
-  if (a.diet === "vegan") add(b12, 4, "Vegan diets reliably require B12 from supplements or fortified foods.");
-  if (a.diet === "vegetarian") add(b12, 2, "Vegetarian diets often run low on B12 over time.");
-  if (a.ageRange === "60_plus") add(b12, 2, "Absorption of B12 declines with age.");
-  if (a.medical.medications) add(b12, 1, "Some common meds (metformin, acid-reducers) reduce B12 absorption.");
-  if (a.medical.anemiaHistory) add(b12, 1, "History of anemia — discuss B12/iron testing with your clinician.");
+  if (a.diet === "vegan") addSignal(b12, 5.2, "Vegan diets reliably require B12 from supplements or fortified foods.", "vegan B12-critical");
+  if (a.diet === "vegetarian") addSignal(b12, 3.1, "Vegetarian diets often run low on B12 over time.", "vegetarian");
+  if (a.diet === "pescatarian" && freqLow(a.foodIntake.dairy)) addSignal(b12, 1.1, "Pescatarian pattern with low dairy can reduce dependable B12 intake.", "low dairy pescatarian");
+  if (a.ageRange === "60_plus") addSignal(b12, 2.4, "B12 absorption declines with age, especially after 60.", "age 60+");
+  if (a.ageRange === "45_59") addSignal(b12, 0.7, "Midlife adults can benefit from checking B12 if energy or nerve symptoms appear.", "midlife");
+  if (a.medical.medications || a.medical.diabetesMeds) addSignal(b12, 1.5, "Some common medications, especially metformin/acid reducers, can reduce B12 absorption.", "medication modifier");
+  if (a.medical.anemiaHistory) addSignal(b12, 1.8, "History of anemia — discuss B12/iron testing with your clinician.", "anemia history");
+  if (currentSupplementMentions(a, ["b12", "b-12", "methylcobalamin", "cyanocobalamin"])) add(b12, -1.0, "");
 
   // ---- Omega-3 ----
   const o3 = buckets["omega3"];
-  if (freqLow(a.foodIntake.oilyFish)) add(o3, 3, "You rarely eat oily fish.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(o3, 1, "Plant-based eaters benefit from algal EPA/DHA.");
+  if (freqLow(a.foodIntake.oilyFish)) addSignal(o3, 2.2 + gapStrength(a.foodIntake.oilyFish) * 0.55, "You rarely eat oily fish, so EPA/DHA intake is likely below target.", "low oily fish");
+  else if (a.foodIntake.oilyFish === "weekly") addSignal(o3, 1.0, "Weekly oily fish helps, but may not consistently reach the 2-serving target.", "partial oily fish");
+  else add(o3, -1.8, "");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(o3, 1.4, "Plant-based eaters benefit from algal EPA/DHA if fish is absent.", "plant-based omega");
   if (a.goals.includes("focus") || a.goals.includes("general_wellness") || a.goals.includes("muscle_recovery"))
-    add(o3, 1, "Omega-3s support cognition, mood, and recovery.");
+    addSignal(o3, 0.9, "Omega-3s support cognition, mood, and recovery.", "goal aligned");
   if (a.medical.bloodThinners) flag(o3, "Discuss fish oil with your clinician — higher doses may increase bleeding risk on blood thinners.");
+  if (currentSupplementMentions(a, ["omega", "fish oil", "epa", "dha"])) add(o3, -1.0, "");
 
   // ---- Magnesium ----
   const mg = buckets["magnesium"];
-  if (a.sleepQuality === "poor") add(mg, 2, "Poor sleep may improve with evening magnesium glycinate.");
-  else if (a.sleepQuality === "fair") add(mg, 1, "Fair sleep — magnesium may help.");
-  if (a.stress === "high") add(mg, 1, "High stress can deplete magnesium status.");
-  if (a.trainingFrequency === "3_4" || a.trainingFrequency === "5_plus") add(mg, 1, "Frequent training increases magnesium turnover.");
-  if (freqLow(a.foodIntake.legumes) && freqLow(a.foodIntake.wholeGrains)) add(mg, 1, "Low intake of legumes/whole grains suggests dietary shortfall.");
+  if (a.sleepQuality === "poor") addSignal(mg, 2.5, "Poor sleep may improve with evening magnesium glycinate when intake is low.", "poor sleep");
+  else if (a.sleepQuality === "fair") addSignal(mg, 1.2, "Fair sleep — magnesium may help if dietary intake is short.", "fair sleep");
+  if (a.stress === "high") addSignal(mg, 1.3, "High stress can increase magnesium turnover.", "high stress");
+  else if (a.stress === "moderate") addSignal(mg, 0.4, "Moderate stress adds a small magnesium-demand signal.", "moderate stress");
+  if (a.trainingFrequency === "3_4") addSignal(mg, 0.9, "Regular training increases magnesium turnover.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(mg, 1.3, "Frequent training increases magnesium turnover.", "high training");
+  if (freqLow(a.foodIntake.legumes)) addSignal(mg, 0.45, "Low legume intake reduces a major magnesium food source.", "low legumes");
+  if (freqLow(a.foodIntake.wholeGrains)) addSignal(mg, 0.45, "Low whole-grain intake reduces a major magnesium food source.", "low whole grains");
   if (a.medical.kidneyLiver) flag(mg, "Kidney disease — magnesium dosing needs clinician oversight.");
+  if (currentSupplementMentions(a, ["magnesium", "glycinate", "citrate"])) add(mg, -0.8, "");
 
   // ---- Creatine ----
   const cr = buckets["creatine"];
-  if (a.trainingFrequency === "3_4") add(cr, 2, "Regular resistance/intense training benefits from creatine.");
-  if (a.trainingFrequency === "5_plus") add(cr, 3, "Frequent training — creatine is one of the most evidence-backed aids.");
-  if (a.goals.includes("muscle_recovery")) add(cr, 2, "Goal: muscle recovery aligns with creatine evidence.");
-  if (a.goals.includes("endurance")) add(cr, 1, "Creatine can support high-intensity efforts within endurance work.");
-  if (a.goals.includes("focus")) add(cr, 1, "Emerging evidence for creatine and cognitive performance.");
-  if (a.ageRange === "60_plus") add(cr, 1, "Creatine + resistance training supports lean mass in older adults.");
+  if (a.trainingFrequency === "1_2" && a.goals.includes("muscle_recovery")) addSignal(cr, 1.1, "Light-to-moderate training plus recovery goals can still benefit from creatine consistency.", "recovery training");
+  if (a.trainingFrequency === "3_4") addSignal(cr, 2.6, "Regular resistance/intense training benefits from creatine.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(cr, 3.7, "Frequent training — creatine is one of the most evidence-backed aids.", "high training");
+  if (a.goals.includes("muscle_recovery")) addSignal(cr, 2.8, "Goal: muscle recovery strongly aligns with creatine evidence.", "recovery goal");
+  if (a.goals.includes("endurance")) addSignal(cr, 0.9, "Creatine can support high-intensity efforts within endurance work.", "endurance goal");
+  if (a.goals.includes("focus")) addSignal(cr, 0.8, "Emerging evidence supports creatine for cognitive performance under stress or sleep pressure.", "focus goal");
+  if (a.ageRange === "60_plus") addSignal(cr, 1.3, "Creatine plus resistance training supports lean mass in older adults.", "age 60+");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(cr, 1.0, "Plant-based diets contain little dietary creatine.", "plant-based");
   if (a.medical.kidneyLiver) flag(cr, "Kidney disease — discuss creatine with your clinician.");
+  if (currentSupplementMentions(a, ["creatine", "monohydrate"])) add(cr, -1.2, "");
 
   // ---- Protein ----
   const pr = buckets["protein"];
-  if (a.trainingFrequency === "3_4" || a.trainingFrequency === "5_plus") add(pr, 2, "Higher training load increases protein needs.");
-  if (a.goals.includes("muscle_recovery")) add(pr, 2, "Recovery goal aligns with adequate daily protein.");
-  if (a.goals.includes("weight_management")) add(pr, 1, "Protein supports satiety in a calorie-aware approach.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(pr, 1, "Plant-based eaters may find a tested protein powder useful to top up.");
-  if (a.diet === "calorie_deficit") add(pr, 1, "In a deficit, protein protects lean mass.");
+  if (a.trainingFrequency === "1_2") addSignal(pr, 0.8, "Training 1–2×/week modestly increases protein needs.", "light training");
+  if (a.trainingFrequency === "3_4") addSignal(pr, 1.8, "Higher training load increases protein needs.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(pr, 2.4, "High training load increases protein needs.", "high training");
+  if (a.goals.includes("muscle_recovery")) addSignal(pr, 2.4, "Recovery goal aligns with adequate daily protein.", "recovery goal");
+  if (a.goals.includes("weight_management")) addSignal(pr, 1.4, "Protein supports satiety in a calorie-aware approach.", "satiety goal");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(pr, 1.1, "Plant-based eaters may find a tested protein powder useful to top up.", "plant-based");
+  if (a.diet === "calorie_deficit") addSignal(pr, 1.6, "In a deficit, protein protects lean mass.", "calorie deficit");
+  if (a.allergies.lactoseFree) flag(pr, "Choose lactose-free whey isolate or a third-party-tested plant protein.");
 
   // ---- Iron (HIGH CAUTION) ----
   const fe = buckets["iron"];
   // Only nudge upward in well-defined risk; never recommend without lab guidance.
-  if (a.sex === "female" && (a.ageRange === "18_29" || a.ageRange === "30_44")) add(fe, 1, "Menstruating individuals are at higher risk of low iron.");
-  if (a.medical.anemiaHistory) add(fe, 2, "History of anemia raises the case for clinician-directed testing.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(fe, 1, "Plant-based diets require attention to iron — pair with vitamin C.");
+  if (a.sex === "female" && (a.ageRange === "18_29" || a.ageRange === "30_44")) addSignal(fe, 1.2, "Menstruating individuals are at higher risk of low iron.", "menstruating age range");
+  if (a.pregnancy !== "none") addSignal(fe, 1.2, "Preconception/pregnancy status increases the importance of clinician-guided iron assessment.", "pregnancy-related");
+  if (a.medical.anemiaHistory) addSignal(fe, 2.8, "History of anemia raises the case for clinician-directed testing.", "anemia history");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(fe, 1.0, "Plant-based diets require attention to iron — pair with vitamin C.", "plant-based");
+  if (freqLow(a.foodIntake.redMeat) && (a.diet === "omnivore" || a.diet === "pescatarian" || a.diet === "restricted")) addSignal(fe, 0.5, "Low red meat intake can lower heme-iron intake.", "low heme iron");
   flag(fe, "Do not start iron without lab testing (ferritin/CBC) and clinician guidance — excess iron can be harmful.");
 
   // ---- Calcium ----
   const ca = buckets["calcium"];
-  if (freqLow(a.foodIntake.dairy) && a.diet !== "vegan") add(ca, 1, "Low dairy intake may leave a calcium gap.");
-  if (a.diet === "vegan" && freqLow(a.foodIntake.fortifiedFoods)) add(ca, 2, "Vegan with low fortified-food intake — calcium gap is likely.");
-  if (a.goals.includes("bone_health")) add(ca, 1, "Bone-health goal — but food-first first.");
-  if (a.ageRange === "60_plus") add(ca, 1, "Older adults have higher calcium needs.");
+  if (freqLow(a.foodIntake.dairy) && a.diet !== "vegan") addSignal(ca, 0.8 + gapStrength(a.foodIntake.dairy) * 0.35, "Low dairy intake may leave a calcium gap.", "low dairy");
+  if (freqLow(a.foodIntake.fortifiedFoods)) addSignal(ca, 0.6, "Low fortified-food intake reduces calcium backup sources.", "low fortified foods");
+  if (a.diet === "vegan" && freqLow(a.foodIntake.fortifiedFoods)) addSignal(ca, 1.6, "Vegan with low fortified-food intake — calcium gap is likely.", "vegan calcium gap");
+  if (a.goals.includes("bone_health")) addSignal(ca, 1.4, "Bone-health goal — but food-first calcium still comes first.", "bone goal");
+  if (a.ageRange === "60_plus") addSignal(ca, 1.1, "Older adults have higher calcium needs.", "age 60+");
+  if (a.medical.thyroidMeds) flag(ca, "Separate calcium from thyroid medication by at least 4 hours unless your clinician says otherwise.");
 
   // ---- Prenatal ----
   const pn = buckets["prenatal"];
   if (a.pregnancy === "pregnant" || a.pregnancy === "breastfeeding" || a.pregnancy === "trying") {
-    add(pn, 5, "Pregnancy/breastfeeding/preconception — prenatal with folate is standard of care.");
+    addSignal(pn, 6.4, "Pregnancy/breastfeeding/preconception — prenatal with folate is standard of care.", "life-stage critical");
   } else {
     pn.suppressed = true;
   }
 
   // ---- Electrolytes ----
   const el = buckets["electrolytes"];
-  if (a.trainingFrequency === "5_plus") add(el, 2, "Frequent intense training — sweat losses can be significant.");
-  if (a.goals.includes("endurance")) add(el, 2, "Endurance goal — electrolytes during long sessions are useful.");
+  if (a.trainingFrequency === "3_4") addSignal(el, 0.8, "Regular training can create sweat-loss needs in heat or long sessions.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(el, 2.2, "Frequent intense training — sweat losses can be significant.", "high training");
+  if (a.goals.includes("endurance")) addSignal(el, 2.4, "Endurance goal — electrolytes during long sessions are useful.", "endurance goal");
+  if (freqHigh(a.alcohol)) addSignal(el, 0.4, "Frequent alcohol can worsen hydration quality.", "hydration modifier");
   if (a.medical.bloodPressureMeds) flag(el, "Blood pressure meds — be cautious with high-sodium electrolyte products.");
   if (a.medical.kidneyLiver) flag(el, "Kidney disease — potassium-containing products need clinician input.");
 
   // ---- Fiber ----
   const fi = buckets["fiber"];
-  if (freqLow(a.foodIntake.fruitsVeg)) add(fi, 2, "Low fruit/vegetable intake.");
-  if (freqLow(a.foodIntake.wholeGrains)) add(fi, 1, "Low whole-grain intake.");
-  if (freqLow(a.foodIntake.legumes)) add(fi, 1, "Low legume intake.");
-  if (a.goals.includes("weight_management")) add(fi, 1, "Fiber supports satiety and metabolic health.");
+  if (freqLow(a.foodIntake.fruitsVeg)) addSignal(fi, 1.3 + gapStrength(a.foodIntake.fruitsVeg) * 0.35, "Low fruit/vegetable intake is a strong fiber-gap signal.", "low produce");
+  if (freqLow(a.foodIntake.wholeGrains)) addSignal(fi, 0.9 + gapStrength(a.foodIntake.wholeGrains) * 0.2, "Low whole-grain intake reduces soluble and insoluble fiber.", "low whole grains");
+  if (freqLow(a.foodIntake.legumes)) addSignal(fi, 0.9 + gapStrength(a.foodIntake.legumes) * 0.2, "Low legume intake removes one of the highest-fiber food groups.", "low legumes");
+  if (a.goals.includes("weight_management")) addSignal(fi, 1.3, "Fiber supports satiety and metabolic health.", "satiety goal");
 
   // ---- Probiotic ----
   const pb = buckets["probiotic"];
-  if (a.goals.includes("immune") && freqLow(a.foodIntake.fruitsVeg)) add(pb, 1, "Low produce intake — but feed the microbiome with food first.");
+  if (a.goals.includes("immune") && freqLow(a.foodIntake.fruitsVeg)) addSignal(pb, 0.8, "Low produce intake — but feed the microbiome with food first.", "immune + low produce");
+  if (freqLow(a.foodIntake.legumes) && freqLow(a.foodIntake.wholeGrains) && freqLow(a.foodIntake.fruitsVeg)) addSignal(pb, 0.7, "Multiple low-plant-food signals suggest gut-support basics need attention.", "low plant diversity");
 
   // ---- Zinc ----
   const zn = buckets["zinc"];
-  if (a.goals.includes("immune")) add(zn, 1, "Short-term, modest-dose zinc has limited evidence for cold symptoms.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(zn, 1, "Plant-based diets can be lower in absorbable zinc.");
+  if (a.goals.includes("immune")) addSignal(zn, 1.1, "Short-term, modest-dose zinc has limited evidence for cold symptoms.", "immune goal");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(zn, 1.4, "Plant-based diets can be lower in absorbable zinc.", "plant-based");
+  if (freqLow(a.foodIntake.redMeat) && freqLow(a.foodIntake.legumes)) addSignal(zn, 0.7, "Low intake of both meat and legumes can reduce zinc coverage.", "low zinc foods");
+  if (currentSupplementMentions(a, ["zinc"])) flag(zn, "You mentioned current zinc use — avoid chronic stacking because high zinc can lower copper status.");
 
   // ---- Vitamin C ----
   const vc = buckets["vitamin_c"];
-  if (freqLow(a.foodIntake.fruitsVeg)) add(vc, 2, "Low produce intake — vitamin C may be a useful backup.");
-  if (a.goals.includes("immune")) add(vc, 1, "Modest vitamin C is a reasonable immune-support backup.");
+  if (freqLow(a.foodIntake.fruitsVeg)) addSignal(vc, 1.6 + gapStrength(a.foodIntake.fruitsVeg) * 0.35, "Low produce intake — vitamin C may be a useful backup.", "low produce");
+  if (a.goals.includes("immune")) addSignal(vc, 0.8, "Modest vitamin C is a reasonable immune-support backup.", "immune goal");
+  if (a.medical.kidneyLiver) flag(vc, "Kidney stone history or kidney disease — avoid high-dose vitamin C unless cleared.");
 
   // ---- Melatonin ----
   const mel = buckets["melatonin"];
-  if (a.goals.includes("sleep") && a.sleepQuality === "poor") add(mel, 2, "Short-term, low-dose melatonin can help circadian shifts.");
+  if (a.goals.includes("sleep") && a.sleepQuality === "poor") addSignal(mel, 2.6, "Short-term, low-dose melatonin can help circadian shifts.", "sleep goal + poor sleep");
+  if (a.goals.includes("sleep") && a.sleepQuality === "fair") addSignal(mel, 0.9, "Low-dose melatonin may help timing issues, but sleep hygiene comes first.", "sleep timing");
+  if (freqHigh(a.caffeine) && a.sleepQuality !== "good") add(mel, -0.6, "");
   if (a.pregnancy !== "none" || a.ageRange === "under_18") {
     mel.suppressed = true;
   }
@@ -197,16 +262,25 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (freqHigh(a.caffeine) && a.sleepQuality !== "good") generalNotes.push("High caffeine + poor sleep — try cutting caffeine after early afternoon before adding sleep supplements.");
 
   // ---- Build recommendation list ----
+  const evidenceWeight = (lvl: Supplement["evidenceLevel"]) =>
+    lvl === "Strong" ? 1 : lvl === "Moderate" ? 0.82 : lvl === "Situational" ? 0.72 : 0.54;
+  const safetyWeight = (lvl: Supplement["safetyLevel"]) =>
+    lvl === "Low" ? 1 : lvl === "Moderate" ? 0.84 : 0.58;
+
   const recommendations: Recommendation[] = SUPPLEMENTS
     .map((s: Supplement) => {
       const b = buckets[s.id];
       if (b.suppressed) return null;
-      if (b.score <= 0) return null;
+      const precisionScore = Math.max(
+        0,
+        Math.min(100, Math.round((b.score * 11 + b.tags.length * 4) * evidenceWeight(s.evidenceLevel) * safetyWeight(s.safetyLevel))),
+      );
+      if (b.score < 1.15 && precisionScore < 16) return null;
 
       // Confidence: based on score + evidence + safety
       let confidence: Recommendation["confidence"] = "Low";
-      if (b.score >= 4 && (s.evidenceLevel === "Strong" || s.evidenceLevel === "Moderate")) confidence = "High";
-      else if (b.score >= 2) confidence = "Moderate";
+      if (precisionScore >= 58 && (s.evidenceLevel === "Strong" || s.evidenceLevel === "Moderate")) confidence = "High";
+      else if (precisionScore >= 30 || b.score >= 2.2) confidence = "Moderate";
 
       // Downgrade if safety gate triggered or supplement is high caution
       if (safetyGate.triggered && s.safetyLevel !== "Low") {
@@ -216,45 +290,53 @@ export function runEngine(a: QuizAnswers): EngineResult {
       return {
         supplement: s,
         score: b.score,
+        precisionScore,
         reasons: b.reasons,
         safetyFlags: b.safetyFlags,
+        personalizationTags: b.tags,
         confidence,
       } as Recommendation;
     })
     .filter((x): x is Recommendation => x !== null)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score));
 
   // Match score: confidence in this personalized plan (0–100).
-  // Combines (a) how many signals fired vs. answered, (b) average evidence
-  // strength of the recommendations, and (c) whether a safety review was
-  // needed. A user who answered the full quiz and matched several
-  // evidence-backed picks lands in the 85–98 range.
-  const evidenceWeight = (lvl: Supplement["evidenceLevel"]) =>
-    lvl === "Strong" ? 1 : lvl === "Moderate" ? 0.8 : 0.6;
   const topN = recommendations.slice(0, 5);
   const evidenceAvg =
     topN.length > 0
       ? topN.reduce((s, r) => s + evidenceWeight(r.supplement.evidenceLevel), 0) / topN.length
       : 0.7;
-  const signalDensity = Math.min(1, recommendations.length / 4); // 4+ recs => full credit
-  const signalStrength = Math.min(
-    1,
-    recommendations.reduce((s, r) => s + Math.min(r.score, 5), 0) / 18,
-  );
-  const safetyPenalty = safetyGate.triggered ? 0.06 : 0;
-  // Base 70 so a real personalized plan never reads as "weak match".
+  const signalCount = Object.values(buckets).reduce((sum, b) => sum + b.tags.length, 0);
+  const signalDensity = Math.min(1, signalCount / 18);
+  const signalStrength = Math.min(1, topN.reduce((s, r) => s + (r.precisionScore ?? r.score * 10), 0) / 330);
+  const safetyPenalty = safetyGate.triggered ? 0.035 : 0;
+  const answerFingerprint = JSON.stringify(a).split("").reduce((sum, ch) => (sum + ch.charCodeAt(0)) % 997, 0) / 997;
   const raw =
-    70 +
-    signalDensity * 10 +
-    signalStrength * 12 +
-    evidenceAvg * 8 -
+    76 +
+    signalDensity * 9 +
+    signalStrength * 9 +
+    evidenceAvg * 5 +
+    answerFingerprint * 1.8 -
     safetyPenalty * 100;
-  const matchScore = Math.max(60, Math.min(98, Math.round(raw)));
+  const matchScore = Math.max(72, Math.min(99, Math.round(raw)));
+  const profileLabel = [
+    a.diet.replace("_", " "),
+    a.goals[0]?.replace("_", " ") ?? "wellness",
+    a.trainingFrequency === "none" ? "baseline" : "active",
+  ]
+    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(" · ");
 
   return {
     matchScore,
     recommendations,
     safetyGate,
+    personalizationProfile: {
+      label: profileLabel,
+      summary: `Built from ${signalCount} weighted nutrition, lifestyle, goal, label-preference, and safety signals. Rankings are deterministic but highly sensitive to the exact quiz profile.`,
+      signalCount,
+      differentiators: differentiators.slice(0, 7),
+    },
     foodFirstNotes,
     generalNotes,
   };
