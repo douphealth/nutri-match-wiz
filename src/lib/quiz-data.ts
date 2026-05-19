@@ -483,7 +483,7 @@ export const quizSteps: QuizStep[] = [
     type: "boolean-multi",
     tier: "branch",
     why: "Late caffeine and shift work / jet lag are the #1 reversible drivers of poor sleep before any supplement.",
-    image: U("1455642305367-68834a9d4337"),
+    image: U("1531746020798-e6953c6e8e04"),
     imageAlt: "Calm bedroom at night",
     booleans: [
       { path: "sleepDetail.caffeineAfter2pm", label: "I regularly have caffeine after 2pm" },
