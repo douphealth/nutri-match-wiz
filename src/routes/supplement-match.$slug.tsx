@@ -112,7 +112,7 @@ function ResultPage() {
     answers: QuizAnswers;
     result: ReturnType<typeof runEngine>;
   };
-  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile } = data.result;
+  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile, notRecommended, clinicianCallouts } = data.result;
   const top = recommendations[0];
   const productCandidates = recommendations.reduce((sum, rec) => sum + productsFor(rec.supplement.id).length, 0);
 
