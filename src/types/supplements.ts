@@ -91,9 +91,11 @@ export interface QuizAnswers {
 export interface Recommendation {
   supplement: Supplement;
   score: number;
+  precisionScore?: number;
   reasons: string[];
   safetyFlags: string[];
   confidence: "Low" | "Moderate" | "High";
+  personalizationTags?: string[];
 }
 
 export interface EngineResult {
@@ -102,6 +104,12 @@ export interface EngineResult {
   safetyGate: {
     triggered: boolean;
     reasons: string[];
+  };
+  personalizationProfile?: {
+    label: string;
+    summary: string;
+    signalCount: number;
+    differentiators: string[];
   };
   foodFirstNotes: string[];
   generalNotes: string[];
