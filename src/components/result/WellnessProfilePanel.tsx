@@ -473,3 +473,269 @@ function MiniStat({
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// SixAxisRadar — hand-crafted SVG radar
+// ---------------------------------------------------------------------------
+
+function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
+  const size = 460;
+  const cx = size / 2;
+  const cy = size / 2;
+  const R = 150; // outer ring radius
+  const rings = [0.25, 0.5, 0.75, 1];
+  const n = axes.length;
+  // start at top, clockwise
+  const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  const point = (i: number, r: number) => ({
+    x: cx + Math.cos(angle(i)) * r,
+    y: cy + Math.sin(angle(i)) * r,
+  });
+
+  const ringPath = (r: number) =>
+    axes
+      .map((_, i) => {
+        const p = point(i, r);
+        return `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+      })
+      .join(" ") + " Z";
+
+  const dataPoints = axes.map((a, i) => point(i, (a.value / 100) * R));
+  const dataPath =
+    dataPoints
+      .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+      .join(" ") + " Z";
+
+  // label radius outside outer ring
+  const labelR = R + 38;
+
+  return (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className="mx-auto block h-auto w-full max-w-[460px]"
+      role="img"
+      aria-label="Six-axis wellness radar"
+    >
+      <defs>
+        {/* Frosted polygon fill */}
+        <radialGradient id="radarFill" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="var(--primary-glow)" stopOpacity={0.55} />
+          <stop offset="55%" stopColor="var(--primary)" stopOpacity={0.4} />
+          <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.08} />
+        </radialGradient>
+        {/* Stroke gradient */}
+        <linearGradient id="radarStroke" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="var(--primary-glow)" />
+          <stop offset="100%" stopColor="var(--primary)" />
+        </linearGradient>
+        {/* Ring sheen */}
+        <radialGradient id="ringSheen" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="hsl(var(--primary) / 0.12)" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+        {/* Spoke gradient */}
+        <linearGradient id="spokeGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="hsl(var(--border) / 0.05)" />
+          <stop offset="50%" stopColor="hsl(var(--border) / 0.55)" />
+          <stop offset="100%" stopColor="hsl(var(--border) / 0.05)" />
+        </linearGradient>
+        {/* Soft glow */}
+        <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* Outer sheen disk */}
+      <circle cx={cx} cy={cy} r={R + 10} fill="url(#ringSheen)" />
+
+      {/* Concentric rings */}
+      {rings.map((t, idx) => (
+        <path
+          key={idx}
+          d={ringPath(R * t)}
+          fill="none"
+          stroke="hsl(var(--border) / 0.55)"
+          strokeWidth={idx === rings.length - 1 ? 1.25 : 0.75}
+          strokeDasharray={idx === rings.length - 1 ? "0" : "2 5"}
+        />
+      ))}
+
+      {/* Radial scale labels (25/50/75/100) along the top spoke */}
+      {rings.map((t, idx) => (
+        <text
+          key={`s-${idx}`}
+          x={cx + 4}
+          y={cy - R * t + 3}
+          fontSize={8.5}
+          fill="hsl(var(--muted-foreground))"
+          fontWeight={600}
+          letterSpacing={0.4}
+          opacity={0.7}
+        >
+          {Math.round(t * 100)}
+        </text>
+      ))}
+
+      {/* Spokes */}
+      {axes.map((_, i) => {
+        const p = point(i, R);
+        return (
+          <line
+            key={`spoke-${i}`}
+            x1={cx}
+            y1={cy}
+            x2={p.x}
+            y2={p.y}
+            stroke="url(#spokeGrad)"
+            strokeWidth={1}
+          />
+        );
+      })}
+
+      {/* Data polygon — animated draw-in */}
+      <motion.path
+        d={dataPath}
+        fill="url(#radarFill)"
+        stroke="url(#radarStroke)"
+        strokeWidth={2.25}
+        strokeLinejoin="round"
+        filter="url(#softGlow)"
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        style={{ transformOrigin: `${cx}px ${cy}px` }}
+      />
+      {/* Crisp inner stroke (no glow) for definition */}
+      <path
+        d={dataPath}
+        fill="none"
+        stroke="var(--primary)"
+        strokeOpacity={0.9}
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+      />
+
+      {/* Vertex dots + value bubbles */}
+      {axes.map((a, i) => {
+        const p = dataPoints[i];
+        const outer = point(i, labelR);
+        const valueBubble = point(i, (a.value / 100) * R + 14);
+        const t = tier(a.value);
+        const dotColor =
+          a.value >= 80
+            ? "rgb(74 222 128)"
+            : a.value >= 60
+              ? "var(--primary)"
+              : a.value >= 40
+                ? "rgb(251 191 36)"
+                : "rgb(251 113 133)";
+        return (
+          <g key={`v-${i}`}>
+            {/* glow halo */}
+            <motion.circle
+              cx={p.x}
+              cy={p.y}
+              r={9}
+              fill={dotColor}
+              opacity={0.18}
+              filter="url(#dotGlow)"
+              initial={{ scale: 0 }}
+              animate={{ scale: [1, 1.25, 1] }}
+              transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.15 }}
+              style={{ transformOrigin: `${p.x}px ${p.y}px` }}
+            />
+            {/* outer ring */}
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={5.5}
+              fill="hsl(var(--background))"
+              stroke={dotColor}
+              strokeWidth={1.75}
+            />
+            {/* inner dot */}
+            <circle cx={p.x} cy={p.y} r={2.25} fill={dotColor} />
+
+            {/* axis label cluster outside */}
+            <g
+              transform={`translate(${outer.x},${outer.y})`}
+              textAnchor={
+                Math.abs(outer.x - cx) < 4 ? "middle" : outer.x > cx ? "start" : "end"
+              }
+            >
+              <text
+                y={-4}
+                fill="hsl(var(--foreground))"
+                fontSize={11.5}
+                fontWeight={700}
+                letterSpacing={0.5}
+              >
+                {a.key.toUpperCase()}
+              </text>
+              <text
+                y={10}
+                fill={dotColor}
+                fontSize={11}
+                fontWeight={700}
+                opacity={0.95}
+              >
+                {a.value}
+                <tspan fill="hsl(var(--muted-foreground))" fontSize={8.5} fontWeight={600}>
+                  {" "}
+                  · {t.label}
+                </tspan>
+              </text>
+            </g>
+
+            {/* mini value bubble next to vertex (skip when too close to label) */}
+            <g pointerEvents="none">
+              <rect
+                x={valueBubble.x - 12}
+                y={valueBubble.y - 8}
+                width={24}
+                height={14}
+                rx={7}
+                fill="hsl(var(--background) / 0.9)"
+                stroke={dotColor}
+                strokeOpacity={0.4}
+                strokeWidth={0.75}
+              />
+              <text
+                x={valueBubble.x}
+                y={valueBubble.y + 2.5}
+                textAnchor="middle"
+                fontSize={8.5}
+                fontWeight={700}
+                fill={dotColor}
+              >
+                {a.value}
+              </text>
+            </g>
+          </g>
+        );
+      })}
+
+      {/* Center hub */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={4}
+        fill="hsl(var(--background))"
+        stroke="var(--primary)"
+        strokeWidth={1.25}
+      />
+      <circle cx={cx} cy={cy} r={1.5} fill="var(--primary)" />
+    </svg>
+  );
+}
