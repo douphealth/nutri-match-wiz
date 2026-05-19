@@ -479,9 +479,12 @@ function MiniStat({
 // ---------------------------------------------------------------------------
 
 function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
-  const size = 460;
-  const cx = size / 2;
-  const cy = size / 2;
+  // Wider canvas + horizontal padding so long labels ("FOUNDATIONS", "RECOVERY")
+  // never clip on the left/right edges.
+  const W = 620;
+  const H = 500;
+  const cx = W / 2;
+  const cy = H / 2 + 6;
   const R = 150; // outer ring radius
   const rings = [0.25, 0.5, 0.75, 1];
   const n = axes.length;
@@ -507,15 +510,16 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
       .join(" ") + " Z";
 
   // label radius outside outer ring
-  const labelR = R + 38;
+  const labelR = R + 44;
 
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
-      className="mx-auto block h-auto w-full max-w-[460px]"
+      viewBox={`0 0 ${W} ${H}`}
+      className="mx-auto block h-auto w-full max-w-[620px]"
       role="img"
       aria-label="Six-axis wellness radar"
     >
+
       <defs>
         {/* Frosted polygon fill */}
         <radialGradient id="radarFill" cx="50%" cy="50%" r="60%">
