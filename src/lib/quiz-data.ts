@@ -482,8 +482,13 @@ export function isStepAnswered(step: QuizStep, answers: QuizAnswers): boolean {
   }
 }
 
+/** Steps that should be shown for the current answer set. */
+export function visibleSteps(answers: QuizAnswers): QuizStep[] {
+  return quizSteps.filter((s) => !s.showWhen || s.showWhen(answers));
+}
+
 export function answeredCount(answers: QuizAnswers): number {
-  return quizSteps.filter((s) => isStepAnswered(s, answers)).length;
+  return visibleSteps(answers).filter((s) => isStepAnswered(s, answers)).length;
 }
 
 export type { Frequency };
