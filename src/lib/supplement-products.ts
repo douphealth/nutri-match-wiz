@@ -161,6 +161,28 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       why: "Chelated glycinate form — gentle on the stomach and appropriate for evening sleep-focused dosing.",
       badges: ["Glycinate", "Non-GMO"],
     },
+    {
+      asin: "B000BV1O26",
+      image: "https://m.media-amazon.com/images/I/71zWar2atBL._AC_SL1500_.jpg",
+      brand: "NOW Foods",
+      title: "Magnesium Citrate 200 mg (250 Tabs)",
+      pill: "Magnesium Citrate",
+      tone: "violet",
+      fit: "budget",
+      why: "Citrate form — well-absorbed alternative when glycinate is unavailable; useful for constipation-prone profiles.",
+      badges: ["Citrate", "GMP tested"],
+    },
+    {
+      asin: "B00JEZQAFG",
+      image: "https://m.media-amazon.com/images/I/71lxEYumxdL._AC_SL1500_.jpg",
+      brand: "NOW Foods",
+      title: "Magtein Magnesium L-Threonate (90 Veg Caps)",
+      pill: "Mg L-Threonate",
+      tone: "violet",
+      fit: "premium",
+      why: "Patented Magtein form — the magnesium variant studied for cognition/sleep when focus & sleep goals overlap.",
+      badges: ["Magtein", "Cognition"],
+    },
   ],
   creatine: [
     {
@@ -173,6 +195,17 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       fit: "default",
       why: "Pure micronized monohydrate — the form with the strongest evidence base and best value.",
       badges: ["Monohydrate", "Unflavored"],
+    },
+    {
+      asin: "B00E9M4XEE",
+      image: "https://m.media-amazon.com/images/I/61Utc+lIHlL._AC_SL1500_.jpg",
+      brand: "BulkSupplements.com",
+      title: "Creatine Monohydrate Micronized Powder (1 kg, 200 servings)",
+      pill: "Bulk Creatine",
+      tone: "sky",
+      fit: "budget",
+      why: "Lowest cost per gram of micronized monohydrate — the lean-budget pick when third-party testing isn't required.",
+      badges: ["Micronized", "Unflavored", "Gluten-free"],
     },
     {
       asin: "B07978VPPH",
@@ -209,7 +242,19 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       why: "More precise for vegan, vegetarian, lactose-free, or dairy-sensitive users — plant protein plus prebiotic fiber.",
       badges: ["Vegan", "Lactose-free", "21g protein"],
     },
+    {
+      asin: "B0CTKSMYH6",
+      image: "https://m.media-amazon.com/images/I/51DpEa26b5L._AC_SL1001_.jpg",
+      brand: "Garden of Life",
+      title: "Sport Organic Plant-Based Protein, Vanilla (30g protein, 19 servings)",
+      pill: "Vegan Sport 30g",
+      tone: "emerald",
+      fit: "premium",
+      why: "NSF Certified for Sport + organic plant blend — premium vegan choice when athletes need third-party-tested plant protein.",
+      badges: ["NSF Certified for Sport", "Organic", "30g protein"],
+    },
   ],
+
   iron: [
     {
       asin: "B00ZQUDWL8",
