@@ -335,15 +335,33 @@ export function runEngine(a: QuizAnswers): EngineResult {
   const safetyWeight = (lvl: Supplement["safetyLevel"]) =>
     lvl === "Low" ? 1 : lvl === "Moderate" ? 0.84 : 0.58;
 
+  const notRecommended: SuppressedRecommendation[] = [];
+
   const recommendations: Recommendation[] = SUPPLEMENTS
     .map((s: Supplement) => {
       const b = buckets[s.id];
-      if (b.suppressed) return null;
+      if (b.suppressed) {
+        notRecommended.push({
+          supplementId: s.id,
+          supplementName: s.name.replace(/\s*\([^)]*\)/g, ""),
+          status: b.suppressionStatus ?? "not_recommended",
+          reason: b.suppressionReason ?? "Not indicated based on your answers.",
+        });
+        return null;
+      }
       const precisionScore = Math.max(
         0,
         Math.min(100, Math.round((b.score * 11 + b.tags.length * 4) * evidenceWeight(s.evidenceLevel) * safetyWeight(s.safetyLevel))),
       );
-      if (b.score < 1.15 && precisionScore < 16) return null;
+      if (b.score < 1.15 && precisionScore < 16 && !b.forcedStatus) {
+        notRecommended.push({
+          supplementId: s.id,
+          supplementName: s.name.replace(/\s*\([^)]*\)/g, ""),
+          status: "food_first",
+          reason: "Your answers didn't show a meaningful gap — food-first is the better starting point.",
+        });
+        return null;
+      }
 
       // Confidence: based on score + evidence + safety
       let confidence: Recommendation["confidence"] = "Low";
@@ -355,6 +373,24 @@ export function runEngine(a: QuizAnswers): EngineResult {
         confidence = confidence === "High" ? "Moderate" : "Low";
       }
 
+      // Status assignment
+      let status: RecommendationStatus;
+      let statusReason: string | undefined;
+      if (b.forcedStatus) {
+        status = b.forcedStatus;
+        statusReason = b.forcedStatusReason;
+      } else if (safetyGate.triggered && s.safetyLevel === "High caution") {
+        status = "clinician_only";
+        statusReason = "High-caution supplement plus active medical flags — clear with your clinician.";
+      } else if (precisionScore >= 50 && confidence !== "Low") {
+        status = "recommended";
+      } else if (precisionScore >= 25) {
+        status = "consider";
+      } else {
+        status = "food_first";
+        statusReason = "Signals are mild — close the gap with food before adding a pill.";
+      }
+
       return {
         supplement: s,
         score: b.score,
@@ -363,10 +399,31 @@ export function runEngine(a: QuizAnswers): EngineResult {
         safetyFlags: b.safetyFlags,
         personalizationTags: b.tags,
         confidence,
+        status,
+        statusReason,
       } as Recommendation;
     })
     .filter((x): x is Recommendation => x !== null)
-    .sort((a, b) => (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score));
+    .sort((a, b) => {
+      // Active recommendations rank above test/clinician-gated items.
+      const order: Record<RecommendationStatus, number> = {
+        recommended: 0, consider: 1, food_first: 2, test_first: 3, clinician_only: 4, not_recommended: 5, avoid: 6,
+      };
+      const ao = order[a.status ?? "consider"];
+      const bo = order[b.status ?? "consider"];
+      if (ao !== bo) return ao - bo;
+      return (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score);
+    });
+
+  // Clinician callouts: surface concrete escalation prompts.
+  const clinicianCallouts: string[] = [];
+  if (safetyGate.triggered) {
+    clinicianCallouts.push("Bring this plan to your clinician or pharmacist before starting anything new — your profile triggered one or more safety flags.");
+  }
+  for (const r of recommendations) {
+    if (r.status === "test_first" && r.statusReason) clinicianCallouts.push(`${r.supplement.name.replace(/\s*\([^)]*\)/g, "")}: ${r.statusReason}`);
+    if (r.status === "clinician_only" && r.statusReason) clinicianCallouts.push(`${r.supplement.name.replace(/\s*\([^)]*\)/g, "")}: ${r.statusReason}`);
+  }
 
   // Match score: confidence in this personalized plan (0–100).
   const topN = recommendations.slice(0, 5);
