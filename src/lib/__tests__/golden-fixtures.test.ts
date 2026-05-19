@@ -49,7 +49,7 @@ const fixtures: Record<string, QuizAnswers> = {
     goals: ["energy", "muscle_recovery"],
   }),
   olderLowProtein: a({
-    ageRange: "65_plus",
+    ageRange: "60_plus",
     goals: ["general_wellness", "muscle_recovery"],
     foodIntake: { ...DEFAULT_ANSWERS.foodIntake, redMeat: "never", legumes: "rarely", dairy: "rarely" },
   }),
