@@ -49,31 +49,68 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import EmailGate, { hasSubscribed } from "@/components/EmailGate";
 
-function PdfDownloadButton({ result }: { result: EngineResult }) {
+function PdfDownloadButton({ result, answers }: { result: EngineResult; answers: QuizAnswers }) {
   const [loading, setLoading] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+
+  const top = result.recommendations[0];
+  const topSupplement = top?.supplement.name.replace(/\s*\([^)]*\)/g, "");
+  const topProduct = top ? productFor(top.supplement.id) : undefined;
+  const topBrand = topProduct?.brand;
+  const primaryGoal = Array.isArray(answers?.goals) ? answers.goals[0] : undefined;
+  const archetype = (result as unknown as { wellnessArchetype?: string }).wellnessArchetype;
+  const reportURL = typeof window !== "undefined" ? window.location.href : undefined;
+
+  const runDownload = async () => {
+    setLoading(true);
+    try {
+      const { downloadSupplementReport } = await import("@/lib/pdf-report");
+      await downloadSupplementReport(result);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onClick = async () => {
+    if (hasSubscribed()) {
+      await runDownload();
+      return;
+    }
+    setGateOpen(true);
+  };
+
   return (
-    <Button
-      size="lg"
-      disabled={loading}
-      onClick={async () => {
-        setLoading(true);
-        try {
-          const { downloadSupplementReport } = await import("@/lib/pdf-report");
-          await downloadSupplementReport(result);
-        } finally {
-          setLoading(false);
-        }
-      }}
-      className="bg-gradient-primary font-semibold uppercase tracking-wider shadow-lg hover:-translate-y-0.5 transition-transform"
-    >
-      {loading ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <Download className="mr-2 h-4 w-4" />
-      )}
-      {loading ? "Building your livebook…" : "Download PDF livebook"}
-    </Button>
+    <>
+      <Button
+        size="lg"
+        disabled={loading}
+        onClick={onClick}
+        className="bg-gradient-primary font-semibold uppercase tracking-wider shadow-lg hover:-translate-y-0.5 transition-transform"
+      >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Download className="mr-2 h-4 w-4" />
+        )}
+        {loading ? "Building your livebook…" : "Download PDF livebook"}
+      </Button>
+      <EmailGate
+        open={gateOpen}
+        onClose={() => setGateOpen(false)}
+        onUnlock={() => {
+          setGateOpen(false);
+          void runDownload();
+        }}
+        topSupplement={topSupplement}
+        topBrand={topBrand}
+        primaryGoal={primaryGoal}
+        archetype={archetype}
+        reportURL={reportURL}
+        source="quiz_gate"
+      />
+    </>
   );
 }
 
@@ -412,7 +449,7 @@ function ResultPage({
             </div>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <PdfDownloadButton result={data.result} />
+            <PdfDownloadButton result={data.result} answers={data.answers} />
             <ShareLinkButton slug={data.slug} answers={data.answers} />
             <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               Livebook · Product images · Print-ready
