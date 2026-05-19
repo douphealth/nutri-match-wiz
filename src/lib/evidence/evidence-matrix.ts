@@ -222,6 +222,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsD, C.endoD, C.uspVerified],
     evidenceGrade: "Strong",
     labRequirement: "encouraged",
+    lastChecked: LAST_CHECKED,
   },
   b12: {
     supplementId: "b12",
@@ -237,6 +238,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsB12],
     evidenceGrade: "Strong",
     labRequirement: "encouraged",
+    lastChecked: LAST_CHECKED,
   },
   omega3: {
     supplementId: "omega3",
@@ -252,6 +254,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsOmega, C.nccihOmega],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   magnesium: {
     supplementId: "magnesium",
@@ -268,6 +271,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsMg],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   creatine: {
     supplementId: "creatine",
@@ -284,6 +288,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.issnCr, C.nccihCr, C.nsfSport],
     evidenceGrade: "Strong",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   protein: {
     supplementId: "protein",
@@ -298,6 +303,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.issnProtein, C.nsfSport],
     evidenceGrade: "Strong",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   iron: {
     supplementId: "iron",
@@ -320,6 +326,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsIron, C.fdaIron],
     evidenceGrade: "Situational",
     labRequirement: "required_before_use",
+    lastChecked: LAST_CHECKED,
   },
   calcium: {
     supplementId: "calcium",
@@ -338,6 +345,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsCa],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   prenatal: {
     supplementId: "prenatal",
@@ -350,6 +358,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.cdcFolate, C.acogPrenatal],
     evidenceGrade: "Strong",
     labRequirement: "clinician_directed",
+    lastChecked: LAST_CHECKED,
   },
   electrolytes: {
     supplementId: "electrolytes",
@@ -365,6 +374,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.acsmHydration],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   fiber: {
     supplementId: "fiber",
@@ -377,6 +387,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.usdaFiber],
     evidenceGrade: "Strong",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   probiotic: {
     supplementId: "probiotic",
@@ -391,6 +402,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.agaProb],
     evidenceGrade: "Limited",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   zinc: {
     supplementId: "zinc",
@@ -403,6 +415,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsZinc],
     evidenceGrade: "Limited",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   vitamin_c: {
     supplementId: "vitamin_c",
@@ -415,6 +428,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.odsC],
     evidenceGrade: "Limited",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
   melatonin: {
     supplementId: "melatonin",
@@ -433,6 +447,7 @@ export const EVIDENCE_MATRIX: Record<string, EvidenceEntry> = {
     citations: [C.aasmMel, C.nccihMel],
     evidenceGrade: "Moderate",
     labRequirement: "none",
+    lastChecked: LAST_CHECKED,
   },
 };
 
