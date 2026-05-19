@@ -552,8 +552,8 @@ export const quizSteps: QuizStep[] = [
     subtitle: "We'll filter recommendations to match.",
     type: "boolean-multi",
     tier: "advanced",
-    image: U("1607619056574-7b8d3ee536b2"),
-    imageAlt: "Premium capsules on a minimal surface",
+    image: U("1584308666744-24d5c474f2ae"),
+    imageAlt: "Supplement capsule blister packs on a clean surface",
     booleans: [
       { path: "allergies.vegan", label: "Vegan formulas only" },
       { path: "allergies.gelatinFree", label: "Gelatin-free" },
