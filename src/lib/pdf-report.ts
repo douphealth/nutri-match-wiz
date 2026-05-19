@@ -1424,6 +1424,10 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
   // Methodology
   drawMethodology(doc);
 
+  // Further reading on gearuptofit.com
+  drawResources(doc, pickResources(result, answers));
+
+
   // Footers
   const total = doc.getNumberOfPages();
   for (let i = 1; i <= total; i++) {
