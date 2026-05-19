@@ -1,6 +1,6 @@
 // Hand-curated Amazon product picks per supplement id.
 // Affiliate tag: papalex-20
-// Product images are direct Amazon CDN image URLs verified to return real JPEGs.
+// Product images are direct Amazon media URLs extracted from the matching ASIN pages and verified to return real JPEGs.
 
 import type { QuizAnswers } from "@/types/supplements";
 
@@ -23,7 +23,10 @@ export function amazonLink(asin: string): string {
 }
 
 export function amazonImage(_asin: string, _size: 250 | 160 | 500 = 250): string {
-  return "";
+  const product = Object.values(SUPPLEMENT_PRODUCTS)
+    .flat()
+    .find((p) => p.asin === _asin);
+  return product?.image ?? "";
 }
 
 export const TONE_STYLES: Record<
