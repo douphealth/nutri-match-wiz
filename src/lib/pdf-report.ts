@@ -724,53 +724,76 @@ function drawSupplementPage(
   });
   y += 8;
 
-  // Two-column: Label guide / Best for
-  y = ensure(doc, y, 140, eyebrow);
+  // Two-column: Label guide / Best for — heights computed from wrapped content
   const colW = (pw - 12) / 2;
-  // Label guide
   const labelItems = rec.supplement.whatToLookFor;
-  const guideH = 24 + labelItems.length * 14 + 14;
-  roundedCard(doc, M, y, colW, guideH, COL.surface);
-  setText(doc, COL.primary);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("WHAT TO LOOK FOR ON THE LABEL", M + 14, y + 20);
-  setText(doc, COL.text);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9.5);
-  labelItems.forEach((it, i) => {
-    doc.text(`✓  ${it}`, M + 14, y + 38 + i * 14, { maxWidth: colW - 28 });
-  });
+  const labelInner = colW - 36;
+  const labelWrapped = labelItems.map((it) => wrap(doc, it, labelInner));
+  const labelBodyH = labelWrapped.reduce((s, l) => s + l.length * 12 + 6, 0);
+  const guideH = 34 + labelBodyH + 12;
 
   // Best for / typical use
   const bestForLines = wrap(doc, rec.supplement.typicalUseCase, colW - 28);
   const recOnly = rec.supplement.recommendedOnlyIf;
-  const bestH = 24 + bestForLines.length * 13 + 12 + recOnly.length * 13 + 14;
+  const recOnlyWrapped = recOnly.map((it) => wrap(doc, it, colW - 36));
+  const recOnlyH = recOnlyWrapped.reduce((s, l) => s + l.length * 12 + 4, 0);
+  const bestH = 34 + bestForLines.length * 13 + 18 + recOnlyH + 12;
+
   const colH = Math.max(guideH, bestH);
+  y = ensure(doc, y, colH + 16, eyebrow);
+
+  // LEFT column — label guide
+  roundedCard(doc, M, y, colW, colH, COL.surface);
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("WHAT TO LOOK FOR ON THE LABEL", M + 14, y + 22);
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  let ly = y + 40;
+  labelWrapped.forEach((lines) => {
+    // primary check bullet (no glyph dependency)
+    setFill(doc, COL.primary);
+    doc.roundedRect(M + 14, ly - 7, 8, 8, 2, 2, "F");
+    setText(doc, COL.bg);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.text("✓", M + 18, ly - 1.5);
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(lines, M + 28, ly);
+    ly += lines.length * 12 + 6;
+  });
+
+  // RIGHT column — who this is for + consider only if
   roundedCard(doc, M + colW + 12, y, colW, colH, COL.surface);
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.text("WHO THIS IS FOR", M + colW + 26, y + 20);
+  doc.text("WHO THIS IS FOR", M + colW + 26, y + 22);
   setText(doc, COL.text);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
-  doc.text(bestForLines, M + colW + 26, y + 38);
-  let by2 = y + 38 + bestForLines.length * 13 + 8;
+  doc.text(bestForLines, M + colW + 26, y + 40);
+  let by2 = y + 40 + bestForLines.length * 13 + 12;
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.text("CONSIDER ONLY IF", M + colW + 26, by2);
-  by2 += 12;
+  by2 += 14;
   setText(doc, COL.textDim);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  recOnly.forEach((it) => {
-    doc.text(`•  ${it}`, M + colW + 26, by2, { maxWidth: colW - 28 });
-    by2 += 13;
+  recOnlyWrapped.forEach((lines) => {
+    setFill(doc, COL.muted);
+    doc.circle(M + colW + 30, by2 - 3, 1.4, "F");
+    doc.text(lines, M + colW + 38, by2);
+    by2 += lines.length * 12 + 4;
   });
 
-  y += Math.max(guideH, colH) + 14;
+  y += colH + 16;
 
   // Safety / interactions
   const safety = [
