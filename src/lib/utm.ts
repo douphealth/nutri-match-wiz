@@ -40,3 +40,27 @@ export function readUTM(): UTMRecord | null {
     return null;
   }
 }
+
+// Compact accessor for downstream Brevo subscribe payloads.
+export function getUTM(): {
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  term?: string;
+  content?: string;
+  referrer?: string;
+  landing?: string;
+} | undefined {
+  const r = readUTM();
+  if (!r) return undefined;
+  const out = {
+    source: r.utm_source,
+    medium: r.utm_medium,
+    campaign: r.utm_campaign,
+    term: r.utm_term,
+    content: r.utm_content,
+    referrer: r.referrer,
+    landing: r.landing_url,
+  };
+  return Object.values(out).some(Boolean) ? out : undefined;
+}
