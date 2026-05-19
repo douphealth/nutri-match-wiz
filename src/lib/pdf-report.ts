@@ -1366,6 +1366,7 @@ function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
   const eyebrow = "07 · Further reading on GearUpToFit";
   header(doc, eyebrow);
 
+  // ---- Page heading ----
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
@@ -1373,71 +1374,160 @@ function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
 
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(28);
-  doc.text("Hand-picked guides for you.", M, 140);
+  doc.setFontSize(26);
+  doc.text("Hand-picked guides for you.", M, 138);
 
   setText(doc, COL.textDim);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10.5);
+  doc.setFontSize(10);
   const intro = wrap(
     doc,
     "These GearUpToFit articles map directly to your top picks and goals. Tap any title to open the guide on gearuptofit.com.",
     PAGE_W - M * 2,
   );
-  doc.text(intro, M, 162);
+  doc.text(intro, M, 158);
 
-  let y = 162 + intro.length * 14 + 14;
+  let y = 158 + intro.length * 13 + 16;
   const pw = PAGE_W - M * 2;
 
-  resources.forEach((r) => {
-    const titleLines = wrap(doc, r.title, pw - 32);
-    const whyLines = wrap(doc, r.why, pw - 32);
-    // Display a shortened URL on a single line; the actual link uses r.url
-    const display =
-      r.url.replace(/^https?:\/\//, "").length > 78
-        ? r.url.replace(/^https?:\/\//, "").slice(0, 75) + "…"
-        : r.url.replace(/^https?:\/\//, "");
-    const h = 18 + titleLines.length * 14 + 6 + whyLines.length * 12 + 22;
-    y = ensure(doc, y, h + 12, eyebrow);
-    roundedCard(doc, M, y, pw, h, COL.card);
+  // ---- Card geometry ----
+  const PAD_X = 18;
+  const PAD_TOP = 18;
+  const PAD_BOTTOM = 16;
+  const INDEX_W = 32; // index circle column
+  const CONTENT_X_OFFSET = PAD_X + INDEX_W;
+  const innerW = pw - CONTENT_X_OFFSET - PAD_X;
+  const TITLE_SIZE = 11.5;
+  const TITLE_LH = 14;
+  const WHY_SIZE = 9.5;
+  const WHY_LH = 12;
+  const URL_SIZE = 8;
+  const URL_LH = 11;
+  const GAP_TITLE_WHY = 6;
+  const GAP_WHY_URL = 10;
 
-    setText(doc, COL.text);
+  /** Truncate a string with ellipsis so its rendered width fits maxW at current font. */
+  const fitWidth = (text: string, maxW: number): string => {
+    if (doc.getTextWidth(text) <= maxW) return text;
+    let lo = 0;
+    let hi = text.length;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (doc.getTextWidth(text.slice(0, mid) + "…") <= maxW) lo = mid;
+      else hi = mid - 1;
+    }
+    return text.slice(0, lo) + "…";
+  };
+
+  resources.forEach((r, i) => {
+    // Pre-measure
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11.5);
-    doc.text(titleLines, M + 16, y + 22);
-    let cy = y + 22 + titleLines.length * 14;
+    doc.setFontSize(TITLE_SIZE);
+    const titleLines = wrap(doc, r.title, innerW);
 
-    setText(doc, COL.textDim);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9.5);
-    doc.text(whyLines, M + 16, cy);
-    cy += whyLines.length * 12 + 6;
+    doc.setFontSize(WHY_SIZE);
+    const whyLines = wrap(doc, r.why, innerW);
 
+    const cardH =
+      PAD_TOP +
+      titleLines.length * TITLE_LH +
+      GAP_TITLE_WHY +
+      whyLines.length * WHY_LH +
+      GAP_WHY_URL +
+      URL_LH +
+      PAD_BOTTOM;
+
+    y = ensure(doc, y, cardH + 12, eyebrow);
+    roundedCard(doc, M, y, pw, cardH, COL.card);
+
+    // Index circle
+    setFill(doc, COL.primarySoft);
+    setStroke(doc, COL.primaryDeep);
+    doc.setLineWidth(0.6);
+    doc.roundedRect(M + PAD_X, y + PAD_TOP - 2, 22, 22, 11, 11, "FD");
     setText(doc, COL.primary);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.textWithLink(`READ →  ${display}`, M + 16, cy + 8, { url: r.url });
-    y += h + 12;
+    doc.setFontSize(9);
+    doc.text(String(i + 1).padStart(2, "0"), M + PAD_X + 11, y + PAD_TOP + 12.5, {
+      align: "center",
+    });
+
+    // Title
+    const contentX = M + CONTENT_X_OFFSET;
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(TITLE_SIZE);
+    doc.text(titleLines, contentX, y + PAD_TOP + 10);
+    let cy = y + PAD_TOP + 10 + (titleLines.length - 1) * TITLE_LH;
+
+    // Why
+    cy += GAP_TITLE_WHY + WHY_LH * 0.8;
+    setText(doc, COL.textDim);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(WHY_SIZE);
+    doc.text(whyLines, contentX, cy);
+    cy += (whyLines.length - 1) * WHY_LH + GAP_WHY_URL;
+
+    // READ chip + URL line — URL truncated to actually fit
+    const chipText = "READ";
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    const chipW = doc.getTextWidth(chipText) + 14;
+    const chipH = 12;
+    const chipY = cy;
+    setFill(doc, COL.primary);
+    doc.roundedRect(contentX, chipY, chipW, chipH, 3, 3, "F");
+    setText(doc, COL.bg);
+    doc.text(chipText, contentX + 7, chipY + 8.5);
+
+    // URL — single line, hard-truncated to fit remaining width
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(URL_SIZE);
+    setText(doc, COL.primary);
+    const urlText = r.url.replace(/^https?:\/\//, "");
+    const urlX = contentX + chipW + 8;
+    const urlMaxW = M + pw - PAD_X - urlX;
+    const displayUrl = fitWidth(urlText, urlMaxW);
+    doc.text(displayUrl, urlX, chipY + 8.5);
+
+    // Make the full URL row clickable (chip + url)
+    doc.link(contentX, chipY - 2, chipW + 8 + urlMaxW, chipH + 4, { url: r.url });
+
+    y += cardH + 12;
   });
 
-  // Site-wide CTA card
-  y = ensure(doc, y, 70, eyebrow);
-  roundedCard(doc, M, y, pw, 60, COL.surface, COL.primary);
+  // ---- Site-wide CTA card ----
+  const ctaH = 64;
+  y = ensure(doc, y + 4, ctaH + 8, eyebrow);
+  roundedCard(doc, M, y, pw, ctaH, COL.surface, COL.primary);
+
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.text("EXPLORE EVERYTHING ON GEARUPTOFIT.COM", M + 16, y + 24);
+  doc.text("EXPLORE EVERYTHING ON GEARUPTOFIT.COM", M + 18, y + 24);
+
   setText(doc, COL.textDim);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text("Reviews, training plans, gear breakdowns, nutrition deep-dives.", M + 16, y + 40);
-  setText(doc, COL.primary);
+  doc.text(
+    "Reviews, training plans, gear breakdowns, nutrition deep-dives.",
+    M + 18,
+    y + 42,
+  );
+
+  // Right-side compact pill CTA — guaranteed inside the card
+  const ctaLabel = "gearuptofit.com  →";
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.textWithLink("https://gearuptofit.com  →", PAGE_W - M - 16, y + 36, {
-    align: "right",
-    url: "https://gearuptofit.com",
-  });
+  const ctaW = doc.getTextWidth(ctaLabel) + 22;
+  const ctaPx = M + pw - PAD_X - ctaW;
+  const ctaPy = y + (ctaH - 22) / 2;
+  setFill(doc, COL.primary);
+  doc.roundedRect(ctaPx, ctaPy, ctaW, 22, 11, 11, "F");
+  setText(doc, COL.bg);
+  doc.text(ctaLabel, ctaPx + ctaW / 2, ctaPy + 14.5, { align: "center" });
+  doc.link(ctaPx, ctaPy, ctaW, 22, { url: "https://gearuptofit.com" });
 }
 
 /* ---------- Master generator ---------- */
