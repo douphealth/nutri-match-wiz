@@ -39,7 +39,14 @@ export interface QuizStep {
   options?: ChoiceOption[];
   booleans?: BooleanOption[]; // for boolean-multi
   helper?: string;
+  image?: string; // optional editorial image rendered in the step header
+  imageAlt?: string;
 }
+
+// Curated, stable Unsplash photos. Tuned crop/quality params keep payload
+// small and the visual register premium / editorial.
+const U = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
 
 const FREQUENCY_OPTIONS: ChoiceOption[] = [
   { value: "never", label: "Never" },
