@@ -49,6 +49,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import EmailGate, { hasSubscribed } from "@/components/EmailGate";
 
 function PdfDownloadButton({ result, answers }: { result: EngineResult; answers: QuizAnswers }) {
   const [loading, setLoading] = useState(false);
