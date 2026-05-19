@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SEO_TOPICS } from "@/lib/seo-topics";
+import { COMPARE_PAIRS } from "@/lib/compare-pairs";
 
 const BASE = "https://gearuptofit.com/supplement-match";
 const URL = `${BASE}/topic`;
@@ -109,6 +110,32 @@ function TopicIndex() {
           </li>
         ))}
       </ul>
+
+      <section className="mt-14">
+        <h2 className="text-xl font-semibold">Side-by-side comparisons</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Common decisions, framed in a 30-second checklist — food first, safety screen, then a
+          match to your actual profile.
+        </p>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {COMPARE_PAIRS.map((p) => (
+            <li key={p.slug}>
+              <Link
+                to="/supplement-match/compare/$slug"
+                params={{ slug: p.slug }}
+                className="block h-full rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
+              >
+                <div className="text-sm font-semibold capitalize text-foreground">
+                  {p.slug.replaceAll("-", " ")}
+                </div>
+                <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                  {p.decisionFrame}
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <p className="mt-12 text-xs text-muted-foreground">
         This library is informational and not medical advice. Always consult a qualified clinician
