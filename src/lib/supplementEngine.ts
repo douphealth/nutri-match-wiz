@@ -787,6 +787,12 @@ export function runEngine(a: QuizAnswers): EngineResult {
       statusReason = "Signals are mild — close the gap with food before adding a pill.";
     }
 
+    // Clinician-only or avoid items are effectively blocked for self-direction.
+    const finalConfidence: Recommendation["confidence"] =
+      status === "clinician_only" || status === "avoid" || status === "test_first"
+        ? "Blocked"
+        : confidence;
+
     return {
       supplement: s,
       score: b.score,
@@ -794,7 +800,7 @@ export function runEngine(a: QuizAnswers): EngineResult {
       reasons: b.reasons,
       safetyFlags: b.safetyFlags,
       personalizationTags: b.tags,
-      confidence,
+      confidence: finalConfidence,
       status,
       statusReason,
     } as Recommendation;
