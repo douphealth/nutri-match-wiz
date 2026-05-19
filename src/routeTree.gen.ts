@@ -11,10 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as AffiliateDisclosureRouteImport } from './routes/affiliate-disclosure'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SupplementMatchSlugRouteImport } from './routes/supplement-match.$slug'
+import { Route as SupplementMatchTopicIndexRouteImport } from './routes/supplement-match.topic.index'
 import { Route as SupplementMatchTopicTopicRouteImport } from './routes/supplement-match.topic.$topic'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -25,6 +27,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const MethodologyRoute = MethodologyRouteImport.update({
   id: '/methodology',
   path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AffiliateDisclosureRoute = AffiliateDisclosureRouteImport.update({
@@ -47,6 +54,12 @@ const SupplementMatchSlugRoute = SupplementMatchSlugRouteImport.update({
   path: '/supplement-match/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupplementMatchTopicIndexRoute =
+  SupplementMatchTopicIndexRouteImport.update({
+    id: '/supplement-match/topic/',
+    path: '/supplement-match/topic/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SupplementMatchTopicTopicRoute =
   SupplementMatchTopicTopicRouteImport.update({
     id: '/supplement-match/topic/$topic',
@@ -58,29 +71,35 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/affiliate-disclosure': typeof AffiliateDisclosureRoute
+  '/faq': typeof FaqRoute
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/supplement-match/$slug': typeof SupplementMatchSlugRoute
   '/supplement-match/topic/$topic': typeof SupplementMatchTopicTopicRoute
+  '/supplement-match/topic/': typeof SupplementMatchTopicIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/affiliate-disclosure': typeof AffiliateDisclosureRoute
+  '/faq': typeof FaqRoute
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/supplement-match/$slug': typeof SupplementMatchSlugRoute
   '/supplement-match/topic/$topic': typeof SupplementMatchTopicTopicRoute
+  '/supplement-match/topic': typeof SupplementMatchTopicIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/affiliate-disclosure': typeof AffiliateDisclosureRoute
+  '/faq': typeof FaqRoute
   '/methodology': typeof MethodologyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/supplement-match/$slug': typeof SupplementMatchSlugRoute
   '/supplement-match/topic/$topic': typeof SupplementMatchTopicTopicRoute
+  '/supplement-match/topic/': typeof SupplementMatchTopicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,38 +107,46 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/affiliate-disclosure'
+    | '/faq'
     | '/methodology'
     | '/sitemap.xml'
     | '/supplement-match/$slug'
     | '/supplement-match/topic/$topic'
+    | '/supplement-match/topic/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/affiliate-disclosure'
+    | '/faq'
     | '/methodology'
     | '/sitemap.xml'
     | '/supplement-match/$slug'
     | '/supplement-match/topic/$topic'
+    | '/supplement-match/topic'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/affiliate-disclosure'
+    | '/faq'
     | '/methodology'
     | '/sitemap.xml'
     | '/supplement-match/$slug'
     | '/supplement-match/topic/$topic'
+    | '/supplement-match/topic/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AffiliateDisclosureRoute: typeof AffiliateDisclosureRoute
+  FaqRoute: typeof FaqRoute
   MethodologyRoute: typeof MethodologyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupplementMatchSlugRoute: typeof SupplementMatchSlugRoute
   SupplementMatchTopicTopicRoute: typeof SupplementMatchTopicTopicRoute
+  SupplementMatchTopicIndexRoute: typeof SupplementMatchTopicIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -136,6 +163,13 @@ declare module '@tanstack/react-router' {
       path: '/methodology'
       fullPath: '/methodology'
       preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/affiliate-disclosure': {
@@ -166,6 +200,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupplementMatchSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/supplement-match/topic/': {
+      id: '/supplement-match/topic/'
+      path: '/supplement-match/topic'
+      fullPath: '/supplement-match/topic/'
+      preLoaderRoute: typeof SupplementMatchTopicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/supplement-match/topic/$topic': {
       id: '/supplement-match/topic/$topic'
       path: '/supplement-match/topic/$topic'
@@ -180,10 +221,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AffiliateDisclosureRoute: AffiliateDisclosureRoute,
+  FaqRoute: FaqRoute,
   MethodologyRoute: MethodologyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupplementMatchSlugRoute: SupplementMatchSlugRoute,
   SupplementMatchTopicTopicRoute: SupplementMatchTopicTopicRoute,
+  SupplementMatchTopicIndexRoute: SupplementMatchTopicIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
