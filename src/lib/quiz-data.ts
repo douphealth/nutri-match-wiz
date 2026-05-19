@@ -392,8 +392,8 @@ export const quizSteps: QuizStep[] = [
     type: "single",
     tier: "branch",
     why: "Sessions over 90 minutes shift the priority toward carbs, electrolytes, and sodium — not pills.",
-    image: U("1546964124-0cce460f38ef"),
-    imageAlt: "Trail runner on a long mountain run",
+    image: U("1502904550040-7534597429ae"),
+    imageAlt: "Aerial view of runners on a track in a long session",
     options: [
       { value: "under_45", label: "Under 45 min" },
       { value: "45_90", label: "45 – 90 min" },
