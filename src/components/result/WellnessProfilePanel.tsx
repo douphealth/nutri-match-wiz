@@ -4,6 +4,7 @@ import {
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
+  PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
 import {
@@ -15,8 +16,20 @@ import {
   Wallet,
   Target,
   HeartPulse,
+  Flame,
+  Activity,
+  BedDouble,
+  Sparkles,
+  ShieldCheck,
+  Leaf,
+  Info,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { QuizAnswers, EngineResult, Frequency, Goal } from "@/types/supplements";
+
+// ---------------------------------------------------------------------------
+// Axis derivation
+// ---------------------------------------------------------------------------
 
 const FREQ_SCORE: Record<Frequency, number> = {
   never: 0,
@@ -28,13 +41,19 @@ const FREQ_SCORE: Record<Frequency, number> = {
 
 type AxisKey = "Energy" | "Recovery" | "Sleep" | "Focus" | "Immunity" | "Foundations";
 
-function clamp(n: number, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, n));
+interface AxisRow {
+  key: AxisKey;
+  value: number; // 0–100
+  icon: LucideIcon;
+  meaning: string; // what the axis measures
+  driver: string; // why the user scored where they did
 }
 
-/** Derive a 6-axis wellness profile from quiz answers + engine output. */
-function buildAxes(a: QuizAnswers, r: EngineResult): { axis: AxisKey; value: number }[] {
-  const goalBoost = (g: Goal) => (a.goals.includes(g) ? 22 : 0);
+const clamp = (n: number, min = 0, max = 100) => Math.max(min, Math.min(max, Math.round(n)));
+
+function buildAxes(a: QuizAnswers, r: EngineResult): AxisRow[] {
+  const has = (g: Goal) => a.goals.includes(g);
+  const goalBoost = (g: Goal) => (has(g) ? 22 : 0);
   const trainScore = { none: 0, "1_2": 35, "3_4": 65, "5_plus": 90 }[a.trainingFrequency];
   const sleepScore = { poor: 25, fair: 55, good: 85 }[a.sleepQuality];
   const stressInv = { low: 85, moderate: 55, high: 28 }[a.stress];
@@ -45,41 +64,132 @@ function buildAxes(a: QuizAnswers, r: EngineResult): { axis: AxisKey; value: num
       FREQ_SCORE[diet.wholeGrains] +
       FREQ_SCORE[diet.legumes] +
       FREQ_SCORE[diet.oilyFish]) *
-    6.25; // → 0–100
-
-  const recCount = r.recommendations.length;
-  const recLift = Math.min(recCount * 6, 24);
+    6.25;
+  const recLift = Math.min(r.recommendations.length * 6, 24);
 
   return [
     {
-      axis: "Energy",
-      value: clamp(40 + goalBoost("energy") + trainScore * 0.25 + recLift - (stressInv < 50 ? 10 : 0)),
+      key: "Energy",
+      icon: Flame,
+      value: clamp(
+        40 + goalBoost("energy") + trainScore * 0.25 + recLift - (stressInv < 50 ? 10 : 0),
+      ),
+      meaning: "Steady daily output — not stimulant highs.",
+      driver:
+        a.stress === "high"
+          ? "High stress is taxing your reserves."
+          : has("energy")
+            ? "Energy is a stated goal — engine prioritized it."
+            : "Baseline from training + diet signals.",
     },
     {
-      axis: "Recovery",
+      key: "Recovery",
+      icon: Activity,
       value: clamp(35 + goalBoost("muscle_recovery") + trainScore * 0.35 + sleepScore * 0.2),
+      meaning: "How well you bounce back from training & life load.",
+      driver:
+        a.trainingFrequency === "5_plus"
+          ? "5+ sessions/wk demands real recovery inputs."
+          : a.sleepQuality === "poor"
+            ? "Poor sleep is capping your recovery ceiling."
+            : "Training volume + sleep set this baseline.",
     },
     {
-      axis: "Sleep",
+      key: "Sleep",
+      icon: BedDouble,
       value: clamp(sleepScore + goalBoost("sleep") - (a.caffeine === "daily" ? 12 : 0)),
+      meaning: "Quality of nightly restoration.",
+      driver:
+        a.caffeine === "daily"
+          ? "Daily caffeine may be eroding deep sleep."
+          : a.sleepQuality === "good"
+            ? "Your reported sleep quality is strong."
+            : "Reported sleep quality drives this score.",
     },
     {
-      axis: "Focus",
+      key: "Focus",
+      icon: Brain,
       value: clamp(45 + goalBoost("focus") + stressInv * 0.3 + sleepScore * 0.15),
+      meaning: "Clarity, mood, cognitive endurance.",
+      driver:
+        a.stress === "high"
+          ? "High stress is the biggest drag on focus."
+          : has("focus")
+            ? "Focus & mood is a goal — prioritized in scoring."
+            : "Sleep + stress balance set this baseline.",
     },
     {
-      axis: "Immunity",
+      key: "Immunity",
+      icon: ShieldCheck,
       value: clamp(40 + goalBoost("immune") + sunScore * 0.25 + dietBase * 0.25),
+      meaning: "Resilience to seasonal stress & illness.",
+      driver:
+        a.sunExposure === "low"
+          ? "Low sun exposure suggests vitamin D risk."
+          : dietBase > 60
+            ? "Diet diversity is supporting immune resilience."
+            : "Sun exposure + diet diversity set this.",
     },
     {
-      axis: "Foundations",
+      key: "Foundations",
+      icon: Leaf,
       value: clamp(30 + dietBase * 0.5 + goalBoost("general_wellness") + recLift),
+      meaning: "Whole-food nutrient base — the floor everything sits on.",
+      driver:
+        dietBase < 40
+          ? "Diet diversity is the weakest link to address first."
+          : dietBase > 70
+            ? "Strong whole-food base — supplements just top off gaps."
+            : "Mid-range diet diversity — room to grow.",
     },
   ];
 }
 
-function dietLabel(d: QuizAnswers["diet"]) {
+// ---------------------------------------------------------------------------
+// Archetype
+// ---------------------------------------------------------------------------
+
+function archetype(axes: AxisRow[], a: QuizAnswers) {
+  const by = Object.fromEntries(axes.map((x) => [x.key, x.value])) as Record<AxisKey, number>;
+  if (a.trainingFrequency === "5_plus" || by.Recovery >= 70)
+    return {
+      name: "The High-Output Athlete",
+      tagline: "Your body is training hard — recovery and foundations are the limiters.",
+    };
+  if (by.Sleep < 50 || by.Focus < 50)
+    return {
+      name: "The Cognitive Rebuilder",
+      tagline: "Sleep and focus need shoring up before chasing performance stacks.",
+    };
+  if (by.Immunity < 55 || by.Foundations < 50)
+    return {
+      name: "The Foundation Builder",
+      tagline: "Lock in whole-food nutrients and daily essentials first.",
+    };
+  if (a.goals.includes("weight_management"))
+    return {
+      name: "The Body Composition Operator",
+      tagline: "Calorie discipline plus targeted gap-fillers — not magic pills.",
+    };
   return {
+    name: "The Steady Generalist",
+    tagline: "Well-rounded baseline — small, targeted additions move the needle.",
+  };
+}
+
+function tier(v: number) {
+  if (v >= 80) return { label: "Peak", color: "text-emerald-400", bar: "from-emerald-400 to-emerald-300" };
+  if (v >= 60) return { label: "Strong", color: "text-primary", bar: "from-primary to-primary-glow" };
+  if (v >= 40) return { label: "Building", color: "text-amber-400", bar: "from-amber-400 to-amber-300" };
+  return { label: "Needs work", color: "text-rose-400", bar: "from-rose-400 to-rose-300" };
+}
+
+// ---------------------------------------------------------------------------
+// Labels
+// ---------------------------------------------------------------------------
+
+const dietLabel = (d: QuizAnswers["diet"]) =>
+  ({
     omnivore: "Omnivore",
     vegetarian: "Vegetarian",
     vegan: "Vegan",
@@ -87,12 +197,12 @@ function dietLabel(d: QuizAnswers["diet"]) {
     low_carb: "Low-carb",
     calorie_deficit: "Cutting",
     restricted: "Restricted",
-  }[d];
-}
-function trainLabel(t: QuizAnswers["trainingFrequency"]) {
-  return { none: "Rest mode", "1_2": "1–2 ×/wk", "3_4": "3–4 ×/wk", "5_plus": "5+ ×/wk" }[t];
-}
-function topGoalLabel(goals: Goal[]) {
+  })[d];
+
+const trainLabel = (t: QuizAnswers["trainingFrequency"]) =>
+  ({ none: "Rest mode", "1_2": "1–2 ×/wk", "3_4": "3–4 ×/wk", "5_plus": "5+ ×/wk" })[t];
+
+const topGoalLabel = (goals: Goal[]) => {
   if (goals.length === 0) return "General wellness";
   const map: Record<Goal, string> = {
     energy: "Energy",
@@ -106,7 +216,12 @@ function topGoalLabel(goals: Goal[]) {
     focus: "Focus & mood",
   };
   return map[goals[0]];
-}
+};
+const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function WellnessProfilePanel({
   answers,
@@ -116,26 +231,22 @@ export function WellnessProfilePanel({
   result: EngineResult;
 }) {
   const axes = buildAxes(answers, result);
+  const arche = archetype(axes, answers);
+  const overall = Math.round(axes.reduce((s, a) => s + a.value, 0) / axes.length);
+  const strongest = [...axes].sort((a, b) => b.value - a.value)[0];
+  const weakest = [...axes].sort((a, b) => a.value - b.value)[0];
 
-  const stats: { icon: typeof Apple; label: string; value: string }[] = [
+  const lifestyle: { icon: LucideIcon; label: string; value: string }[] = [
     { icon: Target, label: "Top goal", value: topGoalLabel(answers.goals) },
     { icon: Apple, label: "Diet", value: dietLabel(answers.diet) },
     { icon: Dumbbell, label: "Training", value: trainLabel(answers.trainingFrequency) },
+    { icon: Moon, label: "Sleep", value: cap(answers.sleepQuality) },
+    { icon: Sun, label: "Sun", value: cap(answers.sunExposure) },
+    { icon: HeartPulse, label: "Stress", value: cap(answers.stress) },
     {
-      icon: Moon,
-      label: "Sleep",
-      value: answers.sleepQuality[0].toUpperCase() + answers.sleepQuality.slice(1),
-    },
-    { icon: Sun, label: "Sun", value: answers.sunExposure[0].toUpperCase() + answers.sunExposure.slice(1) },
-    {
-      icon: Brain,
-      label: "Stress",
-      value: answers.stress[0].toUpperCase() + answers.stress.slice(1),
-    },
-    {
-      icon: HeartPulse,
-      label: "Safety review",
-      value: result.safetyGate.triggered ? "Clinician input" : "Standard",
+      icon: ShieldCheck,
+      label: "Safety",
+      value: result.safetyGate.triggered ? "Clinician" : "Standard",
     },
     {
       icon: Wallet,
@@ -146,35 +257,78 @@ export function WellnessProfilePanel({
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.55, ease: "easeOut" }}
-      className="relative mb-10 overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-4 shadow-xl backdrop-blur-sm sm:p-6"
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative mb-10 overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-5 shadow-2xl backdrop-blur-md sm:p-8"
     >
-      {/* ambient glow */}
+      {/* Ambient glows */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/2 h-[360px] w-[360px] -translate-y-1/2 rounded-full bg-primary/15 blur-3xl"
+        className="pointer-events-none absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-primary/20 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 bottom-0 h-[320px] w-[320px] rounded-full bg-primary/10 blur-3xl"
       />
 
-      <div className="relative grid gap-5 lg:grid-cols-[1.05fr_1fr]">
+      {/* Hero header */}
+      <header className="relative mb-7 flex flex-col gap-5 border-b border-border/50 pb-7 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+            <Sparkles className="h-3.5 w-3.5" />
+            Your wellness profile
+          </div>
+          <h2
+            className="mt-3 font-bold leading-[1.02] tracking-tight text-foreground"
+            style={{ fontSize: "clamp(1.65rem, 3.4vw, 2.6rem)" }}
+          >
+            <span className="text-gradient">{arche.name}</span>
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {arche.tagline}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-5 sm:gap-7">
+          <ScoreRing value={overall} label="Overall" />
+          <div className="hidden h-14 w-px bg-border/60 sm:block" />
+          <div className="space-y-1.5">
+            <MiniStat
+              tint="emerald"
+              label="Strongest"
+              value={strongest.key}
+              detail={`${strongest.value}/100`}
+            />
+            <MiniStat
+              tint="amber"
+              label="Focus on next"
+              value={weakest.key}
+              detail={`${weakest.value}/100`}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Radar + per-axis breakdown */}
+      <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         {/* Radar */}
-        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-background/60 via-background/30 to-primary/5 p-4 sm:p-6">
-          <div className="mb-3 flex items-center justify-between">
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-background/70 via-background/30 to-primary/5 p-4 sm:p-6">
+          <div className="mb-2 flex items-center justify-between">
             <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-              Your wellness profile
+              Six-axis radar
             </div>
-            <div className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">
-              Live
-            </div>
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">
+              0–100 scale
+            </span>
           </div>
 
-          <div className="h-[300px] w-full sm:h-[340px]">
+          <div className="h-[320px] w-full sm:h-[380px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={axes} outerRadius="78%">
+              <RadarChart data={axes} outerRadius="76%">
                 <defs>
                   <linearGradient id="profileFill" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.55} />
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
                     <stop offset="100%" stopColor="var(--primary-glow)" stopOpacity={0.25} />
                   </linearGradient>
                 </defs>
@@ -184,48 +338,200 @@ export function WellnessProfilePanel({
                   gridType="polygon"
                 />
                 <PolarAngleAxis
-                  dataKey="axis"
-                  tick={{
-                    fill: "hsl(var(--muted-foreground))",
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: 0.5,
+                  dataKey="key"
+                  tick={({ payload, x, y, textAnchor }) => {
+                    const row = axes.find((a) => a.key === payload.value)!;
+                    return (
+                      <g>
+                        <text
+                          x={x}
+                          y={y - 6}
+                          textAnchor={textAnchor}
+                          fill="hsl(var(--foreground))"
+                          fontSize={12}
+                          fontWeight={700}
+                          letterSpacing={0.4}
+                        >
+                          {payload.value}
+                        </text>
+                        <text
+                          x={x}
+                          y={y + 9}
+                          textAnchor={textAnchor}
+                          fill="hsl(var(--muted-foreground))"
+                          fontSize={10}
+                          fontWeight={600}
+                        >
+                          {row.value}
+                        </text>
+                      </g>
+                    );
                   }}
+                />
+                <PolarRadiusAxis
+                  domain={[0, 100]}
+                  tick={false}
+                  axisLine={false}
+                  stroke="transparent"
                 />
                 <Radar
                   dataKey="value"
                   stroke="var(--primary)"
-                  strokeWidth={2}
+                  strokeWidth={2.25}
                   fill="url(#profileFill)"
                   isAnimationActive
-                  animationDuration={900}
+                  animationDuration={1000}
                 />
               </RadarChart>
             </ResponsiveContainer>
           </div>
 
-          <p className="mt-2 text-center text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-            Six axes · derived from your answers
-          </p>
+          <div className="mt-1 flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground">
+            <Info className="h-3.5 w-3.5" />
+            Derived from your goals, sleep, training, diet & stress signals.
+          </div>
         </div>
 
-        {/* Stat grid */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {stats.map(({ icon: Icon, label, value }) => (
+        {/* Per-axis explainer cards */}
+        <div className="grid gap-3">
+          {axes.map(({ key, value, icon: Icon, meaning, driver }) => {
+            const t = tier(value);
+            return (
+              <div
+                key={key}
+                className="group relative overflow-hidden rounded-xl border border-border/60 bg-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                    <Icon className="h-5 w-5 text-primary" strokeWidth={1.9} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                        {key}
+                      </h3>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-lg font-bold tabular-nums text-foreground">
+                          {value}
+                        </span>
+                        <span className="text-[10px] font-semibold text-muted-foreground">
+                          /100
+                        </span>
+                        <span
+                          className={`ml-1 rounded-md border border-current/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest ${t.color}`}
+                        >
+                          {t.label}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${t.bar} transition-all`}
+                        style={{ width: `${value}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-semibold text-foreground/80">{meaning}</span>{" "}
+                  <span className="text-muted-foreground">{driver}</span>
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Lifestyle strip */}
+      <div className="relative mt-7">
+        <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+          <span className="h-px flex-1 bg-border/60" />
+          The inputs behind your profile
+          <span className="h-px flex-1 bg-border/60" />
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          {lifestyle.map(({ icon: Icon, label, value }) => (
             <div
               key={label}
-              className="group relative overflow-hidden rounded-2xl border border-border/60 bg-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-background/60"
+              className="group flex items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-3 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-background/60"
             >
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <Icon className="h-5 w-5 text-primary" strokeWidth={1.75} />
-              <div className="mt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                {label}
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                <Icon className="h-4 w-4 text-primary" strokeWidth={1.9} />
               </div>
-              <div className="mt-1 text-lg font-bold leading-tight text-foreground">{value}</div>
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                  {label}
+                </div>
+                <div className="truncate text-sm font-bold text-foreground">{value}</div>
+              </div>
             </div>
           ))}
         </div>
       </div>
     </motion.section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Subcomponents
+// ---------------------------------------------------------------------------
+
+function ScoreRing({ value, label }: { value: number; label: string }) {
+  const circ = 2 * Math.PI * 30;
+  return (
+    <div className="relative h-20 w-20 shrink-0">
+      <svg viewBox="0 0 72 72" className="-rotate-90">
+        <circle cx="36" cy="36" r="30" stroke="hsl(var(--border))" strokeWidth="6" fill="none" />
+        <circle
+          cx="36"
+          cy="36"
+          r="30"
+          stroke="url(#ringGrad)"
+          strokeWidth="6"
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${(value / 100) * circ} ${circ}`}
+        />
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="100%" stopColor="var(--primary-glow)" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-xl font-bold tabular-nums text-foreground">{value}</span>
+        <span className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">
+          {label}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({
+  tint,
+  label,
+  value,
+  detail,
+}: {
+  tint: "emerald" | "amber";
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  const dot = tint === "emerald" ? "bg-emerald-400" : "bg-amber-400";
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      <div className="leading-tight">
+        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+          {label}
+        </div>
+        <div className="text-xs font-bold text-foreground">
+          {value} <span className="text-muted-foreground tabular-nums">· {detail}</span>
+        </div>
+      </div>
+    </div>
   );
 }
