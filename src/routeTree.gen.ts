@@ -19,7 +19,6 @@ import { Route as SupplementMatchSlugRouteImport } from './routes/supplement-mat
 import { Route as SupplementMatchTopicIndexRouteImport } from './routes/supplement-match.topic.index'
 import { Route as SupplementMatchTopicTopicRouteImport } from './routes/supplement-match.topic.$topic'
 import { Route as SupplementMatchCompareSlugRouteImport } from './routes/supplement-match.compare.$slug'
-import { Route as SupplementMatchCompareSlugRouteImport } from './routes/supplement-match.compare.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -66,12 +65,6 @@ const SupplementMatchTopicTopicRoute =
   SupplementMatchTopicTopicRouteImport.update({
     id: '/supplement-match/topic/$topic',
     path: '/supplement-match/topic/$topic',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const SupplementMatchCompareSlugRoute =
-  SupplementMatchCompareSlugRouteImport.update({
-    id: '/supplement-match/compare/$slug',
-    path: '/supplement-match/compare/$slug',
     getParentRoute: () => rootRouteImport,
   } as any)
 const SupplementMatchCompareSlugRoute =
