@@ -247,15 +247,23 @@ export const quizSteps: QuizStep[] = [
     path: "alcohol",
     title: "Alcohol intake",
     type: "slider-freq",
+    tier: "advanced",
     image: U("1514362545857-3bc16c4c7d1b"),
     imageAlt: "Glass of wine on a wooden table",
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) =>
+      a.goals.includes("sleep") ||
+      a.goals.includes("focus") ||
+      a.goals.includes("energy") ||
+      a.sleepQuality !== "good",
     id: "caffeine",
     path: "caffeine",
     title: "Caffeine intake",
     type: "slider-freq",
+    tier: "branch",
+    why: "Daily caffeine, especially after 2pm, suppresses deep sleep and changes magnesium / theanine guidance.",
     image: U("1495474472287-4d71bcdd2085"),
     imageAlt: "Pour-over coffee, morning ritual",
     options: FREQUENCY_OPTIONS,
@@ -266,6 +274,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.oilyFish",
     title: "Oily fish (salmon, sardines, mackerel)",
     type: "slider-freq",
+    tier: "branch",
+    why: "Oily fish ≥2×/wk usually covers EPA/DHA needs without an omega-3 capsule.",
     image: U("1467003909585-2f8a72700288"),
     imageAlt: "Fresh salmon fillet, omega-3 source",
     options: FREQUENCY_OPTIONS,
@@ -276,6 +286,7 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.dairy",
     title: "Dairy",
     type: "slider-freq",
+    tier: "advanced",
     image: U("1550583724-b2692b85b150"),
     imageAlt: "Glass of milk and fresh dairy",
     options: FREQUENCY_OPTIONS,
@@ -285,6 +296,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.fruitsVeg",
     title: "Fruits & vegetables",
     type: "slider-freq",
+    tier: "branch",
+    why: "Sets the whole-food foundation score — most other supplement scoring builds on top of it.",
     image: U("1610348725531-843dff563e2c"),
     imageAlt: "Vibrant assortment of fruits and vegetables",
     options: FREQUENCY_OPTIONS,
@@ -299,6 +312,7 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.legumes",
     title: "Legumes (beans, lentils, chickpeas)",
     type: "slider-freq",
+    tier: "advanced",
     image: U("1515543904379-3d757afe72e4"),
     imageAlt: "Assorted dried beans and lentils",
     options: FREQUENCY_OPTIONS,
@@ -312,6 +326,7 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.wholeGrains",
     title: "Whole grains",
     type: "slider-freq",
+    tier: "advanced",
     image: U("1509440159596-0249088772ff"),
     imageAlt: "Whole grain bread and oats",
     options: FREQUENCY_OPTIONS,
@@ -326,6 +341,7 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.redMeat",
     title: "Red meat",
     type: "slider-freq",
+    tier: "advanced",
     image: U("1607116176323-d055d6bd1ce1"),
     imageAlt: "Cut of red meat on a board",
     options: FREQUENCY_OPTIONS,
@@ -336,16 +352,183 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.fortifiedFoods",
     title: "Fortified foods (plant milks, cereals)",
     type: "slider-freq",
+    tier: "branch",
+    why: "Fortified foods are the easiest non-supplement source of B12, iodine, and (sometimes) D for plant-based diets.",
     image: U("1559656914-a30970c1affd"),
     imageAlt: "Bowl of fortified breakfast cereal",
     options: FREQUENCY_OPTIONS,
   },
+
+  // ---------------------------------------------------------------------
+  // Branch: plant-based deeper dive (B12 / iron / omega-3 history)
+  // ---------------------------------------------------------------------
+  {
+    showWhen: (a) => a.diet === "vegan" || a.diet === "vegetarian",
+    id: "plantBasedLabs",
+    path: "fatigueLabs",
+    title: "Plant-based labs & supplements",
+    subtitle: "Helps us avoid recommending things you already cover.",
+    type: "boolean-multi",
+    tier: "branch",
+    why: "Vegans & vegetarians often need B12, iron/ferritin, and algal omega-3 — but only when current intake or labs say so.",
+    image: U("1556910103-1c02745aa4dc"),
+    imageAlt: "Lab sample tubes and notes on a clean surface",
+    booleans: [
+      { path: "fatigueLabs.b12TestedLow", label: "I've had a low B12 result before" },
+      { path: "fatigueLabs.ironTestedLow", label: "I've had low iron / ferritin before" },
+      { path: "fatigueLabs.vitDTestedLow", label: "I've had a low vitamin D result before" },
+    ],
+    helper: "None apply? Skip and continue.",
+  },
+
+  // ---------------------------------------------------------------------
+  // Branch: endurance / runners
+  // ---------------------------------------------------------------------
+  {
+    showWhen: (a) => a.goals.includes("endurance") || a.trainingFrequency === "5_plus",
+    id: "enduranceLongSession",
+    path: "endurance.longSessionMin",
+    title: "Longest typical training session",
+    type: "single",
+    tier: "branch",
+    why: "Sessions over 90 minutes shift the priority toward carbs, electrolytes, and sodium — not pills.",
+    image: U("1530137073265-c0f95c3a87f1"),
+    imageAlt: "Trail runner on a long mountain run",
+    options: [
+      { value: "under_45", label: "Under 45 min" },
+      { value: "45_90", label: "45 – 90 min" },
+      { value: "90_plus", label: "90 min +" },
+    ],
+  },
+  {
+    showWhen: (a) => a.goals.includes("endurance") || a.trainingFrequency === "5_plus",
+    id: "enduranceSweat",
+    path: "endurance.sweatRate",
+    title: "How much do you sweat in training?",
+    type: "single",
+    tier: "branch",
+    why: "High sweat losses point to electrolytes / sodium replacement before flashy ergogenic aids.",
+    image: U("1517438476312-10d79c077509"),
+    imageAlt: "Athlete after a hard session",
+    options: [
+      { value: "low", label: "Light" },
+      { value: "moderate", label: "Moderate" },
+      { value: "high", label: "Heavy — soaked kit" },
+    ],
+  },
+  {
+    showWhen: (a) => a.goals.includes("endurance") || a.trainingFrequency === "5_plus",
+    id: "enduranceConditions",
+    path: "endurance",
+    title: "Endurance specifics",
+    subtitle: "Helps us tune electrolytes, fueling, and GI tolerance.",
+    type: "boolean-multi",
+    tier: "advanced",
+    why: "Heat exposure, cramps, and GI distress all change which fueling/electrolyte stack actually works.",
+    image: U("1571019613454-1cb2f99b2d8b"),
+    imageAlt: "Runner training in hot conditions",
+    booleans: [
+      { path: "endurance.heatExposure", label: "I often train in heat or humidity" },
+      { path: "endurance.crampHistory", label: "I get cramps during long sessions" },
+      { path: "endurance.giIssues", label: "I get GI issues with mid-session fueling" },
+    ],
+    helper: "None apply? Skip and continue.",
+  },
+
+  // ---------------------------------------------------------------------
+  // Branch: strength / muscle
+  // ---------------------------------------------------------------------
+  {
+    showWhen: (a) => a.goals.includes("muscle_recovery"),
+    id: "proteinIntake",
+    path: "strength.proteinIntake",
+    title: "Daily protein, honestly",
+    type: "single",
+    tier: "branch",
+    why: "If protein is already ≥1.6 g/kg/day, a whey/casein shake adds little — recovery comes from training and sleep.",
+    image: U("1607532941433-304659e8198a"),
+    imageAlt: "Lean protein meal on a plate",
+    options: [
+      { value: "low", label: "Low (< 1 g/kg)" },
+      { value: "moderate", label: "Moderate (1 – 1.6 g/kg)" },
+      { value: "high", label: "High (≥ 1.6 g/kg)" },
+    ],
+  },
+  {
+    showWhen: (a) => a.goals.includes("muscle_recovery"),
+    id: "creatineHistory",
+    path: "strength.creatineHistory",
+    title: "Creatine history",
+    type: "single",
+    tier: "advanced",
+    why: "Current users don't need a loading phase; never-tried users get a different onboarding script.",
+    image: U("1583500178690-f7fd39f6e30b"),
+    imageAlt: "Scoop of creatine monohydrate powder",
+    options: [
+      { value: "never", label: "Never tried" },
+      { value: "past", label: "Tried in the past" },
+      { value: "current", label: "Currently taking" },
+    ],
+  },
+
+  // ---------------------------------------------------------------------
+  // Branch: sleep deep dive
+  // ---------------------------------------------------------------------
+  {
+    showWhen: (a) => a.goals.includes("sleep") || a.sleepQuality === "poor",
+    id: "sleepDetail",
+    path: "sleepDetail",
+    title: "Sleep environment",
+    subtitle: "We tune magnesium, glycine, and melatonin timing accordingly.",
+    type: "boolean-multi",
+    tier: "branch",
+    why: "Late caffeine and shift work / jet lag are the #1 reversible drivers of poor sleep before any supplement.",
+    image: U("1455642305367-68834a9d4337"),
+    imageAlt: "Calm bedroom at night",
+    booleans: [
+      { path: "sleepDetail.caffeineAfter2pm", label: "I regularly have caffeine after 2pm" },
+      { path: "sleepDetail.shiftWorkOrJetLag", label: "Shift work or frequent jet lag" },
+    ],
+    helper: "None apply? Skip and continue.",
+  },
+
+  // ---------------------------------------------------------------------
+  // Branch: fatigue / low energy — labs flagged
+  // ---------------------------------------------------------------------
+  {
+    showWhen: (a) =>
+      (a.goals.includes("energy") && a.diet !== "vegan" && a.diet !== "vegetarian") ||
+      a.sleepQuality === "poor",
+    id: "fatigueLabsGeneral",
+    path: "fatigueLabs",
+    title: "Past lab flags",
+    subtitle: "Lets us prioritize labs over guesswork.",
+    type: "boolean-multi",
+    tier: "advanced",
+    why: "Persistent fatigue is most often vitamin D, B12, iron/ferritin, or thyroid — testing beats supplementing blind.",
+    image: U("1559757175-5700dde675bc"),
+    imageAlt: "Tired person at a kitchen table",
+    booleans: [
+      { path: "fatigueLabs.vitDTestedLow", label: "Low vitamin D in a past test" },
+      { path: "fatigueLabs.b12TestedLow", label: "Low B12 in a past test" },
+      { path: "fatigueLabs.ironTestedLow", label: "Low iron / ferritin in a past test" },
+      { path: "fatigueLabs.thyroidFlagged", label: "Thyroid flagged by a clinician" },
+    ],
+    helper: "None apply? Skip and continue.",
+  },
+
+  // ---------------------------------------------------------------------
+  // Safety: medical screen (always shown)
+  // ---------------------------------------------------------------------
   {
     id: "medical",
     path: "medical",
     title: "Do any of these apply to you?",
     subtitle: "We use these to gate high-risk recommendations.",
     type: "boolean-multi",
+    tier: "essential",
+    safety: true,
+    why: "These flags drive every safety gate — blood thinners + omega-3, SSRIs + 5-HTP, kidney/liver + creatine, etc.",
     image: U("1584036561566-baf8f5f1b144"),
     imageAlt: "Prescription medication on a clinical surface",
     booleans: [
@@ -368,6 +551,7 @@ export const quizSteps: QuizStep[] = [
     title: "Preferences",
     subtitle: "We'll filter recommendations to match.",
     type: "boolean-multi",
+    tier: "advanced",
     image: U("1607619056574-7b8d3ee536b2"),
     imageAlt: "Premium capsules on a minimal surface",
     booleans: [
@@ -384,6 +568,7 @@ export const quizSteps: QuizStep[] = [
     path: "budget",
     title: "Monthly supplement budget",
     type: "single",
+    tier: "essential",
     image: U("1554224155-6726b3ff858f"),
     imageAlt: "Minimal flatlay representing personal budget",
     options: [
