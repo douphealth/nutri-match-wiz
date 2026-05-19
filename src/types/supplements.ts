@@ -111,6 +111,7 @@ export interface EngineResult {
     signalCount: number;
     differentiators: string[];
   };
+  answers?: QuizAnswers;
   foodFirstNotes: string[];
   generalNotes: string[];
 }

@@ -337,6 +337,7 @@ export function runEngine(a: QuizAnswers): EngineResult {
       signalCount,
       differentiators: differentiators.slice(0, 7),
     },
+    answers: a,
     foodFirstNotes,
     generalNotes,
   };
