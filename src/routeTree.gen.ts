@@ -202,7 +202,7 @@ declare module '@tanstack/react-router' {
     }
     '/supplement-match/topic/': {
       id: '/supplement-match/topic/'
-      path: '/supplement-match/topic/'
+      path: '/supplement-match/topic'
       fullPath: '/supplement-match/topic/'
       preLoaderRoute: typeof SupplementMatchTopicIndexRouteImport
       parentRoute: typeof rootRouteImport
@@ -231,13 +231,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
