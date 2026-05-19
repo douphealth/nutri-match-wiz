@@ -604,6 +604,34 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
               {rec.supplement.foodFirstAdvice}
             </p>
           </div>
+
+          {/* Sources */}
+          {(() => {
+            const cites = citationsFor(rec.supplement.id);
+            if (cites.length === 0) return null;
+            return (
+              <div className="rounded-lg border border-border/60 bg-background/30 p-3 text-xs">
+                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Sources
+                </div>
+                <ul className="space-y-1">
+                  {cites.map((c) => (
+                    <li key={c.url}>
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-foreground/90 hover:text-primary"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        <span className="underline-offset-2 hover:underline">{c.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
     </motion.div>
