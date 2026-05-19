@@ -41,6 +41,12 @@ export interface QuizStep {
   helper?: string;
   image?: string; // optional editorial image rendered in the step header
   imageAlt?: string;
+  /**
+   * Adaptive branching predicate. When provided and returning false, the
+   * step is skipped. Safety-screen questions never define `showWhen`, so
+   * they are always shown. Default = always show.
+   */
+  showWhen?: (a: QuizAnswers) => boolean;
 }
 
 // Curated, stable Unsplash photos. Tuned crop/quality params keep payload
