@@ -342,7 +342,7 @@ export const quizSteps: QuizStep[] = [
     title: "Red meat",
     type: "slider-freq",
     tier: "advanced",
-    image: U("1607116176323-d055d6bd1ce1"),
+    image: U("1558030006-450675393462"),
     imageAlt: "Cut of red meat on a board",
     options: FREQUENCY_OPTIONS,
   },
@@ -371,7 +371,7 @@ export const quizSteps: QuizStep[] = [
     type: "boolean-multi",
     tier: "branch",
     why: "Vegans & vegetarians often need B12, iron/ferritin, and algal omega-3 — but only when current intake or labs say so.",
-    image: U("1556910103-1c02745aa4dc"),
+    image: U("1471864190281-a93a3070b6de"),
     imageAlt: "Lab sample tubes and notes on a clean surface",
     booleans: [
       { path: "fatigueLabs.b12TestedLow", label: "I've had a low B12 result before" },
@@ -392,7 +392,7 @@ export const quizSteps: QuizStep[] = [
     type: "single",
     tier: "branch",
     why: "Sessions over 90 minutes shift the priority toward carbs, electrolytes, and sodium — not pills.",
-    image: U("1530137073265-c0f95c3a87f1"),
+    image: U("1546964124-0cce460f38ef"),
     imageAlt: "Trail runner on a long mountain run",
     options: [
       { value: "under_45", label: "Under 45 min" },
@@ -462,7 +462,7 @@ export const quizSteps: QuizStep[] = [
     type: "single",
     tier: "advanced",
     why: "Current users don't need a loading phase; never-tried users get a different onboarding script.",
-    image: U("1583500178690-f7fd39f6e30b"),
+    image: U("1517248135467-4c7edcad34c4"),
     imageAlt: "Scoop of creatine monohydrate powder",
     options: [
       { value: "never", label: "Never tried" },
@@ -483,7 +483,7 @@ export const quizSteps: QuizStep[] = [
     type: "boolean-multi",
     tier: "branch",
     why: "Late caffeine and shift work / jet lag are the #1 reversible drivers of poor sleep before any supplement.",
-    image: U("1455642305367-68834a9d4337"),
+    image: U("1531746020798-e6953c6e8e04"),
     imageAlt: "Calm bedroom at night",
     booleans: [
       { path: "sleepDetail.caffeineAfter2pm", label: "I regularly have caffeine after 2pm" },
