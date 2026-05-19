@@ -255,11 +255,21 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (a.goals.includes("sleep") && a.sleepQuality === "poor") addSignal(mel, 2.6, "Short-term, low-dose melatonin can help circadian shifts.", "sleep goal + poor sleep");
   if (a.goals.includes("sleep") && a.sleepQuality === "fair") addSignal(mel, 0.9, "Low-dose melatonin may help timing issues, but sleep hygiene comes first.", "sleep timing");
   if (freqHigh(a.caffeine) && a.sleepQuality !== "good") add(mel, -0.6, "");
-  if (a.pregnancy !== "none" || a.ageRange === "under_18") {
+  if (a.pregnancy !== "none") {
     mel.suppressed = true;
+    mel.suppressionStatus = "avoid";
+    mel.suppressionReason = "Melatonin is not recommended during pregnancy or breastfeeding without obstetric guidance.";
+  } else if (a.ageRange === "under_18") {
+    mel.suppressed = true;
+    mel.suppressionStatus = "clinician_only";
+    mel.suppressionReason = "Under-18 melatonin use should be directed by a pediatric clinician, not self-started.";
   }
   if (a.medical.antidepressants || a.medical.bloodThinners || a.medical.bloodPressureMeds) {
     flag(mel, "Several common medications interact with melatonin — check with a pharmacist.");
+    if (!mel.suppressed) {
+      mel.forcedStatus = "clinician_only";
+      mel.forcedStatusReason = "Confirm with a pharmacist before starting melatonin given your medications.";
+    }
   }
 
   // ---- Global safety overlays ----
