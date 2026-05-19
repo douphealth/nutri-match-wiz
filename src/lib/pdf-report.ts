@@ -3,6 +3,9 @@ import type { EngineResult, Recommendation, QuizAnswers } from "@/types/suppleme
 import { productFor, amazonLink, type AmazonProduct } from "./supplement-products";
 import { buildDailySchedule, type DailySchedule } from "./daily-schedule";
 import { DEFAULT_ANSWERS } from "./engine";
+import { buildAxes, archetypeFor, tierForAxis, type AxisRow } from "./wellness-axes";
+import { pickResources, type GearUpToFitResource } from "./gearuptofit-links";
+
 
 /* =========================================================================
  * Nutri Match AI — Personal Supplement Livebook (PDF)
