@@ -100,6 +100,9 @@ export const quizSteps: QuizStep[] = [
     title: "Sex assigned at birth",
     subtitle: "Influences iron, folate, and other recommendations.",
     type: "single",
+    tier: "essential",
+    safety: true,
+    why: "Iron, folate, and pregnancy screens depend on biological sex.",
     image: U("1573496359142-b8d87734a5a2"),
     imageAlt: "Diverse group of adults standing together",
     options: [
@@ -118,6 +121,9 @@ export const quizSteps: QuizStep[] = [
     title: "Pregnancy status",
     subtitle: "Many supplements are inappropriate during pregnancy or breastfeeding.",
     type: "single",
+    tier: "branch",
+    safety: true,
+    why: "Pregnancy and breastfeeding contraindicate several common supplements (e.g. high-dose vitamin A, melatonin, many adaptogens).",
     image: U("1519791883288-dc8bd696e667"),
     imageAlt: "Soft natural light portrait, prenatal wellness",
     options: [
@@ -132,6 +138,8 @@ export const quizSteps: QuizStep[] = [
     path: "diet",
     title: "How would you describe your diet?",
     type: "single",
+    tier: "essential",
+    why: "Vegan/vegetarian patterns shift B12, iron, omega-3, and zinc risk.",
     image: U("1490645935967-10de6ba17061"),
     imageAlt: "Colorful nourish bowls of whole foods",
     options: [
@@ -150,6 +158,8 @@ export const quizSteps: QuizStep[] = [
     title: "What are your top goals?",
     subtitle: "Pick up to four — we score with all of them.",
     type: "multi",
+    tier: "essential",
+    why: "Goals drive the scoring weights; without them we default to general wellness.",
     image: U("1517836357463-d25dfeac3438"),
     imageAlt: "Athlete training, focused on performance goals",
     options: [
@@ -169,6 +179,8 @@ export const quizSteps: QuizStep[] = [
     path: "trainingFrequency",
     title: "How often do you train?",
     type: "single",
+    tier: "essential",
+    why: "Training volume changes protein, creatine, and electrolyte priorities.",
     image: U("1534438327276-14e5300c3a48"),
     imageAlt: "Strength training in a modern gym",
     options: [
@@ -183,6 +195,8 @@ export const quizSteps: QuizStep[] = [
     path: "sunExposure",
     title: "Typical daily sun exposure",
     type: "single",
+    tier: "essential",
+    why: "Low sun + indoor lifestyle is the strongest driver of vitamin D deficiency risk.",
     image: U("1506905925346-21bda4d32df4"),
     imageAlt: "Warm sunlight over an outdoor landscape",
     options: [
@@ -196,6 +210,8 @@ export const quizSteps: QuizStep[] = [
     path: "sleepQuality",
     title: "How is your sleep, honestly?",
     type: "single",
+    tier: "essential",
+    why: "Sleep quality gates magnesium, glycine, and melatonin recommendations.",
     image: U("1520206183501-b80df61043c2"),
     imageAlt: "Calm bedroom with soft linen, restful sleep",
     options: [
@@ -214,6 +230,8 @@ export const quizSteps: QuizStep[] = [
     path: "stress",
     title: "Average stress level",
     type: "single",
+    tier: "branch",
+    why: "High stress + sleep/focus goals raise the priority of adaptogens and magnesium glycinate.",
     image: U("1499209974431-9dddcece7f88"),
     imageAlt: "Person meditating, mindful breathing",
     options: [
