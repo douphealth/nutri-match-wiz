@@ -24,6 +24,15 @@ export type SourceOrg =
   | "Cochrane"
   | "WHO";
 
+export type CitationSupports =
+  | "safety"
+  | "dose"
+  | "interaction"
+  | "deficiency"
+  | "product-quality"
+  | "population-fit"
+  | "efficacy";
+
 export interface Citation {
   /** Short label rendered in the UI, e.g. "NIH ODS — Vitamin D Fact Sheet". */
   label: string;
@@ -31,8 +40,10 @@ export interface Citation {
   org: SourceOrg;
   /** Direct URL to the primary source. */
   url: string;
-  /** Optional one-line context for what this citation supports. */
-  supports?: string;
+  /** ISO date (YYYY-MM-DD) this citation was last verified live and current. */
+  lastChecked: string;
+  /** What claim category this citation backs. */
+  supports?: CitationSupports;
 }
 
 export type EvidenceGrade = "Strong" | "Moderate" | "Limited" | "Situational";
