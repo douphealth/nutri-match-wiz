@@ -108,7 +108,8 @@ function buildSchema(t: TopicCopy, url: string) {
 }
 
 function TopicPage() {
-  const { topic: t } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData() as { topic: TopicCopy };
+  const t = loaderData.topic;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 md:py-14">
