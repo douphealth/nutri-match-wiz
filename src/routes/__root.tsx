@@ -71,6 +71,35 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const SITE_URL = "https://gearuptofit.com/supplement-match/";
+const OG_IMAGE =
+  "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png";
+
+const ORGANIZATION_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "GearUpToFit",
+  url: "https://gearuptofit.com",
+  logo: "https://gearuptofit.com/wp-content/uploads/2023/03/cropped-gearuptofit-logo.png",
+  sameAs: [
+    "https://www.facebook.com/gearuptofit",
+    "https://www.instagram.com/gearuptofit",
+    "https://twitter.com/gearuptofit",
+  ],
+};
+
+const WEBSITE_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "GearUpToFit",
+  url: "https://gearuptofit.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://gearuptofit.com/?s={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -84,36 +113,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "GearUpToFit" },
       { name: "theme-color", content: "#ffffff" },
-      { property: "og:site_name", content: "GearUpToFit Supplement Match" },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
+      { property: "og:site_name", content: "GearUpToFit" },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:locale", content: "en_US" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@gearuptofit" },
       { property: "og:title", content: "Supplement Match — GearUpToFit" },
       { name: "twitter:title", content: "Supplement Match — GearUpToFit" },
       {
-        name: "description",
-        content: "Personalized quiz app for evidence-based vitamin and supplement recommendations.",
-      },
-      {
         property: "og:description",
-        content: "Personalized quiz app for evidence-based vitamin and supplement recommendations.",
+        content:
+          "Free evidence-aware vitamin & supplement quiz. Personalized, safety-first plan with transparent scoring.",
       },
       {
         name: "twitter:description",
-        content: "Personalized quiz app for evidence-based vitamin and supplement recommendations.",
+        content:
+          "Free evidence-aware vitamin & supplement quiz. Personalized, safety-first plan with transparent scoring.",
+      },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
+    ],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      // Speed up cross-origin handoff to the WordPress host that proxies us.
+      { rel: "dns-prefetch", href: "https://gearuptofit.com" },
+      { rel: "preconnect", href: "https://gearuptofit.com", crossOrigin: "" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(ORGANIZATION_LD),
       },
       {
-        property: "og:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f8cd8b20-6f51-4804-95de-2201e387f8d4/id-preview-c31f9295--c0d2104a-7e3c-45a2-9f52-6ab2ec917c44.lovable.app-1779132406854.png",
+        type: "application/ld+json",
+        children: JSON.stringify(WEBSITE_LD),
       },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
