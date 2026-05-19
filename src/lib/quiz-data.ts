@@ -569,8 +569,8 @@ export const quizSteps: QuizStep[] = [
     title: "Monthly supplement budget",
     type: "single",
     tier: "essential",
-    image: U("1554224155-6726b3ff858f"),
-    imageAlt: "Minimal flatlay representing personal budget",
+    image: U("1579621970590-9d624316904b"),
+    imageAlt: "Coins with a growing plant — monthly budget concept",
     options: [
       { value: "low", label: "Lean (< $25)" },
       { value: "moderate", label: "Moderate ($25 – $75)" },
