@@ -170,57 +170,69 @@ export function runEngine(a: QuizAnswers): EngineResult {
   // ---- Iron (HIGH CAUTION) ----
   const fe = buckets["iron"];
   // Only nudge upward in well-defined risk; never recommend without lab guidance.
-  if (a.sex === "female" && (a.ageRange === "18_29" || a.ageRange === "30_44")) add(fe, 1, "Menstruating individuals are at higher risk of low iron.");
-  if (a.medical.anemiaHistory) add(fe, 2, "History of anemia raises the case for clinician-directed testing.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(fe, 1, "Plant-based diets require attention to iron — pair with vitamin C.");
+  if (a.sex === "female" && (a.ageRange === "18_29" || a.ageRange === "30_44")) addSignal(fe, 1.2, "Menstruating individuals are at higher risk of low iron.", "menstruating age range");
+  if (a.pregnancy !== "none") addSignal(fe, 1.2, "Preconception/pregnancy status increases the importance of clinician-guided iron assessment.", "pregnancy-related");
+  if (a.medical.anemiaHistory) addSignal(fe, 2.8, "History of anemia raises the case for clinician-directed testing.", "anemia history");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(fe, 1.0, "Plant-based diets require attention to iron — pair with vitamin C.", "plant-based");
+  if (freqLow(a.foodIntake.redMeat) && (a.diet === "omnivore" || a.diet === "pescatarian" || a.diet === "restricted")) addSignal(fe, 0.5, "Low red meat intake can lower heme-iron intake.", "low heme iron");
   flag(fe, "Do not start iron without lab testing (ferritin/CBC) and clinician guidance — excess iron can be harmful.");
 
   // ---- Calcium ----
   const ca = buckets["calcium"];
-  if (freqLow(a.foodIntake.dairy) && a.diet !== "vegan") add(ca, 1, "Low dairy intake may leave a calcium gap.");
-  if (a.diet === "vegan" && freqLow(a.foodIntake.fortifiedFoods)) add(ca, 2, "Vegan with low fortified-food intake — calcium gap is likely.");
-  if (a.goals.includes("bone_health")) add(ca, 1, "Bone-health goal — but food-first first.");
-  if (a.ageRange === "60_plus") add(ca, 1, "Older adults have higher calcium needs.");
+  if (freqLow(a.foodIntake.dairy) && a.diet !== "vegan") addSignal(ca, 0.8 + gapStrength(a.foodIntake.dairy) * 0.35, "Low dairy intake may leave a calcium gap.", "low dairy");
+  if (freqLow(a.foodIntake.fortifiedFoods)) addSignal(ca, 0.6, "Low fortified-food intake reduces calcium backup sources.", "low fortified foods");
+  if (a.diet === "vegan" && freqLow(a.foodIntake.fortifiedFoods)) addSignal(ca, 1.6, "Vegan with low fortified-food intake — calcium gap is likely.", "vegan calcium gap");
+  if (a.goals.includes("bone_health")) addSignal(ca, 1.4, "Bone-health goal — but food-first calcium still comes first.", "bone goal");
+  if (a.ageRange === "60_plus") addSignal(ca, 1.1, "Older adults have higher calcium needs.", "age 60+");
+  if (a.medical.thyroidMeds) flag(ca, "Separate calcium from thyroid medication by at least 4 hours unless your clinician says otherwise.");
 
   // ---- Prenatal ----
   const pn = buckets["prenatal"];
   if (a.pregnancy === "pregnant" || a.pregnancy === "breastfeeding" || a.pregnancy === "trying") {
-    add(pn, 5, "Pregnancy/breastfeeding/preconception — prenatal with folate is standard of care.");
+    addSignal(pn, 6.4, "Pregnancy/breastfeeding/preconception — prenatal with folate is standard of care.", "life-stage critical");
   } else {
     pn.suppressed = true;
   }
 
   // ---- Electrolytes ----
   const el = buckets["electrolytes"];
-  if (a.trainingFrequency === "5_plus") add(el, 2, "Frequent intense training — sweat losses can be significant.");
-  if (a.goals.includes("endurance")) add(el, 2, "Endurance goal — electrolytes during long sessions are useful.");
+  if (a.trainingFrequency === "3_4") addSignal(el, 0.8, "Regular training can create sweat-loss needs in heat or long sessions.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(el, 2.2, "Frequent intense training — sweat losses can be significant.", "high training");
+  if (a.goals.includes("endurance")) addSignal(el, 2.4, "Endurance goal — electrolytes during long sessions are useful.", "endurance goal");
+  if (freqHigh(a.alcohol)) addSignal(el, 0.4, "Frequent alcohol can worsen hydration quality.", "hydration modifier");
   if (a.medical.bloodPressureMeds) flag(el, "Blood pressure meds — be cautious with high-sodium electrolyte products.");
   if (a.medical.kidneyLiver) flag(el, "Kidney disease — potassium-containing products need clinician input.");
 
   // ---- Fiber ----
   const fi = buckets["fiber"];
-  if (freqLow(a.foodIntake.fruitsVeg)) add(fi, 2, "Low fruit/vegetable intake.");
-  if (freqLow(a.foodIntake.wholeGrains)) add(fi, 1, "Low whole-grain intake.");
-  if (freqLow(a.foodIntake.legumes)) add(fi, 1, "Low legume intake.");
-  if (a.goals.includes("weight_management")) add(fi, 1, "Fiber supports satiety and metabolic health.");
+  if (freqLow(a.foodIntake.fruitsVeg)) addSignal(fi, 1.3 + gapStrength(a.foodIntake.fruitsVeg) * 0.35, "Low fruit/vegetable intake is a strong fiber-gap signal.", "low produce");
+  if (freqLow(a.foodIntake.wholeGrains)) addSignal(fi, 0.9 + gapStrength(a.foodIntake.wholeGrains) * 0.2, "Low whole-grain intake reduces soluble and insoluble fiber.", "low whole grains");
+  if (freqLow(a.foodIntake.legumes)) addSignal(fi, 0.9 + gapStrength(a.foodIntake.legumes) * 0.2, "Low legume intake removes one of the highest-fiber food groups.", "low legumes");
+  if (a.goals.includes("weight_management")) addSignal(fi, 1.3, "Fiber supports satiety and metabolic health.", "satiety goal");
 
   // ---- Probiotic ----
   const pb = buckets["probiotic"];
-  if (a.goals.includes("immune") && freqLow(a.foodIntake.fruitsVeg)) add(pb, 1, "Low produce intake — but feed the microbiome with food first.");
+  if (a.goals.includes("immune") && freqLow(a.foodIntake.fruitsVeg)) addSignal(pb, 0.8, "Low produce intake — but feed the microbiome with food first.", "immune + low produce");
+  if (freqLow(a.foodIntake.legumes) && freqLow(a.foodIntake.wholeGrains) && freqLow(a.foodIntake.fruitsVeg)) addSignal(pb, 0.7, "Multiple low-plant-food signals suggest gut-support basics need attention.", "low plant diversity");
 
   // ---- Zinc ----
   const zn = buckets["zinc"];
-  if (a.goals.includes("immune")) add(zn, 1, "Short-term, modest-dose zinc has limited evidence for cold symptoms.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(zn, 1, "Plant-based diets can be lower in absorbable zinc.");
+  if (a.goals.includes("immune")) addSignal(zn, 1.1, "Short-term, modest-dose zinc has limited evidence for cold symptoms.", "immune goal");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(zn, 1.4, "Plant-based diets can be lower in absorbable zinc.", "plant-based");
+  if (freqLow(a.foodIntake.redMeat) && freqLow(a.foodIntake.legumes)) addSignal(zn, 0.7, "Low intake of both meat and legumes can reduce zinc coverage.", "low zinc foods");
+  if (currentSupplementMentions(a, ["zinc"])) flag(zn, "You mentioned current zinc use — avoid chronic stacking because high zinc can lower copper status.");
 
   // ---- Vitamin C ----
   const vc = buckets["vitamin_c"];
-  if (freqLow(a.foodIntake.fruitsVeg)) add(vc, 2, "Low produce intake — vitamin C may be a useful backup.");
-  if (a.goals.includes("immune")) add(vc, 1, "Modest vitamin C is a reasonable immune-support backup.");
+  if (freqLow(a.foodIntake.fruitsVeg)) addSignal(vc, 1.6 + gapStrength(a.foodIntake.fruitsVeg) * 0.35, "Low produce intake — vitamin C may be a useful backup.", "low produce");
+  if (a.goals.includes("immune")) addSignal(vc, 0.8, "Modest vitamin C is a reasonable immune-support backup.", "immune goal");
+  if (a.medical.kidneyLiver) flag(vc, "Kidney stone history or kidney disease — avoid high-dose vitamin C unless cleared.");
 
   // ---- Melatonin ----
   const mel = buckets["melatonin"];
-  if (a.goals.includes("sleep") && a.sleepQuality === "poor") add(mel, 2, "Short-term, low-dose melatonin can help circadian shifts.");
+  if (a.goals.includes("sleep") && a.sleepQuality === "poor") addSignal(mel, 2.6, "Short-term, low-dose melatonin can help circadian shifts.", "sleep goal + poor sleep");
+  if (a.goals.includes("sleep") && a.sleepQuality === "fair") addSignal(mel, 0.9, "Low-dose melatonin may help timing issues, but sleep hygiene comes first.", "sleep timing");
+  if (freqHigh(a.caffeine) && a.sleepQuality !== "good") add(mel, -0.6, "");
   if (a.pregnancy !== "none" || a.ageRange === "under_18") {
     mel.suppressed = true;
   }
