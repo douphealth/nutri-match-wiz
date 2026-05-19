@@ -148,6 +148,10 @@ function ResultPage() {
     (sum, rec) => sum + productsFor(rec.supplement.id).length,
     0,
   );
+  const clinicianGuidance = [
+    ...(safetyGate.triggered ? safetyGate.reasons : []),
+    ...(clinicianCallouts ?? []),
+  ].filter((item, index, list) => item && list.indexOf(item) === index);
 
   return (
     <div className="relative isolate">
@@ -271,8 +275,8 @@ function ResultPage() {
           </section>
         )}
 
-        {/* Safety gate */}
-        {safetyGate.triggered && (
+        {/* Safety gate + clinician callouts */}
+        {clinicianGuidance.length > 0 && (
           <Card className="mb-8 border-destructive/40 bg-destructive/5">
             <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
               <ShieldAlert className="h-5 w-5 text-destructive" />
@@ -282,27 +286,8 @@ function ResultPage() {
             </CardHeader>
             <CardContent>
               <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                {safetyGate.reasons.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Clinician callouts (test-first, clinician-only items) */}
-        {clinicianCallouts && clinicianCallouts.length > 0 && (
-          <Card className="mb-8 border-amber-500/40 bg-amber-500/5">
-            <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
-              <AlertTriangle className="h-5 w-5 text-amber-400" />
-              <CardTitle className="text-base">
-                Ask your clinician or pharmacist about these
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                {clinicianCallouts.map((c) => (
-                  <li key={c}>{c}</li>
+                {clinicianGuidance.map((item) => (
+                  <li key={item}>{item}</li>
                 ))}
               </ul>
             </CardContent>
