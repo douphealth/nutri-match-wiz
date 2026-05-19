@@ -345,7 +345,19 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       why: "Short-term modest-dose use only — stay near the daily upper limit and avoid chronic stacking.",
       badges: ["USP Verified", "30 mg"],
     },
+    {
+      asin: "B000TMJZ4G",
+      image: "https://m.media-amazon.com/images/I/71ePjydyb8L._AC_SL1500_.jpg",
+      brand: "NOW Foods",
+      title: "Zinc Picolinate 50 mg (120 Veg Caps)",
+      pill: "Zinc Picolinate",
+      tone: "amber",
+      fit: "premium",
+      why: "Picolinate form is well-absorbed and vegan-cap — use short-term only; avoid stacking with multivitamins.",
+      badges: ["Picolinate", "Vegan caps"],
+    },
   ],
+
   vitamin_c: [
     {
       asin: "B0G7JF2861",
