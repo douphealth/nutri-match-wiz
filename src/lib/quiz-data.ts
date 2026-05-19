@@ -197,8 +197,8 @@ export const quizSteps: QuizStep[] = [
     type: "single",
     tier: "essential",
     why: "Low sun + indoor lifestyle is the strongest driver of vitamin D deficiency risk.",
-    image: U("1506905925346-21bda4d32df4"),
-    imageAlt: "Warm sunlight over an outdoor landscape",
+    image: U("1507525428034-b723cf961d3e"),
+    imageAlt: "Bright sunlight on a sunny beach — daily UV exposure",
     options: [
       { value: "low", label: "Low (mostly indoors)" },
       { value: "moderate", label: "Moderate" },
