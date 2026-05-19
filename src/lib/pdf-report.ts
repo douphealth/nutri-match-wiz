@@ -1034,6 +1034,13 @@ export async function generateSupplementReport(result: EngineResult): Promise<js
   // Executive summary
   drawExecSummary(doc, result);
 
+  // Daily protocol
+  const answers: QuizAnswers = result.answers ?? DEFAULT_ANSWERS;
+  const schedule = buildDailySchedule(result.recommendations, answers);
+  if (schedule.totalDoses > 0) {
+    drawDailyProtocol(doc, schedule);
+  }
+
   // Stack divider page
   doc.addPage();
   paintBackground(doc);
