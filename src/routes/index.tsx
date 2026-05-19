@@ -8,9 +8,7 @@ import QuizStepContent from "@/components/quiz/QuizStepContent";
 import QuizNavigation from "@/components/quiz/QuizNavigation";
 import AnalyzingScreen from "@/components/quiz/AnalyzingScreen";
 import {
-  quizSteps,
   defaultAnswers,
-  answeredCount,
   isStepAnswered,
   generateSlug,
   visibleSteps,
