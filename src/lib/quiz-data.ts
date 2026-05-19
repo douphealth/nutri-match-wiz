@@ -595,7 +595,11 @@ export function setByPath(obj: QuizAnswers, path: AnswerPath, value: unknown): Q
   const next: QuizAnswers = JSON.parse(JSON.stringify(obj));
   let cur: Record<string, unknown> = next as unknown as Record<string, unknown>;
   for (let i = 0; i < keys.length - 1; i++) {
-    cur = cur[keys[i]] as Record<string, unknown>;
+    const k = keys[i];
+    if (cur[k] == null || typeof cur[k] !== "object") {
+      cur[k] = {};
+    }
+    cur = cur[k] as Record<string, unknown>;
   }
   cur[keys[keys.length - 1]] = value;
   return next;
