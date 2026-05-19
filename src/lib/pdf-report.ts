@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import type { EngineResult, Recommendation, QuizAnswers } from "@/types/supplements";
 import { productFor, amazonLink, type AmazonProduct } from "./supplement-products";
 import { buildDailySchedule, type DailySchedule } from "./daily-schedule";
-import { DEFAULT_ANSWERS } from "./supplementEngine";
+import { DEFAULT_ANSWERS } from "./engine";
 
 /* =========================================================================
  * Nutri Match AI — Personal Supplement Livebook (PDF)

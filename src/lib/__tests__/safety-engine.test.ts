@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runEngine, DEFAULT_ANSWERS } from "@/lib/supplementEngine";
+import { runEngine, DEFAULT_ANSWERS } from "@/lib/engine";
 import type { QuizAnswers } from "@/types/supplements";
 
 function answers(patch: Partial<QuizAnswers> = {}): QuizAnswers {
