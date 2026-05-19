@@ -110,46 +110,62 @@ export function runEngine(a: QuizAnswers): EngineResult {
 
   // ---- B12 ----
   const b12 = buckets["b12"];
-  if (a.diet === "vegan") add(b12, 4, "Vegan diets reliably require B12 from supplements or fortified foods.");
-  if (a.diet === "vegetarian") add(b12, 2, "Vegetarian diets often run low on B12 over time.");
-  if (a.ageRange === "60_plus") add(b12, 2, "Absorption of B12 declines with age.");
-  if (a.medical.medications) add(b12, 1, "Some common meds (metformin, acid-reducers) reduce B12 absorption.");
-  if (a.medical.anemiaHistory) add(b12, 1, "History of anemia — discuss B12/iron testing with your clinician.");
+  if (a.diet === "vegan") addSignal(b12, 5.2, "Vegan diets reliably require B12 from supplements or fortified foods.", "vegan B12-critical");
+  if (a.diet === "vegetarian") addSignal(b12, 3.1, "Vegetarian diets often run low on B12 over time.", "vegetarian");
+  if (a.diet === "pescatarian" && freqLow(a.foodIntake.dairy)) addSignal(b12, 1.1, "Pescatarian pattern with low dairy can reduce dependable B12 intake.", "low dairy pescatarian");
+  if (a.ageRange === "60_plus") addSignal(b12, 2.4, "B12 absorption declines with age, especially after 60.", "age 60+");
+  if (a.ageRange === "45_59") addSignal(b12, 0.7, "Midlife adults can benefit from checking B12 if energy or nerve symptoms appear.", "midlife");
+  if (a.medical.medications || a.medical.diabetesMeds) addSignal(b12, 1.5, "Some common medications, especially metformin/acid reducers, can reduce B12 absorption.", "medication modifier");
+  if (a.medical.anemiaHistory) addSignal(b12, 1.8, "History of anemia — discuss B12/iron testing with your clinician.", "anemia history");
+  if (currentSupplementMentions(a, ["b12", "b-12", "methylcobalamin", "cyanocobalamin"])) add(b12, -1.0, "");
 
   // ---- Omega-3 ----
   const o3 = buckets["omega3"];
-  if (freqLow(a.foodIntake.oilyFish)) add(o3, 3, "You rarely eat oily fish.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(o3, 1, "Plant-based eaters benefit from algal EPA/DHA.");
+  if (freqLow(a.foodIntake.oilyFish)) addSignal(o3, 2.2 + gapStrength(a.foodIntake.oilyFish) * 0.55, "You rarely eat oily fish, so EPA/DHA intake is likely below target.", "low oily fish");
+  else if (a.foodIntake.oilyFish === "weekly") addSignal(o3, 1.0, "Weekly oily fish helps, but may not consistently reach the 2-serving target.", "partial oily fish");
+  else add(o3, -1.8, "");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(o3, 1.4, "Plant-based eaters benefit from algal EPA/DHA if fish is absent.", "plant-based omega");
   if (a.goals.includes("focus") || a.goals.includes("general_wellness") || a.goals.includes("muscle_recovery"))
-    add(o3, 1, "Omega-3s support cognition, mood, and recovery.");
+    addSignal(o3, 0.9, "Omega-3s support cognition, mood, and recovery.", "goal aligned");
   if (a.medical.bloodThinners) flag(o3, "Discuss fish oil with your clinician — higher doses may increase bleeding risk on blood thinners.");
+  if (currentSupplementMentions(a, ["omega", "fish oil", "epa", "dha"])) add(o3, -1.0, "");
 
   // ---- Magnesium ----
   const mg = buckets["magnesium"];
-  if (a.sleepQuality === "poor") add(mg, 2, "Poor sleep may improve with evening magnesium glycinate.");
-  else if (a.sleepQuality === "fair") add(mg, 1, "Fair sleep — magnesium may help.");
-  if (a.stress === "high") add(mg, 1, "High stress can deplete magnesium status.");
-  if (a.trainingFrequency === "3_4" || a.trainingFrequency === "5_plus") add(mg, 1, "Frequent training increases magnesium turnover.");
-  if (freqLow(a.foodIntake.legumes) && freqLow(a.foodIntake.wholeGrains)) add(mg, 1, "Low intake of legumes/whole grains suggests dietary shortfall.");
+  if (a.sleepQuality === "poor") addSignal(mg, 2.5, "Poor sleep may improve with evening magnesium glycinate when intake is low.", "poor sleep");
+  else if (a.sleepQuality === "fair") addSignal(mg, 1.2, "Fair sleep — magnesium may help if dietary intake is short.", "fair sleep");
+  if (a.stress === "high") addSignal(mg, 1.3, "High stress can increase magnesium turnover.", "high stress");
+  else if (a.stress === "moderate") addSignal(mg, 0.4, "Moderate stress adds a small magnesium-demand signal.", "moderate stress");
+  if (a.trainingFrequency === "3_4") addSignal(mg, 0.9, "Regular training increases magnesium turnover.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(mg, 1.3, "Frequent training increases magnesium turnover.", "high training");
+  if (freqLow(a.foodIntake.legumes)) addSignal(mg, 0.45, "Low legume intake reduces a major magnesium food source.", "low legumes");
+  if (freqLow(a.foodIntake.wholeGrains)) addSignal(mg, 0.45, "Low whole-grain intake reduces a major magnesium food source.", "low whole grains");
   if (a.medical.kidneyLiver) flag(mg, "Kidney disease — magnesium dosing needs clinician oversight.");
+  if (currentSupplementMentions(a, ["magnesium", "glycinate", "citrate"])) add(mg, -0.8, "");
 
   // ---- Creatine ----
   const cr = buckets["creatine"];
-  if (a.trainingFrequency === "3_4") add(cr, 2, "Regular resistance/intense training benefits from creatine.");
-  if (a.trainingFrequency === "5_plus") add(cr, 3, "Frequent training — creatine is one of the most evidence-backed aids.");
-  if (a.goals.includes("muscle_recovery")) add(cr, 2, "Goal: muscle recovery aligns with creatine evidence.");
-  if (a.goals.includes("endurance")) add(cr, 1, "Creatine can support high-intensity efforts within endurance work.");
-  if (a.goals.includes("focus")) add(cr, 1, "Emerging evidence for creatine and cognitive performance.");
-  if (a.ageRange === "60_plus") add(cr, 1, "Creatine + resistance training supports lean mass in older adults.");
+  if (a.trainingFrequency === "1_2" && a.goals.includes("muscle_recovery")) addSignal(cr, 1.1, "Light-to-moderate training plus recovery goals can still benefit from creatine consistency.", "recovery training");
+  if (a.trainingFrequency === "3_4") addSignal(cr, 2.6, "Regular resistance/intense training benefits from creatine.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(cr, 3.7, "Frequent training — creatine is one of the most evidence-backed aids.", "high training");
+  if (a.goals.includes("muscle_recovery")) addSignal(cr, 2.8, "Goal: muscle recovery strongly aligns with creatine evidence.", "recovery goal");
+  if (a.goals.includes("endurance")) addSignal(cr, 0.9, "Creatine can support high-intensity efforts within endurance work.", "endurance goal");
+  if (a.goals.includes("focus")) addSignal(cr, 0.8, "Emerging evidence supports creatine for cognitive performance under stress or sleep pressure.", "focus goal");
+  if (a.ageRange === "60_plus") addSignal(cr, 1.3, "Creatine plus resistance training supports lean mass in older adults.", "age 60+");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(cr, 1.0, "Plant-based diets contain little dietary creatine.", "plant-based");
   if (a.medical.kidneyLiver) flag(cr, "Kidney disease — discuss creatine with your clinician.");
+  if (currentSupplementMentions(a, ["creatine", "monohydrate"])) add(cr, -1.2, "");
 
   // ---- Protein ----
   const pr = buckets["protein"];
-  if (a.trainingFrequency === "3_4" || a.trainingFrequency === "5_plus") add(pr, 2, "Higher training load increases protein needs.");
-  if (a.goals.includes("muscle_recovery")) add(pr, 2, "Recovery goal aligns with adequate daily protein.");
-  if (a.goals.includes("weight_management")) add(pr, 1, "Protein supports satiety in a calorie-aware approach.");
-  if (a.diet === "vegan" || a.diet === "vegetarian") add(pr, 1, "Plant-based eaters may find a tested protein powder useful to top up.");
-  if (a.diet === "calorie_deficit") add(pr, 1, "In a deficit, protein protects lean mass.");
+  if (a.trainingFrequency === "1_2") addSignal(pr, 0.8, "Training 1–2×/week modestly increases protein needs.", "light training");
+  if (a.trainingFrequency === "3_4") addSignal(pr, 1.8, "Higher training load increases protein needs.", "regular training");
+  if (a.trainingFrequency === "5_plus") addSignal(pr, 2.4, "High training load increases protein needs.", "high training");
+  if (a.goals.includes("muscle_recovery")) addSignal(pr, 2.4, "Recovery goal aligns with adequate daily protein.", "recovery goal");
+  if (a.goals.includes("weight_management")) addSignal(pr, 1.4, "Protein supports satiety in a calorie-aware approach.", "satiety goal");
+  if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(pr, 1.1, "Plant-based eaters may find a tested protein powder useful to top up.", "plant-based");
+  if (a.diet === "calorie_deficit") addSignal(pr, 1.6, "In a deficit, protein protects lean mass.", "calorie deficit");
+  if (a.allergies.lactoseFree) flag(pr, "Choose lactose-free whey isolate or a third-party-tested plant protein.");
 
   // ---- Iron (HIGH CAUTION) ----
   const fe = buckets["iron"];
