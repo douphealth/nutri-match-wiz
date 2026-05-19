@@ -51,7 +51,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import EmailGate, { hasSubscribed } from "@/components/EmailGate";
 
-function PdfDownloadButton({ result, answers }: { result: EngineResult; answers: QuizAnswers }) {
+function PdfDownloadButton({ result, answers, slug }: { result: EngineResult; answers: QuizAnswers; slug: string }) {
   const [loading, setLoading] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
 
@@ -61,7 +61,11 @@ function PdfDownloadButton({ result, answers }: { result: EngineResult; answers:
   const topBrand = topProduct?.brand;
   const primaryGoal = Array.isArray(answers?.goals) ? answers.goals[0] : undefined;
   const archetype = (result as unknown as { wellnessArchetype?: string }).wellnessArchetype;
-  const reportURL = typeof window !== "undefined" ? window.location.href : undefined;
+  // Include sanitized answers in the URL so the recipient (often opening on a
+  // different device/browser where sessionStorage is empty) can still rebuild
+  // the result page from the `?d=` payload.
+  const reportURL =
+    typeof window !== "undefined" && answers ? buildShareUrl(slug, answers) : undefined;
 
   const runDownload = async () => {
     setLoading(true);
@@ -449,7 +453,7 @@ function ResultPage({
             </div>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <PdfDownloadButton result={data.result} answers={data.answers} />
+            <PdfDownloadButton result={data.result} answers={data.answers} slug={data.slug} />
             <ShareLinkButton slug={data.slug} answers={data.answers} />
             <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               Livebook · Product images · Print-ready

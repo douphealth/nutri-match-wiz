@@ -132,48 +132,201 @@ function welcomeHTML(input: BrevoSubscribeInput) {
   const archetype = input.archetype ?? "personalized";
   const url = normalizeReportURL(input.reportURL);
   const subject = `${name}, your SupplementMatch playbook is ready`;
+  const preheader = `Your personal playbook is live — ${top}${brand ? ` (${brand})` : ""}, dosing, timing, and what to verify on every bottle.`;
   const text = `Hi ${name},
 
 Your SupplementMatch playbook is ready.
 
-Top recommendation: ${top}${brand ? ` (${brand})` : ""}
+— TOP RECOMMENDATION —
+${top}${brand ? ` (${brand})` : ""}
+
 Wellness archetype: ${archetype}
 Primary goal: ${goal}
 
-Open your playbook: ${url}
+Open your playbook:
+${url}
 
-Three things to check before you buy anything: third-party testing, dose vs studied dose, and whether it interacts with anything you already take.
+Before you buy anything, check three things:
+  1. Third-party testing (USP, NSF, Informed Sport)
+  2. Dose vs. the dose actually studied in the research
+  3. Interactions with anything you already take
 
-Reply if you want me to sanity-check a brand before you buy.
+Reply to this email with two brands you're torn between
+and I'll tell you which one I'd buy and why.
 
 Alex
-GearUpToFit`;
-  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHTML(subject)}</title></head>
-<body style="margin:0;background:#f5f6f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#17191f;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f6f8;padding:28px 14px;"><tr><td align="center">
-<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#fff;border:1px solid #e6e8ee;border-radius:18px;overflow:hidden;box-shadow:0 18px 60px rgba(17,24,39,.08);">
-<tr><td style="background:#11131a;padding:28px 30px 24px;">
-<div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#ff4f75;font-weight:800;">GearUpToFit · SupplementMatch AI</div>
-<h1 style="margin:14px 0 10px;font-size:30px;line-height:1.12;color:#fff;font-weight:800;letter-spacing:-.02em;">Hi ${escapeHTML(name)} — your playbook is ready.</h1>
-<p style="margin:0;color:#c9cbd3;font-size:16px;line-height:1.6;">Built around your goals, biology, and meds — not the loudest label on the shelf.</p>
-</td></tr>
-<tr><td style="padding:26px 30px 10px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eceef3;border-radius:14px;overflow:hidden;">
-<tr><td style="padding:18px 20px;background:#fbfbfd;">
-<div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6b7280;font-weight:800;margin-bottom:7px;">Your top recommendation</div>
-<div style="font-size:24px;line-height:1.2;font-weight:800;color:#161821;">${escapeHTML(top)}${brand ? ` <span style="font-weight:500;color:#6b7280;">· ${escapeHTML(brand)}</span>` : ""}</div>
-</td></tr>
-<tr><td style="padding:15px 20px;background:#fff;border-top:1px solid #eceef3;color:#4b5563;font-size:14px;line-height:1.65;">
-<strong style="color:#161821;">Archetype:</strong> ${escapeHTML(archetype)} &nbsp;·&nbsp; <strong style="color:#161821;">Primary goal:</strong> ${escapeHTML(goal)}
-</td></tr></table></td></tr>
-<tr><td align="center" style="padding:22px 30px 10px;">
-<a href="${escapeHTML(url)}" style="display:inline-block;background:#ff3b6b;color:#fff;text-decoration:none;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:15px 26px;border-radius:10px;font-size:14px;box-shadow:0 12px 30px rgba(255,59,107,.22);">Open my playbook</a>
-<div style="margin-top:12px;color:#777d8a;font-size:12px;">Or copy: <a href="${escapeHTML(url)}" style="color:#ff3b6b;">${escapeHTML(url)}</a></div>
-</td></tr>
-<tr><td style="padding:18px 30px 28px;color:#525866;font-size:15px;line-height:1.7;">
-<p style="margin:0 0 12px;">Reply with two brands you're torn between and I'll tell you which one I'd buy and why.</p>
-<p style="margin:0;color:#17191f;font-weight:700;">Alex<br><span style="font-weight:500;color:#6b7280;">GearUpToFit</span></p>
-</td></tr></table></td></tr></table></body></html>`;
+GearUpToFit · SupplementMatch AI
+https://gearuptofit.com`;
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>${escapeHTML(subject)}</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  @media (max-width:620px){
+    .container{width:100%!important;border-radius:0!important;}
+    .px{padding-left:22px!important;padding-right:22px!important;}
+    .hero-title{font-size:26px!important;line-height:1.18!important;}
+    .score{font-size:48px!important;}
+    .cta-btn{display:block!important;width:100%!important;box-sizing:border-box;text-align:center!important;}
+    .stack-col{display:block!important;width:100%!important;}
+    .stack-col + .stack-col{margin-top:10px;}
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#eef0f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f1117;-webkit-font-smoothing:antialiased;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;opacity:0;color:transparent;height:0;width:0;">${escapeHTML(preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f5;padding:32px 12px;">
+  <tr><td align="center">
+    <table role="presentation" class="container" width="620" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:620px;background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #e3e6ee;box-shadow:0 24px 60px rgba(17,24,39,0.10);">
+
+      <!-- Brand bar -->
+      <tr><td class="px" style="padding:24px 36px 0;background:#0b0d14;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="left" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+              <span style="display:inline-block;background:#ff3b6b;color:#fff;font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;padding:6px 10px;border-radius:6px;">GearUpToFit</span>
+              <span style="display:inline-block;margin-left:10px;font-size:11px;color:#9aa0b4;letter-spacing:.22em;text-transform:uppercase;font-weight:700;">SupplementMatch AI</span>
+            </td>
+            <td align="right" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;color:#6b7180;letter-spacing:.14em;text-transform:uppercase;font-weight:700;">
+              Playbook · v1
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <!-- Hero -->
+      <tr><td class="px" style="padding:30px 36px 26px;background:#0b0d14;">
+        <h1 class="hero-title" style="margin:0 0 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:32px;line-height:1.14;color:#ffffff;font-weight:800;letter-spacing:-0.02em;">
+          ${escapeHTML(name)}, your playbook is ready.
+        </h1>
+        <p style="margin:0;color:#c4c8d4;font-size:15px;line-height:1.65;max-width:520px;">
+          Built around your goals, biology, and meds — not the loudest label on the shelf. Ranking happens before any affiliate link is attached.
+        </p>
+      </td></tr>
+
+      <!-- Spotlight card -->
+      <tr><td class="px" style="padding:28px 36px 6px;background:#ffffff;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6e8f0;border-radius:14px;overflow:hidden;background:#fbfbfd;">
+          <tr><td style="padding:18px 22px 6px;">
+            <div style="font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#ff3b6b;font-weight:800;">Your top recommendation</div>
+          </td></tr>
+          <tr><td style="padding:0 22px 18px;">
+            <div style="font-size:22px;line-height:1.22;font-weight:800;color:#0f1117;letter-spacing:-0.01em;">
+              ${escapeHTML(top)}${brand ? `<span style="font-weight:500;color:#6b7180;"> · ${escapeHTML(brand)}</span>` : ""}
+            </div>
+          </td></tr>
+          <tr><td style="padding:0 22px 18px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td class="stack-col" valign="top" style="width:50%;padding-right:8px;">
+                  <div style="border:1px solid #ececf3;border-radius:10px;padding:12px 14px;background:#ffffff;">
+                    <div style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#6b7180;margin-bottom:4px;">Archetype</div>
+                    <div style="font-size:14px;font-weight:700;color:#0f1117;">${escapeHTML(archetype)}</div>
+                  </div>
+                </td>
+                <td class="stack-col" valign="top" style="width:50%;padding-left:8px;">
+                  <div style="border:1px solid #ececf3;border-radius:10px;padding:12px 14px;background:#ffffff;">
+                    <div style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#6b7180;margin-bottom:4px;">Primary goal</div>
+                    <div style="font-size:14px;font-weight:700;color:#0f1117;">${escapeHTML(goal)}</div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- CTA -->
+      <tr><td class="px" align="center" style="padding:22px 36px 8px;background:#ffffff;">
+        <!--[if mso]>
+        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeHTML(url)}" style="height:50px;v-text-anchor:middle;width:300px;" arcsize="20%" fillcolor="#ff3b6b" stroke="f">
+          <w:anchorlock/>
+          <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:bold;letter-spacing:1px;">OPEN MY PLAYBOOK →</center>
+        </v:roundrect>
+        <![endif]-->
+        <!--[if !mso]><!-- -->
+        <a href="${escapeHTML(url)}" class="cta-btn" style="display:inline-block;background:#ff3b6b;background-image:linear-gradient(135deg,#ff3b6b 0%,#ff6b8a 100%);color:#ffffff;text-decoration:none;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:16px 30px;border-radius:10px;font-size:13.5px;box-shadow:0 14px 32px rgba(255,59,107,.32);">
+          Open my playbook →
+        </a>
+        <!--<![endif]-->
+      </td></tr>
+      <tr><td class="px" align="center" style="padding:8px 36px 24px;background:#ffffff;">
+        <div style="font-size:11.5px;color:#8b91a3;line-height:1.55;">Or copy this link into your browser:</div>
+        <div style="margin-top:4px;font-size:11.5px;word-break:break-all;"><a href="${escapeHTML(url)}" style="color:#ff3b6b;text-decoration:none;">${escapeHTML(url)}</a></div>
+      </td></tr>
+
+      <!-- Divider -->
+      <tr><td class="px" style="padding:0 36px;background:#ffffff;"><div style="border-top:1px solid #ececf3;"></div></td></tr>
+
+      <!-- Three things to check -->
+      <tr><td class="px" style="padding:24px 36px 8px;background:#ffffff;">
+        <div style="font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#0f1117;font-weight:800;">Before you buy anything</div>
+        <div style="font-size:15px;color:#373b48;line-height:1.7;margin-top:10px;">Three checks that catch most label tricks:</div>
+      </td></tr>
+      <tr><td class="px" style="padding:6px 36px 4px;background:#ffffff;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${[
+            ["1", "Third-party tested", "USP, NSF, or Informed Sport on the bottle — not just on the website."],
+            ["2", "Dose matches the studies", "Marketing doses are often a fraction of what was tested. Check the supplement facts panel."],
+            ["3", "No conflicts with what you take", "Cross-check meds, blood thinners, and thyroid/heart treatments before adding anything new."],
+          ]
+            .map(
+              ([n, h, b]) => `<tr><td style="padding:8px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td valign="top" style="width:34px;">
+                  <div style="width:26px;height:26px;border-radius:8px;background:#0f1117;color:#fff;text-align:center;line-height:26px;font-weight:800;font-size:12px;">${n}</div>
+                </td>
+                <td valign="top" style="padding-left:4px;">
+                  <div style="font-size:14px;font-weight:700;color:#0f1117;">${h}</div>
+                  <div style="font-size:13px;color:#6b7180;line-height:1.55;margin-top:2px;">${b}</div>
+                </td>
+              </tr>
+            </table>
+          </td></tr>`,
+            )
+            .join("")}
+        </table>
+      </td></tr>
+
+      <!-- Sign-off -->
+      <tr><td class="px" style="padding:22px 36px 6px;background:#ffffff;">
+        <div style="border-top:1px solid #ececf3;padding-top:18px;font-size:14.5px;color:#373b48;line-height:1.7;">
+          Reply with two brands you're torn between and I'll tell you which one I'd buy and why.
+        </div>
+      </td></tr>
+      <tr><td class="px" style="padding:6px 36px 28px;background:#ffffff;">
+        <div style="font-size:15px;color:#0f1117;font-weight:800;margin-top:8px;">Alex</div>
+        <div style="font-size:12.5px;color:#6b7180;font-weight:500;">GearUpToFit · SupplementMatch AI</div>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:18px 36px 22px;background:#f5f6fa;border-top:1px solid #ececf3;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="font-size:11px;color:#7b8194;line-height:1.6;">
+              Educational only — not medical advice. Talk with a qualified clinician before starting any supplement, especially if you're pregnant, breastfeeding, under 18, on medication, or managing a condition.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:12px;font-size:11px;color:#9aa0b4;line-height:1.6;">
+              © ${new Date().getFullYear()} GearUpToFit · <a href="https://gearuptofit.com" style="color:#6b7180;text-decoration:underline;">gearuptofit.com</a> · <a href="https://gearuptofit.com/privacy-policy/" style="color:#6b7180;text-decoration:underline;">Privacy</a>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
   return { subject, html, text };
 }
 
