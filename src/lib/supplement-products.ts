@@ -201,7 +201,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   iron: [
     {
       asin: "B00ZQUDWL8",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/61nCiGPnwhL._AC_SL1200_.jpg",
       brand: "Slow Fe",
       title: "Slow Release Iron 45 mg (60 ct)",
       pill: "Iron 45 mg",
@@ -214,7 +214,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   calcium: [
     {
       asin: "B07RCJY6WD",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/71Cmid1Q7UL._AC_SL1500_.jpg",
       brand: "Citracal",
       title: "Petites Calcium Citrate + D3 (375 ct)",
       pill: "Calcium + D3",
@@ -227,7 +227,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
   prenatal: [
     {
       asin: "B01E4BE5U6",
-      image: "",
+      image: "https://m.media-amazon.com/images/I/61Q3S6Hwb4L._AC_SL1500_.jpg",
       brand: "One A Day",
       title: "Women's Prenatal — Folic Acid + Iron + DHA (90 ct)",
       pill: "Prenatal + DHA",
