@@ -6,6 +6,7 @@ import QuizHero from "@/components/quiz/QuizHero";
 import QuizProgress from "@/components/quiz/QuizProgress";
 import QuizStepContent from "@/components/quiz/QuizStepContent";
 import QuizNavigation from "@/components/quiz/QuizNavigation";
+import AnalyzingScreen from "@/components/quiz/AnalyzingScreen";
 import {
   quizSteps,
   defaultAnswers,
