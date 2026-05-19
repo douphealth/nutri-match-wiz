@@ -289,9 +289,34 @@ export function runEngine(a: QuizAnswers): EngineResult {
   }
   if (a.medical.bloodThinners) {
     generalNotes.push("Be cautious with high-dose fish oil, vitamin E, ginkgo, garlic, and ginger — bleeding-risk concerns.");
+    // Push omega-3 to clinician-only when on blood thinners.
+    if (!buckets["omega3"].suppressed) {
+      buckets["omega3"].forcedStatus = "clinician_only";
+      buckets["omega3"].forcedStatusReason = "Set fish-oil dose with your clinician — higher doses can increase bleeding risk on blood thinners.";
+    }
   }
   if (a.medical.surgeryPlanned) {
     generalNotes.push("Many supplements should be paused 1–2 weeks before surgery — confirm with your surgical team.");
+  }
+  if (a.medical.kidneyLiver) {
+    if (!buckets["creatine"].suppressed) {
+      buckets["creatine"].forcedStatus = "clinician_only";
+      buckets["creatine"].forcedStatusReason = "Kidney or liver concerns — clear creatine with your clinician before starting.";
+    }
+    if (!buckets["magnesium"].suppressed) {
+      buckets["magnesium"].forcedStatus = "clinician_only";
+      buckets["magnesium"].forcedStatusReason = "Severe kidney disease changes magnesium dosing — clinician input required.";
+    }
+  }
+  // Under-18: suppress all adult-targeted supplements; route to pediatric clinician.
+  if (a.ageRange === "under_18") {
+    for (const s of SUPPLEMENTS) {
+      const b = buckets[s.id];
+      if (b.suppressed) continue;
+      b.suppressed = true;
+      b.suppressionStatus = "clinician_only";
+      b.suppressionReason = "Under-18 supplement decisions should be directed by a pediatric clinician, not self-started.";
+    }
   }
 
   // ---- Food-first notes ----
