@@ -213,6 +213,9 @@ function header(doc: jsPDF, eyebrow: string) {
 }
 
 function footer(doc: jsPDF, page: number, total: number) {
+  setStroke(doc, COL.borderSoft);
+  doc.setLineWidth(0.4);
+  doc.line(M, PAGE_H - 34, PAGE_W - M, PAGE_H - 34);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
