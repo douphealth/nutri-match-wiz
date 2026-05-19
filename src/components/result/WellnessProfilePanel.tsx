@@ -519,12 +519,11 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
       role="img"
       aria-label="Six-axis wellness radar"
     >
-
       <defs>
         {/* Frosted polygon fill */}
         <radialGradient id="radarFill" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="var(--primary-glow)" stopOpacity={0.55} />
-          <stop offset="55%" stopColor="var(--primary)" stopOpacity={0.4} />
+          <stop offset="0%" stopColor="var(--primary-glow)" stopOpacity={0.6} />
+          <stop offset="55%" stopColor="var(--primary)" stopOpacity={0.42} />
           <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.08} />
         </radialGradient>
         {/* Stroke gradient */}
@@ -534,14 +533,14 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
         </linearGradient>
         {/* Ring sheen */}
         <radialGradient id="ringSheen" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="hsl(var(--primary) / 0.12)" />
-          <stop offset="100%" stopColor="transparent" />
+          <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.14} />
+          <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
         </radialGradient>
         {/* Spoke gradient */}
         <linearGradient id="spokeGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--border) / 0.05)" />
-          <stop offset="50%" stopColor="hsl(var(--border) / 0.55)" />
-          <stop offset="100%" stopColor="hsl(var(--border) / 0.05)" />
+          <stop offset="0%" stopColor="var(--border)" stopOpacity={0.1} />
+          <stop offset="50%" stopColor="var(--border)" stopOpacity={0.7} />
+          <stop offset="100%" stopColor="var(--border)" stopOpacity={0.1} />
         </linearGradient>
         {/* Soft glow */}
         <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -569,7 +568,8 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
           key={idx}
           d={ringPath(R * t)}
           fill="none"
-          stroke="hsl(var(--border) / 0.55)"
+          stroke="var(--border)"
+          strokeOpacity={idx === rings.length - 1 ? 0.85 : 0.5}
           strokeWidth={idx === rings.length - 1 ? 1.25 : 0.75}
           strokeDasharray={idx === rings.length - 1 ? "0" : "2 5"}
         />
@@ -579,13 +579,13 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
       {rings.map((t, idx) => (
         <text
           key={`s-${idx}`}
-          x={cx + 4}
+          x={cx + 5}
           y={cy - R * t + 3}
-          fontSize={8.5}
-          fill="hsl(var(--muted-foreground))"
+          fontSize={9}
+          fill="var(--muted-foreground)"
           fontWeight={600}
           letterSpacing={0.4}
-          opacity={0.7}
+          opacity={0.75}
         >
           {Math.round(t * 100)}
         </text>
@@ -625,7 +625,7 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
         d={dataPath}
         fill="none"
         stroke="var(--primary)"
-        strokeOpacity={0.9}
+        strokeOpacity={0.95}
         strokeWidth={1.5}
         strokeLinejoin="round"
       />
@@ -644,6 +644,19 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
               : a.value >= 40
                 ? "rgb(251 191 36)"
                 : "rgb(251 113 133)";
+        const anchor: "start" | "middle" | "end" =
+          Math.abs(outer.x - cx) < 4 ? "middle" : outer.x > cx ? "start" : "end";
+        // Approximate label-cluster width for a backing chip
+        const keyLen = a.key.length;
+        const chipW = Math.max(86, keyLen * 8 + 22);
+        const chipH = 38;
+        const chipX =
+          anchor === "middle"
+            ? outer.x - chipW / 2
+            : anchor === "start"
+              ? outer.x - 10
+              : outer.x - chipW + 10;
+        const chipY = outer.y - 22;
         return (
           <g key={`v-${i}`}>
             {/* glow halo */}
@@ -664,63 +677,67 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
               cx={p.x}
               cy={p.y}
               r={5.5}
-              fill="hsl(var(--background))"
+              fill="var(--background)"
               stroke={dotColor}
               strokeWidth={1.75}
             />
             {/* inner dot */}
             <circle cx={p.x} cy={p.y} r={2.25} fill={dotColor} />
 
+            {/* Frosted chip behind the label so text reads on any background */}
+            <rect
+              x={chipX}
+              y={chipY}
+              width={chipW}
+              height={chipH}
+              rx={10}
+              fill="var(--card)"
+              fillOpacity={0.85}
+              stroke={dotColor}
+              strokeOpacity={0.35}
+              strokeWidth={1}
+            />
+
             {/* axis label cluster outside */}
-            <g
-              transform={`translate(${outer.x},${outer.y})`}
-              textAnchor={
-                Math.abs(outer.x - cx) < 4 ? "middle" : outer.x > cx ? "start" : "end"
-              }
-            >
+            <g transform={`translate(${outer.x},${outer.y})`} textAnchor={anchor}>
               <text
                 y={-4}
-                fill="hsl(var(--foreground))"
+                fill="var(--foreground)"
                 fontSize={11.5}
-                fontWeight={700}
-                letterSpacing={0.5}
+                fontWeight={800}
+                letterSpacing={0.6}
               >
                 {a.key.toUpperCase()}
               </text>
-              <text
-                y={10}
-                fill={dotColor}
-                fontSize={11}
-                fontWeight={700}
-                opacity={0.95}
-              >
+              <text y={11} fill={dotColor} fontSize={11.5} fontWeight={800}>
                 {a.value}
-                <tspan fill="hsl(var(--muted-foreground))" fontSize={8.5} fontWeight={600}>
+                <tspan fill="var(--muted-foreground)" fontSize={9} fontWeight={600}>
                   {" "}
                   · {t.label}
                 </tspan>
               </text>
             </g>
 
-            {/* mini value bubble next to vertex (skip when too close to label) */}
+            {/* mini value bubble next to vertex */}
             <g pointerEvents="none">
               <rect
-                x={valueBubble.x - 12}
-                y={valueBubble.y - 8}
-                width={24}
-                height={14}
-                rx={7}
-                fill="hsl(var(--background) / 0.9)"
+                x={valueBubble.x - 13}
+                y={valueBubble.y - 8.5}
+                width={26}
+                height={15}
+                rx={7.5}
+                fill="var(--card)"
+                fillOpacity={0.95}
                 stroke={dotColor}
-                strokeOpacity={0.4}
-                strokeWidth={0.75}
+                strokeOpacity={0.55}
+                strokeWidth={0.9}
               />
               <text
                 x={valueBubble.x}
-                y={valueBubble.y + 2.5}
+                y={valueBubble.y + 2.8}
                 textAnchor="middle"
-                fontSize={8.5}
-                fontWeight={700}
+                fontSize={9}
+                fontWeight={800}
                 fill={dotColor}
               >
                 {a.value}
@@ -734,12 +751,12 @@ function SixAxisRadar({ axes }: { axes: AxisRow[] }) {
       <circle
         cx={cx}
         cy={cy}
-        r={4}
-        fill="hsl(var(--background))"
+        r={5}
+        fill="var(--background)"
         stroke="var(--primary)"
-        strokeWidth={1.25}
+        strokeWidth={1.5}
       />
-      <circle cx={cx} cy={cy} r={1.5} fill="var(--primary)" />
+      <circle cx={cx} cy={cy} r={1.75} fill="var(--primary)" />
     </svg>
   );
 }
