@@ -95,6 +95,7 @@ export const quizSteps: QuizStep[] = [
     ],
   },
   {
+    showWhen: (a) => a.sex === 'female' && (a.ageRange === '18_29' || a.ageRange === '30_44' || a.ageRange === '45_59'),
     id: "pregnancy",
     path: "pregnancy",
     title: "Pregnancy status",
@@ -187,6 +188,7 @@ export const quizSteps: QuizStep[] = [
     ],
   },
   {
+    showWhen: (a) => a.goals.includes('sleep') || a.goals.includes('focus') || a.goals.includes('general_wellness') || a.goals.includes('energy'),
     id: "stress",
     path: "stress",
     title: "Average stress level",
@@ -200,6 +202,7 @@ export const quizSteps: QuizStep[] = [
     ],
   },
   {
+    showWhen: (a) => a.ageRange !== 'under_18' && a.pregnancy !== 'pregnant' && a.pregnancy !== 'breastfeeding',
     id: "alcohol",
     path: "alcohol",
     title: "Alcohol intake",
@@ -218,6 +221,7 @@ export const quizSteps: QuizStep[] = [
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) => a.diet !== 'vegan',
     id: "oilyFish",
     path: "foodIntake.oilyFish",
     title: "Oily fish (salmon, sardines, mackerel)",
@@ -227,6 +231,7 @@ export const quizSteps: QuizStep[] = [
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) => a.diet !== 'vegan',
     id: "dairy",
     path: "foodIntake.dairy",
     title: "Dairy",
@@ -245,6 +250,7 @@ export const quizSteps: QuizStep[] = [
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) => a.diet === 'vegan' || a.diet === 'vegetarian' || a.goals.includes('weight_management') || a.goals.includes('general_wellness'),
     id: "legumes",
     path: "foodIntake.legumes",
     title: "Legumes (beans, lentils, chickpeas)",
@@ -254,6 +260,7 @@ export const quizSteps: QuizStep[] = [
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) => a.goals.includes('weight_management') || a.goals.includes('general_wellness') || a.goals.includes('energy'),
     id: "wholeGrains",
     path: "foodIntake.wholeGrains",
     title: "Whole grains",
@@ -263,6 +270,7 @@ export const quizSteps: QuizStep[] = [
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) => a.diet === 'omnivore' || a.diet === 'pescatarian' || a.diet === 'low_carb' || a.diet === 'restricted',
     id: "redMeat",
     path: "foodIntake.redMeat",
     title: "Red meat",
@@ -272,6 +280,7 @@ export const quizSteps: QuizStep[] = [
     options: FREQUENCY_OPTIONS,
   },
   {
+    showWhen: (a) => a.diet === 'vegan' || a.diet === 'vegetarian',
     id: "fortifiedFoods",
     path: "foodIntake.fortifiedFoods",
     title: "Fortified foods (plant milks, cereals)",
