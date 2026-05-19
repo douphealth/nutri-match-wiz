@@ -265,6 +265,28 @@ function ResultPage() {
           )}
         </section>
 
+        {/* Not recommended today */}
+        {notRecommended && notRecommended.length > 0 && (
+          <section className="mt-10">
+            <div className="mb-3">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Transparency</div>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Not recommended for you today</h2>
+              <p className="mt-1 text-sm text-muted-foreground">We deliberately excluded these — here's why.</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {notRecommended.map((n) => (
+                <div key={n.supplementId} className="rounded-xl border border-border/60 bg-card/40 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold text-foreground">{n.supplementName}</span>
+                    <StatusBadge status={n.status} />
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">{n.reason}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Food-first + lifestyle */}
         {(foodFirstNotes.length > 0 || generalNotes.length > 0) && (
           <section className="mt-10 grid gap-4 sm:grid-cols-2">
