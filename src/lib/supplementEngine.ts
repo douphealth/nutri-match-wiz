@@ -817,6 +817,40 @@ export function runEngine(a: QuizAnswers): EngineResult {
       return (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score);
     });
 
+  // Minimum effective stack: cap 3 core + 2 secondary. Everything beyond
+  // gets demoted into notRecommended with a transparency reason.
+  const CORE_CAP = 3;
+  const SECONDARY_CAP = 2;
+  const activeStatuses: RecommendationStatus[] = ["recommended", "consider"];
+  let coreAssigned = 0;
+  let secondaryAssigned = 0;
+  const keptRecommendations: Recommendation[] = [];
+  for (const r of recommendations) {
+    const isActive = activeStatuses.includes(r.status ?? "consider");
+    if (isActive && coreAssigned < CORE_CAP) {
+      r.tier = "core";
+      coreAssigned++;
+      keptRecommendations.push(r);
+    } else if (isActive && secondaryAssigned < SECONDARY_CAP) {
+      r.tier = "secondary";
+      secondaryAssigned++;
+      keptRecommendations.push(r);
+    } else if (!isActive) {
+      // Test/clinician items stay listed but without a tier.
+      keptRecommendations.push(r);
+    } else {
+      notRecommended.push({
+        supplementId: r.supplement.id,
+        supplementName: r.supplement.name.replace(/\s*\([^)]*\)/g, ""),
+        status: "food_first",
+        reason:
+          "Limited to a minimum effective stack — your top picks come first. Revisit this once your core stack is dialed in.",
+      });
+    }
+  }
+  recommendations.length = 0;
+  recommendations.push(...keptRecommendations);
+
   // Clinician callouts: surface concrete escalation prompts.
   const clinicianCallouts: string[] = [];
   if (safetyGate.triggered) {
