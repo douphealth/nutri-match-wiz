@@ -7,7 +7,8 @@ import type { Recommendation } from "@/types/supplements";
 import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
 import { buildDailySchedule } from "@/lib/daily-schedule";
-import type { Recommendation as RecType } from "@/types/supplements";
+import { citationsFor } from "@/lib/evidence/evidence-matrix";
+import type { Recommendation as RecType, RecommendationStatus } from "@/types/supplements";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -111,7 +112,7 @@ function ResultPage() {
     answers: QuizAnswers;
     result: ReturnType<typeof runEngine>;
   };
-  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile } = data.result;
+  const { matchScore, recommendations, safetyGate, foodFirstNotes, generalNotes, personalizationProfile, notRecommended, clinicianCallouts } = data.result;
   const top = recommendations[0];
   const productCandidates = recommendations.reduce((sum, rec) => sum + productsFor(rec.supplement.id).length, 0);
 
@@ -218,13 +219,28 @@ function ResultPage() {
           <Card className="mb-8 border-destructive/40 bg-destructive/5">
             <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
               <ShieldAlert className="h-5 w-5 text-destructive" />
-              <CardTitle className="text-base">Talk with a clinician before starting anything new</CardTitle>
+              <CardTitle className="text-base">Talk with a clinician or pharmacist before starting anything new</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
                 {safetyGate.reasons.map((r) => (
                   <li key={r}>{r}</li>
                 ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Clinician callouts (test-first, clinician-only items) */}
+        {clinicianCallouts && clinicianCallouts.length > 0 && (
+          <Card className="mb-8 border-amber-500/40 bg-amber-500/5">
+            <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
+              <AlertTriangle className="h-5 w-5 text-amber-400" />
+              <CardTitle className="text-base">Ask your clinician or pharmacist about these</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
+                {clinicianCallouts.map((c) => (<li key={c}>{c}</li>))}
               </ul>
             </CardContent>
           </Card>
@@ -248,6 +264,28 @@ function ResultPage() {
             ))
           )}
         </section>
+
+        {/* Not recommended today */}
+        {notRecommended && notRecommended.length > 0 && (
+          <section className="mt-10">
+            <div className="mb-3">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Transparency</div>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Not recommended for you today</h2>
+              <p className="mt-1 text-sm text-muted-foreground">We deliberately excluded these — here's why.</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {notRecommended.map((n) => (
+                <div key={n.supplementId} className="rounded-xl border border-border/60 bg-card/40 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold text-foreground">{n.supplementName}</span>
+                    <StatusBadge status={n.status} />
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">{n.reason}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Food-first + lifestyle */}
         {(foodFirstNotes.length > 0 || generalNotes.length > 0) && (
@@ -321,6 +359,25 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
+const STATUS_META: Record<RecommendationStatus, { label: string; cls: string }> = {
+  recommended: { label: "Recommended", cls: "bg-primary/15 text-primary ring-primary/30" },
+  consider: { label: "Consider", cls: "bg-sky-500/15 text-sky-300 ring-sky-500/30" },
+  food_first: { label: "Food-first", cls: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30" },
+  test_first: { label: "Test first", cls: "bg-amber-500/15 text-amber-300 ring-amber-500/30" },
+  clinician_only: { label: "Clinician only", cls: "bg-orange-500/15 text-orange-300 ring-orange-500/30" },
+  not_recommended: { label: "Not recommended", cls: "bg-muted text-muted-foreground ring-border" },
+  avoid: { label: "Avoid", cls: "bg-destructive/15 text-destructive ring-destructive/30" },
+};
+
+function StatusBadge({ status }: { status: RecommendationStatus }) {
+  const m = STATUS_META[status];
+  return (
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ${m.cls}`}>
+      {m.label}
+    </span>
+  );
+}
+
 function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: number; answers: QuizAnswers }) {
   const product = productFor(rec.supplement.id, answers);
   const candidateCount = productsFor(rec.supplement.id).length;
@@ -352,12 +409,16 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <CardTitle className="text-lg leading-tight">{cleanName}</CardTitle>
+                  {rec.status && <StatusBadge status={rec.status} />}
                   {isTop && (
                     <Badge className="gap-1 bg-gradient-primary text-primary-foreground">
                       <Award className="h-3 w-3" /> Top pick
                     </Badge>
                   )}
                 </div>
+                {rec.statusReason && (
+                  <p className="mt-1 text-xs italic text-amber-300/90">{rec.statusReason}</p>
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   {rec.supplement.category} · Evidence{" "}
                   <span className="font-semibold text-foreground">{rec.supplement.evidenceLevel}</span>{" "}
@@ -543,6 +604,34 @@ function SupplementCard({ rec, rank, answers }: { rec: Recommendation; rank: num
               {rec.supplement.foodFirstAdvice}
             </p>
           </div>
+
+          {/* Sources */}
+          {(() => {
+            const cites = citationsFor(rec.supplement.id);
+            if (cites.length === 0) return null;
+            return (
+              <div className="rounded-lg border border-border/60 bg-background/30 p-3 text-xs">
+                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Sources
+                </div>
+                <ul className="space-y-1">
+                  {cites.map((c) => (
+                    <li key={c.url}>
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-foreground/90 hover:text-primary"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        <span className="underline-offset-2 hover:underline">{c.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
     </motion.div>

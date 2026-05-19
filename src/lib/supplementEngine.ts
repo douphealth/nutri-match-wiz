@@ -1,9 +1,12 @@
 import { SUPPLEMENTS } from "./supplementData";
+import { EVIDENCE_MATRIX } from "./evidence/evidence-matrix";
 import type {
   EngineResult,
   Frequency,
   QuizAnswers,
   Recommendation,
+  RecommendationStatus,
+  SuppressedRecommendation,
   Supplement,
 } from "@/types/supplements";
 
@@ -24,7 +27,13 @@ interface Bucket {
   reasons: string[];
   safetyFlags: string[];
   tags: string[];
+  /** If set, the supplement is dropped from the active list and shown in "Not recommended today". */
   suppressed?: boolean;
+  suppressionStatus?: RecommendationStatus;
+  suppressionReason?: string;
+  /** Overrides the auto-computed status (e.g. iron → test_first regardless of signal). */
+  forcedStatus?: RecommendationStatus;
+  forcedStatusReason?: string;
 }
 
 function newBuckets(): Record<string, Bucket> {
@@ -103,9 +112,20 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (freqLow(a.foodIntake.fortifiedFoods)) addSignal(vd, 0.8, "You rarely use fortified foods, so food-based vitamin D coverage may be low.", "low fortified foods");
   if (a.goals.includes("bone_health")) addSignal(vd, 1.4, "Bone-health goal strongly aligns with vitamin D status.", "bone goal");
   if (a.goals.includes("immune")) addSignal(vd, 0.8, "Adequate vitamin D supports normal immune function.", "immune goal");
-  if (currentSupplementMentions(a, ["vitamin d", "d3", "cholecalciferol"])) {
+  const alreadyOnD = currentSupplementMentions(a, ["vitamin d", "d3", "cholecalciferol"]);
+  if (alreadyOnD) {
     add(vd, -1.2, "");
     flag(vd, "You mentioned current vitamin D use — avoid stacking high doses unless labs justify it.");
+  }
+  // Vitamin D is always test-encouraged. Strong signal → test_first; otherwise → consider with conservative dose framing.
+  if (!alreadyOnD) {
+    if (a.sunExposure === "low" || a.ageRange === "60_plus" || a.diet === "vegan") {
+      vd.forcedStatus = "test_first";
+      vd.forcedStatusReason = "Confirm with a 25(OH)D blood test before starting more than a conservative daily dose.";
+    } else {
+      vd.forcedStatus = "consider";
+      vd.forcedStatusReason = "If you start, keep the daily dose conservative and test 25(OH)D before going higher.";
+    }
   }
 
   // ---- B12 ----
@@ -176,6 +196,15 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (a.diet === "vegan" || a.diet === "vegetarian") addSignal(fe, 1.0, "Plant-based diets require attention to iron — pair with vitamin C.", "plant-based");
   if (freqLow(a.foodIntake.redMeat) && (a.diet === "omnivore" || a.diet === "pescatarian" || a.diet === "restricted")) addSignal(fe, 0.5, "Low red meat intake can lower heme-iron intake.", "low heme iron");
   flag(fe, "Do not start iron without lab testing (ferritin/CBC) and clinician guidance — excess iron can be harmful.");
+  // Iron is ALWAYS test-first (or clinician-only when a safety gate is triggered).
+  // It must never be a normal "take this today" recommendation.
+  if (a.medical.medications || a.medical.kidneyLiver || a.medical.heartDisease || a.pregnancy !== "none") {
+    fe.forcedStatus = "clinician_only";
+    fe.forcedStatusReason = "Iron dosing must be set by your clinician given your medical profile.";
+  } else {
+    fe.forcedStatus = "test_first";
+    fe.forcedStatusReason = "Check ferritin and CBC with your clinician before starting any iron — excess iron is harmful.";
+  }
 
   // ---- Calcium ----
   const ca = buckets["calcium"];
@@ -190,8 +219,12 @@ export function runEngine(a: QuizAnswers): EngineResult {
   const pn = buckets["prenatal"];
   if (a.pregnancy === "pregnant" || a.pregnancy === "breastfeeding" || a.pregnancy === "trying") {
     addSignal(pn, 6.4, "Pregnancy/breastfeeding/preconception — prenatal with folate is standard of care.", "life-stage critical");
+    pn.forcedStatus = "clinician_only";
+    pn.forcedStatusReason = "Choose the specific prenatal (folate/iron/DHA amounts) with your obstetric clinician.";
   } else {
     pn.suppressed = true;
+    pn.suppressionStatus = "not_recommended";
+    pn.suppressionReason = "Prenatal vitamins are only indicated when pregnant, breastfeeding, or trying to conceive.";
   }
 
   // ---- Electrolytes ----
@@ -233,11 +266,21 @@ export function runEngine(a: QuizAnswers): EngineResult {
   if (a.goals.includes("sleep") && a.sleepQuality === "poor") addSignal(mel, 2.6, "Short-term, low-dose melatonin can help circadian shifts.", "sleep goal + poor sleep");
   if (a.goals.includes("sleep") && a.sleepQuality === "fair") addSignal(mel, 0.9, "Low-dose melatonin may help timing issues, but sleep hygiene comes first.", "sleep timing");
   if (freqHigh(a.caffeine) && a.sleepQuality !== "good") add(mel, -0.6, "");
-  if (a.pregnancy !== "none" || a.ageRange === "under_18") {
+  if (a.pregnancy !== "none") {
     mel.suppressed = true;
+    mel.suppressionStatus = "avoid";
+    mel.suppressionReason = "Melatonin is not recommended during pregnancy or breastfeeding without obstetric guidance.";
+  } else if (a.ageRange === "under_18") {
+    mel.suppressed = true;
+    mel.suppressionStatus = "clinician_only";
+    mel.suppressionReason = "Under-18 melatonin use should be directed by a pediatric clinician, not self-started.";
   }
   if (a.medical.antidepressants || a.medical.bloodThinners || a.medical.bloodPressureMeds) {
     flag(mel, "Several common medications interact with melatonin — check with a pharmacist.");
+    if (!mel.suppressed) {
+      mel.forcedStatus = "clinician_only";
+      mel.forcedStatusReason = "Confirm with a pharmacist before starting melatonin given your medications.";
+    }
   }
 
   // ---- Global safety overlays ----
@@ -246,9 +289,34 @@ export function runEngine(a: QuizAnswers): EngineResult {
   }
   if (a.medical.bloodThinners) {
     generalNotes.push("Be cautious with high-dose fish oil, vitamin E, ginkgo, garlic, and ginger — bleeding-risk concerns.");
+    // Push omega-3 to clinician-only when on blood thinners.
+    if (!buckets["omega3"].suppressed) {
+      buckets["omega3"].forcedStatus = "clinician_only";
+      buckets["omega3"].forcedStatusReason = "Set fish-oil dose with your clinician — higher doses can increase bleeding risk on blood thinners.";
+    }
   }
   if (a.medical.surgeryPlanned) {
     generalNotes.push("Many supplements should be paused 1–2 weeks before surgery — confirm with your surgical team.");
+  }
+  if (a.medical.kidneyLiver) {
+    if (!buckets["creatine"].suppressed) {
+      buckets["creatine"].forcedStatus = "clinician_only";
+      buckets["creatine"].forcedStatusReason = "Kidney or liver concerns — clear creatine with your clinician before starting.";
+    }
+    if (!buckets["magnesium"].suppressed) {
+      buckets["magnesium"].forcedStatus = "clinician_only";
+      buckets["magnesium"].forcedStatusReason = "Severe kidney disease changes magnesium dosing — clinician input required.";
+    }
+  }
+  // Under-18: suppress all adult-targeted supplements; route to pediatric clinician.
+  if (a.ageRange === "under_18") {
+    for (const s of SUPPLEMENTS) {
+      const b = buckets[s.id];
+      if (b.suppressed) continue;
+      b.suppressed = true;
+      b.suppressionStatus = "clinician_only";
+      b.suppressionReason = "Under-18 supplement decisions should be directed by a pediatric clinician, not self-started.";
+    }
   }
 
   // ---- Food-first notes ----
@@ -267,15 +335,33 @@ export function runEngine(a: QuizAnswers): EngineResult {
   const safetyWeight = (lvl: Supplement["safetyLevel"]) =>
     lvl === "Low" ? 1 : lvl === "Moderate" ? 0.84 : 0.58;
 
+  const notRecommended: SuppressedRecommendation[] = [];
+
   const recommendations: Recommendation[] = SUPPLEMENTS
     .map((s: Supplement) => {
       const b = buckets[s.id];
-      if (b.suppressed) return null;
+      if (b.suppressed) {
+        notRecommended.push({
+          supplementId: s.id,
+          supplementName: s.name.replace(/\s*\([^)]*\)/g, ""),
+          status: b.suppressionStatus ?? "not_recommended",
+          reason: b.suppressionReason ?? "Not indicated based on your answers.",
+        });
+        return null;
+      }
       const precisionScore = Math.max(
         0,
         Math.min(100, Math.round((b.score * 11 + b.tags.length * 4) * evidenceWeight(s.evidenceLevel) * safetyWeight(s.safetyLevel))),
       );
-      if (b.score < 1.15 && precisionScore < 16) return null;
+      if (b.score < 1.15 && precisionScore < 16 && !b.forcedStatus) {
+        notRecommended.push({
+          supplementId: s.id,
+          supplementName: s.name.replace(/\s*\([^)]*\)/g, ""),
+          status: "food_first",
+          reason: "Your answers didn't show a meaningful gap — food-first is the better starting point.",
+        });
+        return null;
+      }
 
       // Confidence: based on score + evidence + safety
       let confidence: Recommendation["confidence"] = "Low";
@@ -287,6 +373,24 @@ export function runEngine(a: QuizAnswers): EngineResult {
         confidence = confidence === "High" ? "Moderate" : "Low";
       }
 
+      // Status assignment
+      let status: RecommendationStatus;
+      let statusReason: string | undefined;
+      if (b.forcedStatus) {
+        status = b.forcedStatus;
+        statusReason = b.forcedStatusReason;
+      } else if (safetyGate.triggered && s.safetyLevel === "High caution") {
+        status = "clinician_only";
+        statusReason = "High-caution supplement plus active medical flags — clear with your clinician.";
+      } else if (precisionScore >= 50 && confidence !== "Low") {
+        status = "recommended";
+      } else if (precisionScore >= 25) {
+        status = "consider";
+      } else {
+        status = "food_first";
+        statusReason = "Signals are mild — close the gap with food before adding a pill.";
+      }
+
       return {
         supplement: s,
         score: b.score,
@@ -295,10 +399,31 @@ export function runEngine(a: QuizAnswers): EngineResult {
         safetyFlags: b.safetyFlags,
         personalizationTags: b.tags,
         confidence,
+        status,
+        statusReason,
       } as Recommendation;
     })
     .filter((x): x is Recommendation => x !== null)
-    .sort((a, b) => (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score));
+    .sort((a, b) => {
+      // Active recommendations rank above test/clinician-gated items.
+      const order: Record<RecommendationStatus, number> = {
+        recommended: 0, consider: 1, food_first: 2, test_first: 3, clinician_only: 4, not_recommended: 5, avoid: 6,
+      };
+      const ao = order[a.status ?? "consider"];
+      const bo = order[b.status ?? "consider"];
+      if (ao !== bo) return ao - bo;
+      return (b.precisionScore ?? b.score) - (a.precisionScore ?? a.score);
+    });
+
+  // Clinician callouts: surface concrete escalation prompts.
+  const clinicianCallouts: string[] = [];
+  if (safetyGate.triggered) {
+    clinicianCallouts.push("Bring this plan to your clinician or pharmacist before starting anything new — your profile triggered one or more safety flags.");
+  }
+  for (const r of recommendations) {
+    if (r.status === "test_first" && r.statusReason) clinicianCallouts.push(`${r.supplement.name.replace(/\s*\([^)]*\)/g, "")}: ${r.statusReason}`);
+    if (r.status === "clinician_only" && r.statusReason) clinicianCallouts.push(`${r.supplement.name.replace(/\s*\([^)]*\)/g, "")}: ${r.statusReason}`);
+  }
 
   // Match score: confidence in this personalized plan (0–100).
   const topN = recommendations.slice(0, 5);
@@ -330,6 +455,8 @@ export function runEngine(a: QuizAnswers): EngineResult {
   return {
     matchScore,
     recommendations,
+    notRecommended,
+    clinicianCallouts,
     safetyGate,
     personalizationProfile: {
       label: profileLabel,

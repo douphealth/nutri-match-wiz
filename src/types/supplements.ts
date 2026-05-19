@@ -88,6 +88,15 @@ export interface QuizAnswers {
   pillPreference: "capsule" | "powder" | "gummy" | "liquid" | "no_preference";
 }
 
+export type RecommendationStatus =
+  | "recommended"
+  | "consider"
+  | "food_first"
+  | "test_first"
+  | "clinician_only"
+  | "not_recommended"
+  | "avoid";
+
 export interface Recommendation {
   supplement: Supplement;
   score: number;
@@ -96,11 +105,27 @@ export interface Recommendation {
   safetyFlags: string[];
   confidence: "Low" | "Moderate" | "High";
   personalizationTags?: string[];
+  /** Action label for this supplement given the user's profile. */
+  status?: RecommendationStatus;
+  /** One-sentence rationale for the status (e.g. "Iron requires lab testing first"). */
+  statusReason?: string;
+}
+
+/** A supplement that was deliberately not recommended, with the reason why. */
+export interface SuppressedRecommendation {
+  supplementId: string;
+  supplementName: string;
+  status: RecommendationStatus;
+  reason: string;
 }
 
 export interface EngineResult {
   matchScore: number;
   recommendations: Recommendation[];
+  /** Supplements deliberately not recommended today, with reasons. */
+  notRecommended?: SuppressedRecommendation[];
+  /** Free-text callouts to escalate to a clinician/pharmacist. */
+  clinicianCallouts?: string[];
   safetyGate: {
     triggered: boolean;
     reasons: string[];
