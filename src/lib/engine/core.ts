@@ -1,5 +1,5 @@
-import { SUPPLEMENTS } from "./supplementData";
-import { EVIDENCE_MATRIX } from "./evidence/evidence-matrix";
+import { SUPPLEMENTS } from "../supplementData";
+import { EVIDENCE_MATRIX } from "../evidence/evidence-matrix";
 import type {
   EngineResult,
   Frequency,
