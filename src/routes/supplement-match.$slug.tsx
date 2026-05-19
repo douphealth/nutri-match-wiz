@@ -610,9 +610,9 @@ function ResultPage({
         {/* Privacy + Disclosure */}
         <div className="mt-12 space-y-2 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
           <p>
-            <span className="font-semibold text-foreground">Privacy:</span> your answers are encoded
-            in this URL only — we do not store them on a server. Bookmark or share this page to keep
-            your plan.
+            <span className="font-semibold text-foreground">Privacy:</span> your answers stay on
+            this device unless you choose to create a shareable link or export a PDF. Shareable
+            links are sanitized — medical, medication, and pregnancy fields are stripped.
           </p>
           <p>
             Educational only. Not medical advice. Product links are Amazon affiliate links — ranking
