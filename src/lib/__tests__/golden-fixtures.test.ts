@@ -32,7 +32,7 @@ const fixtures: Record<string, QuizAnswers> = {
   bloodThinner: a({
     medical: { ...DEFAULT_ANSWERS.medical, medications: true, bloodThinners: true },
     foodIntake: { ...DEFAULT_ANSWERS.foodIntake, oilyFish: "never" },
-    goals: ["heart_health"],
+    goals: ["general_wellness"],
   }),
   antidepressant: a({
     medical: { ...DEFAULT_ANSWERS.medical, medications: true, antidepressants: true },
