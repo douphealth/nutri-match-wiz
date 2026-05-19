@@ -7,7 +7,8 @@ import type { Recommendation } from "@/types/supplements";
 import { productFor, productsFor, amazonLink, TONE_STYLES } from "@/lib/supplement-products";
 import { CredibilitySections, faqJsonLd, reviewJsonLd } from "@/components/result/CredibilitySections";
 import { buildDailySchedule } from "@/lib/daily-schedule";
-import type { Recommendation as RecType } from "@/types/supplements";
+import { citationsFor } from "@/lib/evidence/evidence-matrix";
+import type { Recommendation as RecType, RecommendationStatus } from "@/types/supplements";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
