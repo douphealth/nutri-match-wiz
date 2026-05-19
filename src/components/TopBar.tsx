@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, Share2, Sparkles } from "lucide-react";
+import { ArrowLeft, Home, Share2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export function TopBar() {
