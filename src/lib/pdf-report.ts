@@ -1034,24 +1034,23 @@ function drawWellnessRadar(
     y: cy + Math.sin(angle(i)) * r,
   });
 
+  const drawPolygon = (
+    pts: { x: number; y: number }[],
+    style: "S" | "F" | "FD",
+  ) => {
+    const deltas = pts.slice(1).map((p, i) => [p.x - pts[i].x, p.y - pts[i].y] as [number, number]);
+    deltas.push([pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y]);
+    doc.lines(deltas, pts[0].x, pts[0].y, [1, 1], style, true);
+  };
+
   // Concentric rings (25/50/75/100)
   setStroke(doc, COL.borderSoft);
   doc.setLineWidth(0.4);
   [0.25, 0.5, 0.75, 1].forEach((t) => {
-    const pts = axes.map((_, i) => point(i, R * t));
-    doc.lines(
-      pts.map((p, i) => [p.x - pts[i === 0 ? 0 : i - 1].x, p.y - pts[i === 0 ? 0 : i - 1].y]).slice(1).concat([[pts[0].x - pts[n - 1].x, pts[0].y - pts[n - 1].y]]),
-      pts[0].x,
-      pts[0].y,
-      [1, 1],
-      "S",
-      true,
-    );
+    drawPolygon(axes.map((_, i) => point(i, R * t)), "S");
   });
 
   // Spokes
-  setStroke(doc, COL.borderSoft);
-  doc.setLineWidth(0.4);
   axes.forEach((_, i) => {
     const p = point(i, R);
     doc.line(cx, cy, p.x, p.y);
@@ -1061,33 +1060,12 @@ function drawWellnessRadar(
   const dataPts = axes.map((a, i) => point(i, (a.value / 100) * R));
   setFill(doc, COL.primary);
   opacity(doc, 0.28);
-  doc.lines(
-    dataPts.map((p, i) => {
-      const prev = dataPts[i === 0 ? 0 : i - 1];
-      return [p.x - prev.x, p.y - prev.y];
-    }).slice(1).concat([[dataPts[0].x - dataPts[n - 1].x, dataPts[0].y - dataPts[n - 1].y]]),
-    dataPts[0].x,
-    dataPts[0].y,
-    [1, 1],
-    "F",
-    true,
-  );
+  drawPolygon(dataPts, "F");
   opacity(doc, 1);
 
-  // Polygon stroke
   setStroke(doc, COL.primary);
   doc.setLineWidth(1.4);
-  doc.lines(
-    dataPts.map((p, i) => {
-      const prev = dataPts[i === 0 ? 0 : i - 1];
-      return [p.x - prev.x, p.y - prev.y];
-    }).slice(1).concat([[dataPts[0].x - dataPts[n - 1].x, dataPts[0].y - dataPts[n - 1].y]]),
-    dataPts[0].x,
-    dataPts[0].y,
-    [1, 1],
-    "S",
-    true,
-  );
+  drawPolygon(dataPts, "S");
 
   // Vertex dots
   axes.forEach((a, i) => {
@@ -1108,24 +1086,19 @@ function drawWellnessRadar(
     const align: "left" | "right" | "center" = isMid ? "center" : p.x > cx ? "left" : "right";
     setText(doc, COL.text);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.text(a.key.toUpperCase(), p.x, p.y - 4, { align });
+    doc.setFontSize(8);
+    doc.text(a.key.toUpperCase(), p.x, p.y - 3, { align });
     setText(doc, t.rgb as unknown as RGB);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.text(`${a.value}`, p.x, p.y + 8, { align });
-    setText(doc, COL.muted);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.text(`· ${t.label}`, p.x + (align === "right" ? -12 : align === "left" ? 12 : 0), p.y + 8, {
-      align,
-    });
+    doc.text(`${a.value} · ${t.label}`, p.x, p.y + 9, { align });
   });
 
   // Center hub
   setFill(doc, COL.primary);
   doc.circle(cx, cy, 1.6, "F");
 }
+
 
 function drawWellnessProfile(doc: jsPDF, answers: QuizAnswers, result: EngineResult) {
   const axes = buildAxes(answers, result);
