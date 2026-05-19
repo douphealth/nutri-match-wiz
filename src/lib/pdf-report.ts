@@ -1018,9 +1018,337 @@ function drawDailyProtocol(doc: jsPDF, schedule: DailySchedule) {
   }
 }
 
+/* ---------- Wellness profile chapter ---------- */
+
+function drawWellnessRadar(
+  doc: jsPDF,
+  axes: AxisRow[],
+  cx: number,
+  cy: number,
+  R: number,
+) {
+  const n = axes.length;
+  const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  const point = (i: number, r: number) => ({
+    x: cx + Math.cos(angle(i)) * r,
+    y: cy + Math.sin(angle(i)) * r,
+  });
+
+  // Concentric rings (25/50/75/100)
+  setStroke(doc, COL.borderSoft);
+  doc.setLineWidth(0.4);
+  [0.25, 0.5, 0.75, 1].forEach((t) => {
+    const pts = axes.map((_, i) => point(i, R * t));
+    doc.lines(
+      pts.map((p, i) => [p.x - pts[i === 0 ? 0 : i - 1].x, p.y - pts[i === 0 ? 0 : i - 1].y]).slice(1).concat([[pts[0].x - pts[n - 1].x, pts[0].y - pts[n - 1].y]]),
+      pts[0].x,
+      pts[0].y,
+      [1, 1],
+      "S",
+      true,
+    );
+  });
+
+  // Spokes
+  setStroke(doc, COL.borderSoft);
+  doc.setLineWidth(0.4);
+  axes.forEach((_, i) => {
+    const p = point(i, R);
+    doc.line(cx, cy, p.x, p.y);
+  });
+
+  // Data polygon
+  const dataPts = axes.map((a, i) => point(i, (a.value / 100) * R));
+  setFill(doc, COL.primary);
+  opacity(doc, 0.28);
+  doc.lines(
+    dataPts.map((p, i) => {
+      const prev = dataPts[i === 0 ? 0 : i - 1];
+      return [p.x - prev.x, p.y - prev.y];
+    }).slice(1).concat([[dataPts[0].x - dataPts[n - 1].x, dataPts[0].y - dataPts[n - 1].y]]),
+    dataPts[0].x,
+    dataPts[0].y,
+    [1, 1],
+    "F",
+    true,
+  );
+  opacity(doc, 1);
+
+  // Polygon stroke
+  setStroke(doc, COL.primary);
+  doc.setLineWidth(1.4);
+  doc.lines(
+    dataPts.map((p, i) => {
+      const prev = dataPts[i === 0 ? 0 : i - 1];
+      return [p.x - prev.x, p.y - prev.y];
+    }).slice(1).concat([[dataPts[0].x - dataPts[n - 1].x, dataPts[0].y - dataPts[n - 1].y]]),
+    dataPts[0].x,
+    dataPts[0].y,
+    [1, 1],
+    "S",
+    true,
+  );
+
+  // Vertex dots
+  axes.forEach((a, i) => {
+    const p = dataPts[i];
+    const t = tierForAxis(a.value);
+    setFill(doc, COL.bg);
+    setStroke(doc, t.rgb as unknown as RGB);
+    doc.setLineWidth(1.2);
+    doc.circle(p.x, p.y, 3.2, "FD");
+  });
+
+  // Labels around the outside
+  const labelR = R + 22;
+  axes.forEach((a, i) => {
+    const p = point(i, labelR);
+    const t = tierForAxis(a.value);
+    const isMid = Math.abs(p.x - cx) < 4;
+    const align: "left" | "right" | "center" = isMid ? "center" : p.x > cx ? "left" : "right";
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.text(a.key.toUpperCase(), p.x, p.y - 4, { align });
+    setText(doc, t.rgb as unknown as RGB);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text(`${a.value}`, p.x, p.y + 8, { align });
+    setText(doc, COL.muted);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.text(`· ${t.label}`, p.x + (align === "right" ? -12 : align === "left" ? 12 : 0), p.y + 8, {
+      align,
+    });
+  });
+
+  // Center hub
+  setFill(doc, COL.primary);
+  doc.circle(cx, cy, 1.6, "F");
+}
+
+function drawWellnessProfile(doc: jsPDF, answers: QuizAnswers, result: EngineResult) {
+  const axes = buildAxes(answers, result);
+  const arche = archetypeFor(axes, answers);
+  const overall = Math.round(axes.reduce((s, a) => s + a.value, 0) / axes.length);
+  const sorted = [...axes].sort((a, b) => b.value - a.value);
+  const strongest = sorted[0];
+  const weakest = sorted[sorted.length - 1];
+  const eyebrow = "02 · Your wellness profile";
+
+  doc.addPage();
+  paintBackground(doc);
+  header(doc, eyebrow);
+
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("02  ·  YOUR WELLNESS PROFILE", M, 110);
+
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(28);
+  doc.text(arche.name, M, 142);
+
+  setText(doc, COL.textDim);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  const tag = wrap(doc, arche.tagline, PAGE_W - M * 2);
+  doc.text(tag, M, 166);
+
+  let y = 166 + tag.length * 14 + 12;
+  const pw = PAGE_W - M * 2;
+
+  // Radar + score panel
+  const radarH = 250;
+  roundedCard(doc, M, y, pw, radarH, COL.card, COL.borderSoft, 14);
+
+  // Left: radar
+  const radarCX = M + 150;
+  const radarCY = y + radarH / 2 + 6;
+  drawWellnessRadar(doc, axes, radarCX, radarCY, 88);
+
+  // Right: overall + strongest/weakest
+  const rx = M + 300;
+  setText(doc, COL.muted);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text("OVERALL WELLNESS", rx, y + 28);
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(46);
+  doc.text(`${overall}`, rx, y + 76);
+  setText(doc, COL.muted);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("/ 100", rx + doc.getTextWidth(`${overall}`) + 6, y + 70);
+
+  // Mini stat: strongest
+  const ss = tierForAxis(strongest.value);
+  setText(doc, COL.muted);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.text("STRONGEST", rx, y + 108);
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text(`${strongest.key}  ${strongest.value}`, rx, y + 124);
+  setText(doc, ss.rgb as unknown as RGB);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text(ss.label.toUpperCase(), rx, y + 137);
+
+  const ws = tierForAxis(weakest.value);
+  setText(doc, COL.muted);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.text("FOCUS ON NEXT", rx, y + 162);
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text(`${weakest.key}  ${weakest.value}`, rx, y + 178);
+  setText(doc, ws.rgb as unknown as RGB);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text(ws.label.toUpperCase(), rx, y + 191);
+
+  setText(doc, COL.muted);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.text("Derived from goals, sleep, training, diet & stress.", rx, y + radarH - 14);
+
+  y += radarH + 16;
+
+  // Per-axis breakdown — grid 2×3
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("AXIS BREAKDOWN", M, y);
+  y += 12;
+
+  const cardW = (pw - 12) / 2;
+  const cardH = 76;
+  axes.forEach((a, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const cx = M + col * (cardW + 12);
+    const cy = y + row * (cardH + 10);
+    if (cy + cardH > PAGE_H - 70) return; // safety
+    const t = tierForAxis(a.value);
+    roundedCard(doc, cx, cy, cardW, cardH, COL.surface);
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text(a.key.toUpperCase(), cx + 14, cy + 18);
+    setText(doc, t.rgb as unknown as RGB);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(`${a.value}`, cx + cardW - 14, cy + 20, { align: "right" });
+    setText(doc, COL.muted);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.text(t.label.toUpperCase(), cx + cardW - 14, cy + 32, { align: "right" });
+
+    // Tiny bar
+    setFill(doc, COL.borderSoft);
+    doc.roundedRect(cx + 14, cy + 36, cardW - 28, 4, 2, 2, "F");
+    setFill(doc, t.rgb as unknown as RGB);
+    doc.roundedRect(cx + 14, cy + 36, ((cardW - 28) * a.value) / 100, 4, 2, 2, "F");
+
+    setText(doc, COL.textDim);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    const meaning = wrap(doc, a.meaning, cardW - 28);
+    doc.text(meaning.slice(0, 1), cx + 14, cy + 52);
+    setText(doc, COL.muted);
+    doc.setFontSize(8);
+    const driver = wrap(doc, a.driver, cardW - 28);
+    doc.text(driver.slice(0, 1), cx + 14, cy + 64);
+  });
+}
+
+/* ---------- Further reading (gearuptofit.com) ---------- */
+
+function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
+  doc.addPage();
+  paintBackground(doc);
+  const eyebrow = "07 · Further reading on GearUpToFit";
+  header(doc, eyebrow);
+
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("07  ·  FURTHER READING", M, 110);
+
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(28);
+  doc.text("Hand-picked guides for you.", M, 140);
+
+  setText(doc, COL.textDim);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10.5);
+  const intro = wrap(
+    doc,
+    "These GearUpToFit articles map directly to your top picks and goals. Tap any title to open the guide on gearuptofit.com.",
+    PAGE_W - M * 2,
+  );
+  doc.text(intro, M, 162);
+
+  let y = 162 + intro.length * 14 + 14;
+  const pw = PAGE_W - M * 2;
+
+  resources.forEach((r) => {
+    const titleLines = wrap(doc, r.title, pw - 32);
+    const whyLines = wrap(doc, r.why, pw - 32);
+    const urlLines = wrap(doc, r.url, pw - 32);
+    const h = 14 + titleLines.length * 14 + whyLines.length * 12 + urlLines.length * 11 + 22;
+    y = ensure(doc, y, h, eyebrow);
+    roundedCard(doc, M, y, pw, h, COL.card);
+
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    doc.text(titleLines, M + 16, y + 22);
+    let cy = y + 22 + titleLines.length * 14;
+
+    setText(doc, COL.textDim);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(whyLines, M + 16, cy);
+    cy += whyLines.length * 12 + 4;
+
+    setText(doc, COL.primary);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.textWithLink(r.url, M + 16, cy + 4, { url: r.url });
+    y += h + 10;
+  });
+
+  // Site-wide CTA card
+  y = ensure(doc, y, 70, eyebrow);
+  roundedCard(doc, M, y, pw, 60, COL.surface, COL.primary);
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("EXPLORE EVERYTHING ON GEARUPTOFIT.COM", M + 16, y + 24);
+  setText(doc, COL.textDim);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("Reviews, training plans, gear breakdowns, nutrition deep-dives.", M + 16, y + 40);
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.textWithLink("https://gearuptofit.com  →", PAGE_W - M - 16, y + 36, {
+    align: "right",
+    url: "https://gearuptofit.com",
+  });
+}
+
 /* ---------- Master generator ---------- */
 
 export async function generateSupplementReport(result: EngineResult): Promise<jsPDF> {
+
   const doc = new jsPDF({ unit: "pt", format: "a4" });
 
   // Pre-load all product images
