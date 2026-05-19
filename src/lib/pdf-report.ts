@@ -37,7 +37,8 @@ const M = 44; // page margin
 const setFill = (d: jsPDF, c: RGB) => d.setFillColor(c[0], c[1], c[2]);
 const setStroke = (d: jsPDF, c: RGB) => d.setDrawColor(c[0], c[1], c[2]);
 const setText = (d: jsPDF, c: RGB) => d.setTextColor(c[0], c[1], c[2]);
-const opacity = (d: jsPDF, a: number) => d.setGState(new (d as any).GState({ opacity: a }));
+const opacity = (d: jsPDF, a: number) =>
+  d.setGState(new (d as unknown as { GState: new (o: { opacity: number }) => unknown }).GState({ opacity: a }));
 
 /* ---------- Image preloading (Amazon CDN supports CORS) ---------- */
 
