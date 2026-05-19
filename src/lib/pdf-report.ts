@@ -1339,9 +1339,13 @@ function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
   resources.forEach((r) => {
     const titleLines = wrap(doc, r.title, pw - 32);
     const whyLines = wrap(doc, r.why, pw - 32);
-    const urlLines = wrap(doc, r.url, pw - 32);
-    const h = 14 + titleLines.length * 14 + whyLines.length * 12 + urlLines.length * 11 + 22;
-    y = ensure(doc, y, h, eyebrow);
+    // Display a shortened URL on a single line; the actual link uses r.url
+    const display =
+      r.url.replace(/^https?:\/\//, "").length > 78
+        ? r.url.replace(/^https?:\/\//, "").slice(0, 75) + "…"
+        : r.url.replace(/^https?:\/\//, "");
+    const h = 18 + titleLines.length * 14 + 6 + whyLines.length * 12 + 22;
+    y = ensure(doc, y, h + 12, eyebrow);
     roundedCard(doc, M, y, pw, h, COL.card);
 
     setText(doc, COL.text);
@@ -1354,13 +1358,13 @@ function drawResources(doc: jsPDF, resources: GearUpToFitResource[]) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
     doc.text(whyLines, M + 16, cy);
-    cy += whyLines.length * 12 + 4;
+    cy += whyLines.length * 12 + 6;
 
     setText(doc, COL.primary);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.textWithLink(r.url, M + 16, cy + 4, { url: r.url });
-    y += h + 10;
+    doc.setFontSize(8.5);
+    doc.textWithLink(`READ →  ${display}`, M + 16, cy + 8, { url: r.url });
+    y += h + 12;
   });
 
   // Site-wide CTA card
