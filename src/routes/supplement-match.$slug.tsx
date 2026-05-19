@@ -51,7 +51,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import EmailGate, { hasSubscribed } from "@/components/EmailGate";
 
-function PdfDownloadButton({ result, answers }: { result: EngineResult; answers: QuizAnswers }) {
+function PdfDownloadButton({ result, answers, slug }: { result: EngineResult; answers: QuizAnswers; slug: string }) {
   const [loading, setLoading] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
 
