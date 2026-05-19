@@ -1200,53 +1200,60 @@ function drawWellnessProfile(doc: jsPDF, answers: QuizAnswers, result: EngineRes
   drawWellnessRadar(doc, axes, radarCX, radarCY, 88);
 
   // Right: overall + strongest/weakest
-  const rx = M + 300;
+  const rx = M + 290;
+  const rxRight = PAGE_W - M - 16;
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text("OVERALL WELLNESS", rx, y + 28);
+  doc.text("OVERALL WELLNESS", rx, y + 30);
   setText(doc, COL.primary);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(46);
-  doc.text(`${overall}`, rx, y + 76);
+  const bigW = doc.getTextWidth(`${overall}`);
+  doc.text(`${overall}`, rx, y + 80);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text("/ 100", rx + doc.getTextWidth(`${overall}`) + 6, y + 70);
+  doc.setFontSize(11);
+  doc.text("/ 100", rx + bigW + 8, y + 80);
+
+  // Divider line
+  setStroke(doc, COL.borderSoft);
+  doc.setLineWidth(0.5);
+  doc.line(rx, y + 100, rxRight, y + 100);
 
   // Mini stat: strongest
   const ss = tierForAxis(strongest.value);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("STRONGEST", rx, y + 108);
+  doc.text("STRONGEST", rx, y + 120);
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text(`${strongest.key}  ${strongest.value}`, rx, y + 124);
+  doc.text(`${strongest.key}  ${strongest.value}`, rx, y + 136);
   setText(doc, ss.rgb as unknown as RGB);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(ss.label.toUpperCase(), rx, y + 137);
+  doc.text(ss.label.toUpperCase(), rx, y + 149);
 
   const ws = tierForAxis(weakest.value);
   setText(doc, COL.muted);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("FOCUS ON NEXT", rx, y + 162);
+  doc.text("FOCUS ON NEXT", rx, y + 174);
   setText(doc, COL.text);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text(`${weakest.key}  ${weakest.value}`, rx, y + 178);
+  doc.text(`${weakest.key}  ${weakest.value}`, rx, y + 190);
   setText(doc, ws.rgb as unknown as RGB);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(ws.label.toUpperCase(), rx, y + 191);
+  doc.text(ws.label.toUpperCase(), rx, y + 203);
 
   setText(doc, COL.muted);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.text("Derived from goals, sleep, training, diet & stress.", rx, y + radarH - 14);
+  doc.text("Derived from goals, sleep, training, diet & stress.", rx, y + radarH - 16);
 
   y += radarH + 16;
 
