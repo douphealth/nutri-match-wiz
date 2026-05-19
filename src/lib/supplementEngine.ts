@@ -27,7 +27,13 @@ interface Bucket {
   reasons: string[];
   safetyFlags: string[];
   tags: string[];
+  /** If set, the supplement is dropped from the active list and shown in "Not recommended today". */
   suppressed?: boolean;
+  suppressionStatus?: RecommendationStatus;
+  suppressionReason?: string;
+  /** Overrides the auto-computed status (e.g. iron → test_first regardless of signal). */
+  forcedStatus?: RecommendationStatus;
+  forcedStatusReason?: string;
 }
 
 function newBuckets(): Record<string, Bucket> {
