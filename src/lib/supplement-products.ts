@@ -89,6 +89,17 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       badges: ["GMP tested", "D3 cholecalciferol"],
     },
     {
+      asin: "B00DEYV558",
+      image: "https://m.media-amazon.com/images/I/51lEOs1upCL._AC_SL1080_.jpg",
+      brand: "Nature Made",
+      title: "Vitamin D3 2,000 IU Softgels (320 ct)",
+      pill: "D3 2000 IU",
+      tone: "amber",
+      fit: "budget",
+      why: "USP Verified, conservative 2,000 IU dose — best lean-budget pick when sun exposure is the main gap.",
+      badges: ["USP Verified", "2,000 IU"],
+    },
+    {
       asin: "B07255MPRN",
       image: "https://m.media-amazon.com/images/I/61uhxiVJqCL._AC_SL1500_.jpg",
       brand: "Sports Research",
@@ -100,6 +111,7 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       badges: ["Vegan certified", "Lichen D3", "Non-GMO"],
     },
   ],
+
   b12: [
     {
       asin: "B002FJW3ZY",
@@ -149,6 +161,28 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       why: "Chelated glycinate form — gentle on the stomach and appropriate for evening sleep-focused dosing.",
       badges: ["Glycinate", "Non-GMO"],
     },
+    {
+      asin: "B000BV1O26",
+      image: "https://m.media-amazon.com/images/I/71zWar2atBL._AC_SL1500_.jpg",
+      brand: "NOW Foods",
+      title: "Magnesium Citrate 200 mg (250 Tabs)",
+      pill: "Magnesium Citrate",
+      tone: "violet",
+      fit: "budget",
+      why: "Citrate form — well-absorbed alternative when glycinate is unavailable; useful for constipation-prone profiles.",
+      badges: ["Citrate", "GMP tested"],
+    },
+    {
+      asin: "B00JEZQAFG",
+      image: "https://m.media-amazon.com/images/I/71lxEYumxdL._AC_SL1500_.jpg",
+      brand: "NOW Foods",
+      title: "Magtein Magnesium L-Threonate (90 Veg Caps)",
+      pill: "Mg L-Threonate",
+      tone: "violet",
+      fit: "premium",
+      why: "Patented Magtein form — the magnesium variant studied for cognition/sleep when focus & sleep goals overlap.",
+      badges: ["Magtein", "Cognition"],
+    },
   ],
   creatine: [
     {
@@ -161,6 +195,17 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       fit: "default",
       why: "Pure micronized monohydrate — the form with the strongest evidence base and best value.",
       badges: ["Monohydrate", "Unflavored"],
+    },
+    {
+      asin: "B00E9M4XEE",
+      image: "https://m.media-amazon.com/images/I/61Utc+lIHlL._AC_SL1500_.jpg",
+      brand: "BulkSupplements.com",
+      title: "Creatine Monohydrate Micronized Powder (1 kg, 200 servings)",
+      pill: "Bulk Creatine",
+      tone: "sky",
+      fit: "budget",
+      why: "Lowest cost per gram of micronized monohydrate — the lean-budget pick when third-party testing isn't required.",
+      badges: ["Micronized", "Unflavored", "Gluten-free"],
     },
     {
       asin: "B07978VPPH",
@@ -197,7 +242,19 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       why: "More precise for vegan, vegetarian, lactose-free, or dairy-sensitive users — plant protein plus prebiotic fiber.",
       badges: ["Vegan", "Lactose-free", "21g protein"],
     },
+    {
+      asin: "B0CTKSMYH6",
+      image: "https://m.media-amazon.com/images/I/51DpEa26b5L._AC_SL1001_.jpg",
+      brand: "Garden of Life",
+      title: "Sport Organic Plant-Based Protein, Vanilla (30g protein, 19 servings)",
+      pill: "Vegan Sport 30g",
+      tone: "emerald",
+      fit: "premium",
+      why: "NSF Certified for Sport + organic plant blend — premium vegan choice when athletes need third-party-tested plant protein.",
+      badges: ["NSF Certified for Sport", "Organic", "30g protein"],
+    },
   ],
+
   iron: [
     {
       asin: "B00ZQUDWL8",
@@ -288,7 +345,19 @@ export const SUPPLEMENT_PRODUCTS: Record<string, AmazonProduct[]> = {
       why: "Short-term modest-dose use only — stay near the daily upper limit and avoid chronic stacking.",
       badges: ["USP Verified", "30 mg"],
     },
+    {
+      asin: "B000TMJZ4G",
+      image: "https://m.media-amazon.com/images/I/71ePjydyb8L._AC_SL1500_.jpg",
+      brand: "NOW Foods",
+      title: "Zinc Picolinate 50 mg (120 Veg Caps)",
+      pill: "Zinc Picolinate",
+      tone: "amber",
+      fit: "premium",
+      why: "Picolinate form is well-absorbed and vegan-cap — use short-term only; avoid stacking with multivitamins.",
+      badges: ["Picolinate", "Vegan caps"],
+    },
   ],
+
   vitamin_c: [
     {
       asin: "B0G7JF2861",
