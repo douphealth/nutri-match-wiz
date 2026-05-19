@@ -455,6 +455,8 @@ export function runEngine(a: QuizAnswers): EngineResult {
   return {
     matchScore,
     recommendations,
+    notRecommended,
+    clinicianCallouts,
     safetyGate,
     personalizationProfile: {
       label: profileLabel,
