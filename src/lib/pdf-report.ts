@@ -909,6 +909,110 @@ function drawMethodology(doc: jsPDF) {
   doc.text(dis, M + 16, y + 40);
 }
 
+/* ---------- Daily protocol chapter ---------- */
+
+function drawDailyProtocol(doc: jsPDF, schedule: DailySchedule) {
+  doc.addPage();
+  paintBackground(doc);
+  header(doc, "02 · Daily protocol");
+
+  setText(doc, COL.primary);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("02  ·  YOUR DAILY PROTOCOL", M, 110);
+
+  setText(doc, COL.text);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(28);
+  doc.text("Take this, at this time,", M, 140);
+  doc.text("with this.", M, 170);
+
+  setText(doc, COL.textDim);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10.5);
+  const intro = wrap(
+    doc,
+    `A clinician-style timeline built from your answers: dose, form, food pairing, and cadence for each pick. ${schedule.totalDoses} total doses spread across ${schedule.bySlot.length} time slot${schedule.bySlot.length === 1 ? "" : "s"}.`,
+    PAGE_W - M * 2,
+  );
+  doc.text(intro, M, 196);
+
+  let y = 196 + intro.length * 14 + 10;
+  const pw = PAGE_W - M * 2;
+
+  schedule.bySlot.forEach((slot) => {
+    const blockLines = slot.doses.flatMap((d) => {
+      const head = `${d.supplementName} — ${d.dose}`;
+      return [head, `${d.form}  ·  ${d.withFood}  ·  ${d.cadence}`, ...wrap(doc, d.notes, pw - 60)];
+    });
+    const h = 36 + blockLines.length * 12 + 16;
+    y = ensure(doc, y, h, "02 · Daily protocol");
+
+    // Slot header strip
+    setFill(doc, COL.primarySoft);
+    doc.roundedRect(M, y, pw, 24, 8, 8, "F");
+    setText(doc, COL.primary);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text(slot.label.toUpperCase(), M + 14, y + 16);
+    setText(doc, COL.text);
+    doc.text(`${slot.doses.length} item${slot.doses.length > 1 ? "s" : ""}`, PAGE_W - M - 14, y + 16, { align: "right" });
+
+    // Card body
+    const bodyY = y + 28;
+    const bodyH = h - 30;
+    roundedCard(doc, M, bodyY, pw, bodyH, COL.card);
+    let cy = bodyY + 16;
+    slot.doses.forEach((d, i) => {
+      if (i > 0) {
+        setStroke(doc, COL.borderSoft);
+        doc.setLineWidth(0.4);
+        doc.line(M + 14, cy - 4, PAGE_W - M - 14, cy - 4);
+      }
+      setText(doc, COL.text);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      doc.text(d.supplementName, M + 14, cy);
+      setText(doc, COL.primary);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text(d.cadence.toUpperCase(), PAGE_W - M - 14, cy, { align: "right" });
+      cy += 14;
+      setText(doc, COL.textDim);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.text(d.dose, M + 14, cy);
+      cy += 12;
+      setText(doc, COL.muted);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(`${d.form}  ·  ${d.withFood}`, M + 14, cy);
+      cy += 12;
+      const noteLines = wrap(doc, d.notes, pw - 32);
+      setText(doc, COL.textDim);
+      doc.setFontSize(9);
+      doc.text(noteLines, M + 14, cy);
+      cy += noteLines.length * 11 + 8;
+    });
+    y = bodyY + bodyH + 14;
+  });
+
+  if (schedule.globalSeparations.length) {
+    const lines = schedule.globalSeparations.flatMap((s) => wrap(doc, `•  ${s}`, pw - 40));
+    const h = 32 + lines.length * 12 + 12;
+    y = ensure(doc, y, h, "02 · Daily protocol");
+    roundedCard(doc, M, y, pw, h, [50, 38, 24], [200, 150, 80]);
+    setText(doc, COL.warn);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("TIMING SEPARATIONS", M + 14, y + 20);
+    setText(doc, COL.text);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(lines, M + 14, y + 38);
+  }
+}
+
 /* ---------- Master generator ---------- */
 
 export async function generateSupplementReport(result: EngineResult): Promise<jsPDF> {
