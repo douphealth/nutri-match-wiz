@@ -44,6 +44,7 @@ function PdfDownloadButton({ result }: { result: EngineResult }) {
       onClick={async () => {
         setLoading(true);
         try {
+          const { downloadSupplementReport } = await import("@/lib/pdf-report");
           await downloadSupplementReport(result);
         } finally {
           setLoading(false);
