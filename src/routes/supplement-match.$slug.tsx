@@ -323,16 +323,51 @@ function ResultPage() {
           </section>
         )}
 
+        {/* Quality checklist — what to demand from any supplement brand */}
+        <section className="mt-10">
+          <div className="mb-3">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Quality checklist</div>
+            <h2 className="mt-1 text-xl font-bold text-foreground">What a high-quality supplement looks like</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Apply this to every product on this page — and every product we did not pick.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { t: "Third-party tested", d: "USP Verified, NSF Certified for Sport, or Informed Choice / Informed Sport on the label." },
+              { t: "No proprietary blends", d: "Every active ingredient lists an exact mg or mcg dose — never hidden behind a 'blend'." },
+              { t: "Disclosed form", d: "Methylcobalamin not generic B12, magnesium glycinate not oxide, D3 not D2, EPA+DHA totals printed." },
+              { t: "Allergen + diet fit", d: "Vegan, gluten-free, lactose-free, gelatin-free flags match your profile — not just marketing." },
+              { t: "Conservative dose", d: "Per-capsule dose lets you titrate up with labs instead of mega-dosing on day one." },
+              { t: "Honest claims", d: "No 'cures', no 'detox', no before/after photos. FDA/FTC-aligned structure-function language only." },
+            ].map((x) => (
+              <div key={x.t} className="rounded-xl border border-border/60 bg-card/40 p-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-bold text-foreground">{x.t}</span>
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{x.d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Credibility: sources, testimonials, reading, tools, kit, FAQ */}
         <CredibilitySections />
 
-        {/* Disclosure */}
-        <div className="mt-12 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
-          Educational only. Not medical advice. Product links are Amazon affiliate links
-          — ranking is commission-blind and computed before any product is attached.{" "}
-          <Link to="/methodology" className="underline hover:text-primary">How this is scored</Link>{" "}
-          ·{" "}
-          <Link to="/affiliate-disclosure" className="underline hover:text-primary">Affiliate disclosure</Link>
+        {/* Privacy + Disclosure */}
+        <div className="mt-12 space-y-2 rounded-2xl border border-border/60 bg-card/40 p-5 text-center text-xs text-muted-foreground">
+          <p>
+            <span className="font-semibold text-foreground">Privacy:</span> your answers are encoded in this URL only — we
+            do not store them on a server. Bookmark or share this page to keep your plan.
+          </p>
+          <p>
+            Educational only. Not medical advice. Product links are Amazon affiliate links — ranking is commission-blind
+            and computed before any product is attached.{" "}
+            <Link to="/methodology" className="underline hover:text-primary">How this is scored</Link>{" "}
+            ·{" "}
+            <Link to="/affiliate-disclosure" className="underline hover:text-primary">Affiliate disclosure</Link>
+          </p>
         </div>
       </div>
     </div>
