@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { findTopic, SEO_TOPICS, type TopicCopy } from "@/lib/seo-topics";
+import { COMPARE_PAIRS } from "@/lib/compare-pairs";
 
 const BASE = "https://gearuptofit.com/supplement-match";
 
