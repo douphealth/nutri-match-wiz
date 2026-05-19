@@ -79,15 +79,34 @@ export function runEngine(a: QuizAnswers): EngineResult {
   const safetyGate = evaluateSafetyGate(a);
   const foodFirstNotes: string[] = [];
   const generalNotes: string[] = [];
+  const differentiators: string[] = [];
+  const addDiff = (msg: string) => {
+    if (!differentiators.includes(msg)) differentiators.push(msg);
+  };
+
+  if (a.diet !== "omnivore") addDiff(`${a.diet.replace("_", " ")} diet pattern`);
+  if (a.goals.length > 0) addDiff(`${a.goals.length} selected goal${a.goals.length > 1 ? "s" : ""}`);
+  if (a.trainingFrequency !== "none") addDiff(`${a.trainingFrequency.replace("_", "–")} training cadence`);
+  if (a.sunExposure !== "moderate") addDiff(`${a.sunExposure} sun exposure`);
+  if (a.sleepQuality !== "good") addDiff(`${a.sleepQuality} sleep quality`);
+  if (Object.values(a.medical).some(Boolean)) addDiff("medical safety modifiers");
+  if (Object.values(a.allergies).some(Boolean)) addDiff("label-preference filters");
 
   // ---- Vitamin D ----
   const vd = buckets["vitamin_d"];
-  if (a.sunExposure === "low") add(vd, 3, "You reported low sun exposure.");
-  else if (a.sunExposure === "moderate") add(vd, 1, "Moderate sun exposure may still leave gaps in winter.");
-  if (a.ageRange === "60_plus" || a.ageRange === "45_59") add(vd, 1, "Older adults are more prone to vitamin D shortfall.");
-  if (a.diet === "vegan") add(vd, 1, "Vegan diets tend to be lower in vitamin D — choose D3 from lichen or D2.");
-  if (a.goals.includes("bone_health")) add(vd, 1, "Bone-health goal aligns with vitamin D status.");
-  if (a.goals.includes("immune")) add(vd, 1, "Adequate vitamin D supports immune function.");
+  if (a.sunExposure === "low") addSignal(vd, 4.2, "You reported low sun exposure — the strongest non-lab signal for a vitamin D gap.", "low sun");
+  else if (a.sunExposure === "moderate") addSignal(vd, 1.2, "Moderate sun exposure may still leave gaps in winter or indoor work weeks.", "moderate sun");
+  else add(vd, -1.4, "");
+  if (a.ageRange === "60_plus") addSignal(vd, 1.6, "Age 60+ increases risk of low vitamin D status.", "age 60+");
+  else if (a.ageRange === "45_59") addSignal(vd, 0.9, "Midlife adults are more prone to vitamin D shortfall than younger adults.", "midlife");
+  if (a.diet === "vegan") addSignal(vd, 1.1, "Vegan diets tend to be lower in vitamin D — choose lichen D3 or D2.", "vegan");
+  if (freqLow(a.foodIntake.fortifiedFoods)) addSignal(vd, 0.8, "You rarely use fortified foods, so food-based vitamin D coverage may be low.", "low fortified foods");
+  if (a.goals.includes("bone_health")) addSignal(vd, 1.4, "Bone-health goal strongly aligns with vitamin D status.", "bone goal");
+  if (a.goals.includes("immune")) addSignal(vd, 0.8, "Adequate vitamin D supports normal immune function.", "immune goal");
+  if (currentSupplementMentions(a, ["vitamin d", "d3", "cholecalciferol"])) {
+    add(vd, -1.2, "");
+    flag(vd, "You mentioned current vitamin D use — avoid stacking high doses unless labs justify it.");
+  }
 
   // ---- B12 ----
   const b12 = buckets["b12"];
