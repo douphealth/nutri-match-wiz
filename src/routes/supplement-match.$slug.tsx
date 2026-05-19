@@ -659,25 +659,17 @@ function SupplementCard({
                     className={`absolute inset-0 opacity-60 ${TONE_STYLES[product.tone].bg}`}
                     aria-hidden
                   />
-                  <img
-                    src={product.image}
-                    alt={`${product.brand} ${product.title}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    className="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.06]"
-                    onError={(e) => {
-                      const img = e.currentTarget;
-                      img.style.display = "none";
-                      const parent = img.parentElement;
-                      if (parent && !parent.querySelector(".img-fallback")) {
-                        const fb = document.createElement("div");
-                        fb.className =
-                          "img-fallback relative z-10 flex flex-col items-center justify-center text-center px-3";
-                        fb.innerHTML = `<div class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">${product.brand}</div><div class="mt-1 text-base font-extrabold text-slate-900 leading-tight">${product.pill}</div>`;
-                        parent.appendChild(fb);
-                      }
-                    }}
-                  />
+                  <div
+                    className="relative z-10 flex flex-col items-center justify-center text-center px-3"
+                    aria-hidden
+                  >
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+                      {product.brand}
+                    </div>
+                    <div className="mt-1 text-base font-extrabold leading-tight text-slate-900">
+                      {product.pill}
+                    </div>
+                  </div>
                   <div className="absolute inset-x-0 bottom-1.5 z-10 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700/80">
                     View on Amazon →
                   </div>
