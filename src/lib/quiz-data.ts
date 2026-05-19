@@ -718,13 +718,38 @@ export function isStepAnswered(step: QuizStep, answers: QuizAnswers): boolean {
   }
 }
 
-/** Steps that should be shown for the current answer set. */
-export function visibleSteps(answers: QuizAnswers): QuizStep[] {
-  return quizSteps.filter((s) => !s.showWhen || s.showWhen(answers));
+/** A user is "high-risk" if pregnancy/breastfeeding or any hard medical flag fires.
+ *  High-risk flows are kept short: essential + safety questions only, branch
+ *  steps are still respected, advanced steps are dropped even in Advanced mode. */
+export function isHighRisk(a: QuizAnswers): boolean {
+  if (a.pregnancy === "pregnant" || a.pregnancy === "breastfeeding") return true;
+  const m = a.medical;
+  return Boolean(
+    m.bloodThinners ||
+      m.antidepressants ||
+      m.kidneyLiver ||
+      m.heartDisease ||
+      m.surgeryPlanned,
+  );
 }
 
-export function answeredCount(answers: QuizAnswers): number {
-  return visibleSteps(answers).filter((s) => isStepAnswered(s, answers)).length;
+/** Steps that should be shown for the current answer set + mode. */
+export function visibleSteps(answers: QuizAnswers, mode: QuizMode = "fast"): QuizStep[] {
+  const highRisk = isHighRisk(answers);
+  return quizSteps.filter((s) => {
+    if (s.showWhen && !s.showWhen(answers)) return false;
+    const tier = s.tier ?? "essential";
+    if (tier === "essential") return true;
+    if (s.safety) return true; // safety questions are always shown
+    if (highRisk && tier === "advanced") return false; // short flow for high-risk
+    if (tier === "branch") return true; // branches respect showWhen above
+    // tier === "advanced"
+    return mode === "advanced";
+  });
+}
+
+export function answeredCount(answers: QuizAnswers, mode: QuizMode = "fast"): number {
+  return visibleSteps(answers, mode).filter((s) => isStepAnswered(s, answers)).length;
 }
 
 export type { Frequency };
