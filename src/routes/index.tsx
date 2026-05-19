@@ -108,6 +108,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [currentStep, setCurrentStep] = useState(-1); // -1 = hero
   const [answers, setAnswers] = useState<QuizAnswers>(defaultAnswers);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [pendingSlug, setPendingSlug] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -127,13 +129,19 @@ function Index() {
     // slug — nothing else. Users can opt in to a sanitized share link from the
     // result page.
     storeAnswersForSlug(slug, answers);
+    setPendingSlug(slug);
+    setAnalyzing(true);
+  }, [answers]);
+
+  const handleAnalyzingDone = useCallback(() => {
+    if (!pendingSlug) return;
     navigate({
       to: "/supplement-match/$slug",
-      params: { slug },
+      params: { slug: pendingSlug },
     }).catch(() => {
       /* result route may be absent — sessionStorage still holds the answers */
     });
-  }, [answers, navigate]);
+  }, [pendingSlug, navigate]);
 
   // Adaptive navigation: skip steps whose showWhen predicate is false.
   const visible = useMemo(() => visibleSteps(answers), [answers]);
@@ -151,6 +159,10 @@ function Index() {
   const handleBack = useCallback(() => {
     setCurrentStep((p) => Math.max(-1, p - 1));
   }, []);
+
+  if (analyzing) {
+    return <AnalyzingScreen onDone={handleAnalyzingDone} />;
+  }
 
   if (!step) {
     return <QuizHero onStart={() => setCurrentStep(0)} />;
