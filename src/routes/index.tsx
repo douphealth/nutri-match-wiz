@@ -122,19 +122,15 @@ function Index() {
 
   const finish = useCallback(() => {
     const slug = generateSlug(answers);
-    // Privacy: store in sessionStorage so the result page can render without
-    // putting sensitive answers in the URL. We still pass `?d=` for back-compat
-    // and to support bookmark/refresh in environments without sessionStorage.
+    // Privacy-first: answers live only in sessionStorage. The URL contains the
+    // slug — nothing else. Users can opt in to a sanitized share link from the
+    // result page.
     storeAnswersForSlug(slug, answers);
-    import("@/lib/quiz-data").then(({ encodeAnswers }) => {
-      const encoded = encodeAnswers(answers);
-      navigate({
-        to: "/supplement-match/$slug",
-        params: { slug },
-        search: { d: encoded },
-      }).catch(() => {
-        /* result route may be absent — sessionStorage still holds the answers */
-      });
+    navigate({
+      to: "/supplement-match/$slug",
+      params: { slug },
+    }).catch(() => {
+      /* result route may be absent — sessionStorage still holds the answers */
     });
   }, [answers, navigate]);
 

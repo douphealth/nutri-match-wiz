@@ -22,8 +22,10 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/faq", changefreq: "monthly", priority: "0.6" },
           { path: "/affiliate-disclosure", changefreq: "yearly", priority: "0.3" },
           { path: "/topic", changefreq: "weekly", priority: "0.7" },
+          // Clean canonical topic URLs (e.g. /supplement-match/vitamin-d/).
+          // The legacy /topic/<slug> URLs still resolve but are not listed here.
           ...TOPIC_SLUGS.map((slug) => ({
-            path: `/topic/${slug}`,
+            path: `/${slug}/`,
             changefreq: "monthly" as const,
             priority: "0.8",
           })),
@@ -32,6 +34,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "monthly" as const,
             priority: "0.7",
           })),
+          // Personalized result pages are intentionally excluded — noindex + private.
         ];
 
         const urls = entries.map((e) =>
