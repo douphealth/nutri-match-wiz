@@ -39,7 +39,14 @@ export interface QuizStep {
   options?: ChoiceOption[];
   booleans?: BooleanOption[]; // for boolean-multi
   helper?: string;
+  image?: string; // optional editorial image rendered in the step header
+  imageAlt?: string;
 }
+
+// Curated, stable Unsplash photos. Tuned crop/quality params keep payload
+// small and the visual register premium / editorial.
+const U = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
 
 const FREQUENCY_OPTIONS: ChoiceOption[] = [
   { value: "never", label: "Never" },
@@ -56,6 +63,8 @@ export const quizSteps: QuizStep[] = [
     title: "Your age range",
     subtitle: "Helps us screen for life-stage-specific risks.",
     type: "single",
+    image: U("1521146764736-56c929d59c83"),
+    imageAlt: "People of different ages running together at sunset",
     options: [
       { value: "under_18", label: "Under 18" },
       { value: "18_29", label: "18 – 29" },
@@ -70,6 +79,8 @@ export const quizSteps: QuizStep[] = [
     title: "Sex assigned at birth",
     subtitle: "Influences iron, folate, and other recommendations.",
     type: "single",
+    image: U("1573496359142-b8d87734a5a2"),
+    imageAlt: "Diverse group of adults standing together",
     options: [
       { value: "female", label: "Female" },
       { value: "male", label: "Male" },
@@ -83,6 +94,8 @@ export const quizSteps: QuizStep[] = [
     title: "Pregnancy status",
     subtitle: "Many supplements are inappropriate during pregnancy or breastfeeding.",
     type: "single",
+    image: U("1519791883288-dc8bd696e667"),
+    imageAlt: "Soft natural light portrait, prenatal wellness",
     options: [
       { value: "none", label: "Not applicable" },
       { value: "trying", label: "Trying to conceive" },
@@ -95,6 +108,8 @@ export const quizSteps: QuizStep[] = [
     path: "diet",
     title: "How would you describe your diet?",
     type: "single",
+    image: U("1490645935967-10de6ba17061"),
+    imageAlt: "Colorful nourish bowls of whole foods",
     options: [
       { value: "omnivore", label: "Omnivore" },
       { value: "pescatarian", label: "Pescatarian" },
@@ -111,6 +126,8 @@ export const quizSteps: QuizStep[] = [
     title: "What are your top goals?",
     subtitle: "Pick up to four — we score with all of them.",
     type: "multi",
+    image: U("1517836357463-d25dfeac3438"),
+    imageAlt: "Athlete training, focused on performance goals",
     options: [
       { value: "energy", label: "More energy" },
       { value: "muscle_recovery", label: "Muscle & recovery" },
@@ -128,6 +145,8 @@ export const quizSteps: QuizStep[] = [
     path: "trainingFrequency",
     title: "How often do you train?",
     type: "single",
+    image: U("1534438327276-14e5300c3a48"),
+    imageAlt: "Strength training in a modern gym",
     options: [
       { value: "none", label: "Not currently" },
       { value: "1_2", label: "1 – 2 ×/week" },
@@ -140,6 +159,8 @@ export const quizSteps: QuizStep[] = [
     path: "sunExposure",
     title: "Typical daily sun exposure",
     type: "single",
+    image: U("1506905925346-21bda4d32df4"),
+    imageAlt: "Warm sunlight over an outdoor landscape",
     options: [
       { value: "low", label: "Low (mostly indoors)" },
       { value: "moderate", label: "Moderate" },
@@ -151,6 +172,8 @@ export const quizSteps: QuizStep[] = [
     path: "sleepQuality",
     title: "How is your sleep, honestly?",
     type: "single",
+    image: U("1520206183501-b80df61043c2"),
+    imageAlt: "Calm bedroom with soft linen, restful sleep",
     options: [
       { value: "poor", label: "Poor" },
       { value: "fair", label: "Fair" },
@@ -162,6 +185,8 @@ export const quizSteps: QuizStep[] = [
     path: "stress",
     title: "Average stress level",
     type: "single",
+    image: U("1499209974431-9dddcece7f88"),
+    imageAlt: "Person meditating, mindful breathing",
     options: [
       { value: "low", label: "Low" },
       { value: "moderate", label: "Moderate" },
@@ -173,6 +198,8 @@ export const quizSteps: QuizStep[] = [
     path: "alcohol",
     title: "Alcohol intake",
     type: "slider-freq",
+    image: U("1514362545857-3bc16c4c7d1b"),
+    imageAlt: "Glass of wine on a wooden table",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -180,6 +207,8 @@ export const quizSteps: QuizStep[] = [
     path: "caffeine",
     title: "Caffeine intake",
     type: "slider-freq",
+    image: U("1495474472287-4d71bcdd2085"),
+    imageAlt: "Pour-over coffee, morning ritual",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -187,6 +216,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.oilyFish",
     title: "Oily fish (salmon, sardines, mackerel)",
     type: "slider-freq",
+    image: U("1467003909585-2f8a72700288"),
+    imageAlt: "Fresh salmon fillet, omega-3 source",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -194,6 +225,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.dairy",
     title: "Dairy",
     type: "slider-freq",
+    image: U("1550583724-b2692b85b150"),
+    imageAlt: "Glass of milk and fresh dairy",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -201,6 +234,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.fruitsVeg",
     title: "Fruits & vegetables",
     type: "slider-freq",
+    image: U("1610348725531-843dff563e2c"),
+    imageAlt: "Vibrant assortment of fruits and vegetables",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -208,6 +243,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.legumes",
     title: "Legumes (beans, lentils, chickpeas)",
     type: "slider-freq",
+    image: U("1515543904379-3d757afe72e4"),
+    imageAlt: "Assorted dried beans and lentils",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -215,6 +252,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.wholeGrains",
     title: "Whole grains",
     type: "slider-freq",
+    image: U("1509440159596-0249088772ff"),
+    imageAlt: "Whole grain bread and oats",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -222,6 +261,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.redMeat",
     title: "Red meat",
     type: "slider-freq",
+    image: U("1607116176323-d055d6bd1ce1"),
+    imageAlt: "Cut of red meat on a board",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -229,6 +270,8 @@ export const quizSteps: QuizStep[] = [
     path: "foodIntake.fortifiedFoods",
     title: "Fortified foods (plant milks, cereals)",
     type: "slider-freq",
+    image: U("1559656914-a30970c1affd"),
+    imageAlt: "Bowl of fortified breakfast cereal",
     options: FREQUENCY_OPTIONS,
   },
   {
@@ -237,6 +280,8 @@ export const quizSteps: QuizStep[] = [
     title: "Do any of these apply to you?",
     subtitle: "We use these to gate high-risk recommendations.",
     type: "boolean-multi",
+    image: U("1584036561566-baf8f5f1b144"),
+    imageAlt: "Prescription medication on a clinical surface",
     booleans: [
       { path: "medical.medications", label: "I take prescription medication" },
       { path: "medical.bloodThinners", label: "Blood thinners (warfarin, DOACs)" },
@@ -257,6 +302,8 @@ export const quizSteps: QuizStep[] = [
     title: "Preferences",
     subtitle: "We'll filter recommendations to match.",
     type: "boolean-multi",
+    image: U("1607619056574-7b8d3ee536b2"),
+    imageAlt: "Premium capsules on a minimal surface",
     booleans: [
       { path: "allergies.vegan", label: "Vegan formulas only" },
       { path: "allergies.gelatinFree", label: "Gelatin-free" },
@@ -271,6 +318,8 @@ export const quizSteps: QuizStep[] = [
     path: "budget",
     title: "Monthly supplement budget",
     type: "single",
+    image: U("1554224155-6726b3ff858f"),
+    imageAlt: "Minimal flatlay representing personal budget",
     options: [
       { value: "low", label: "Lean (< $25)" },
       { value: "moderate", label: "Moderate ($25 – $75)" },

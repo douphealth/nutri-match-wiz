@@ -16,6 +16,30 @@ interface Props {
 export default function QuizStepContent({ step, answers, setAnswers, onAutoAdvance }: Props) {
   return (
     <div className="space-y-6">
+      {step.image && (
+        <figure className="group relative mx-auto aspect-[16/7] w-full max-w-2xl overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_10px_40px_-15px_rgba(0,0,0,0.5)]">
+          <img
+            src={step.image}
+            alt={step.imageAlt ?? step.title}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            onError={(e) => {
+              const fig = (e.currentTarget.closest("figure") as HTMLElement | null);
+              if (fig) fig.style.display = "none";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/20 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-3">
+            <span className="rounded-full border border-border/60 bg-background/70 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground backdrop-blur">
+              {step.id.replace(/([A-Z])/g, " $1")}
+            </span>
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-primary backdrop-blur">
+              Evidence-aware
+            </span>
+          </div>
+        </figure>
+      )}
       <header className="space-y-2 text-center">
         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{step.title}</h2>
         {step.subtitle && <p className="text-sm text-muted-foreground sm:text-base">{step.subtitle}</p>}
