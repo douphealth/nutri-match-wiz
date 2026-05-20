@@ -187,7 +187,12 @@ function Index() {
   }
 
   if (!step) {
-    return <QuizHero onStart={() => setCurrentStep(0)} />;
+    return (
+      <>
+        <QuizHero onStart={() => setCurrentStep(0)} />
+        <SupplementMatchSEO />
+      </>
+    );
   }
 
   const canProceed = isStepAnswered(step, answers);
