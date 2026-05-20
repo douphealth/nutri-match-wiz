@@ -7,6 +7,10 @@ import QuizProgress from "@/components/quiz/QuizProgress";
 import QuizStepContent from "@/components/quiz/QuizStepContent";
 import QuizNavigation from "@/components/quiz/QuizNavigation";
 import AnalyzingScreen from "@/components/quiz/AnalyzingScreen";
+import SupplementMatchSEO, {
+  RECOMMENDED_POSTS,
+  FAQS,
+} from "@/components/SupplementMatchSEO";
 import {
   defaultAnswers,
   isStepAnswered,
