@@ -7,6 +7,10 @@ import QuizProgress from "@/components/quiz/QuizProgress";
 import QuizStepContent from "@/components/quiz/QuizStepContent";
 import QuizNavigation from "@/components/quiz/QuizNavigation";
 import AnalyzingScreen from "@/components/quiz/AnalyzingScreen";
+import SupplementMatchSEO, {
+  RECOMMENDED_POSTS,
+  FAQS,
+} from "@/components/SupplementMatchSEO";
 import {
   defaultAnswers,
   isStepAnswered,
@@ -40,40 +44,58 @@ export const Route = createFileRoute("/")({
     const faqLd = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "Is this supplement quiz medical advice?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "No. The quiz is for educational purposes only and does not diagnose, treat, cure, or prevent any disease. Always talk with a qualified clinician, pharmacist, or registered dietitian before starting, stopping, or changing supplements.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "How does the supplement match quiz work?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Your answers feed a deterministic, transparent scoring engine that weighs diet, training, lifestyle, lab-risk markers, and medication interactions against an evidence-aware supplement catalog. Same answers always produce the same ranking — no random shuffling.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Are recommendations biased toward affiliate revenue?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "No. Ranking is commission-blind. Affiliate links to third-party-tested products are added only after the score is computed.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Why does third-party testing matter?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Dietary supplements are not FDA-approved before marketing. Independent verification (USP, NSF, Informed Sport, Informed Choice, ConsumerLab) confirms label accuracy and screens for contaminants and banned substances.",
-          },
-        },
+      mainEntity: FAQS.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    };
+    const breadcrumbLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://gearuptofit.com/" },
+        { "@type": "ListItem", position: 2, name: "Supplement Match", item: SITE },
       ],
+    };
+    const itemListLd = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Recommended Reading: Supplements & Nutrition",
+      description:
+        "Curated evidence-based articles from GearUpToFit's editorial team to deepen your supplement strategy.",
+      itemListOrder: "https://schema.org/ItemListOrderAscending",
+      numberOfItems: RECOMMENDED_POSTS.length,
+      itemListElement: RECOMMENDED_POSTS.map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: p.url,
+        item: {
+          "@type": "Article",
+          "@id": p.url,
+          headline: p.title,
+          url: p.url,
+          image: p.image,
+          articleSection: p.category,
+          description: p.excerpt,
+          datePublished: p.datePublished,
+          dateModified: p.dateModified,
+          mainEntityOfPage: { "@type": "WebPage", "@id": p.url },
+          author: {
+            "@type": "Organization",
+            name: "GearUpToFit Editorial Team",
+            url: "https://gearuptofit.com",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "GearUpToFit",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://gearuptofit.com/wp-content/uploads/2023/03/cropped-gearuptofit-logo.png",
+            },
+          },
+        },
+      })),
     };
     return {
       meta: [
@@ -97,6 +119,8 @@ export const Route = createFileRoute("/")({
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(webAppLd) },
         { type: "application/ld+json", children: JSON.stringify(faqLd) },
+        { type: "application/ld+json", children: JSON.stringify(breadcrumbLd) },
+        { type: "application/ld+json", children: JSON.stringify(itemListLd) },
       ],
     };
   },
@@ -163,7 +187,12 @@ function Index() {
   }
 
   if (!step) {
-    return <QuizHero onStart={() => setCurrentStep(0)} />;
+    return (
+      <>
+        <QuizHero onStart={() => setCurrentStep(0)} />
+        <SupplementMatchSEO />
+      </>
+    );
   }
 
   const canProceed = isStepAnswered(step, answers);
